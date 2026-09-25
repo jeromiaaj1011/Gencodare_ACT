@@ -19,6 +19,15 @@ import {
   KeyRound,
   User,
   Sparkles,
+  FolderOpen,
+  UploadCloud,
+  FileCode,
+  FileText,
+  Copy,
+  Check,
+  RotateCcw,
+  FileUp,
+  Code2,
 } from "lucide-react";
 import ArchaiaLogo from "@/components/ArchaiaLogo";
 import CyberMeshBackground from "@/components/CyberMeshBackground";
@@ -27,6 +36,7 @@ import LoginConceptGraph from "@/components/LoginConceptGraph";
 export default function LoginPage() {
   const router = useRouter();
   const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [pipelineMode, setPipelineMode] = useState<"credentials" | "file_upload">("credentials");
 
   // Form Fields
   const [fullName, setFullName] = useState("");
@@ -34,6 +44,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState("Archaia2026!");
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<"learner" | "instructor" | "researcher">("learner");
+
+  // File Manager Upload State
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const [analyzingFile, setAnalyzingFile] = useState(false);
+  const [fileAnalysis, setFileAnalysis] = useState<any | null>(null);
+  const [copiedProblem, setCopiedProblem] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   // State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -91,6 +108,131 @@ export default function LoginPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await processFile(file);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const processFile = async (file: File) => {
+    setAnalyzingFile(true);
+    setFileError(null);
+    setFileAnalysis(null);
+    try {
+      const text = await file.text();
+      if (!text || text.trim().length === 0) {
+        setFileError("The selected file is empty. Please choose a file containing code, notes, or an assignment.");
+        return;
+      }
+
+      const res = await fetch("/api/analyze-file", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileContent: text,
+          fileSize: file.size,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setFileError(data.error || "Failed to analyze file from file manager.");
+        return;
+      }
+
+      setFileAnalysis(data.analysis);
+    } catch (err: any) {
+      console.error(err);
+      setFileError("Error reading file from file manager. Please try again.");
+    } finally {
+      setAnalyzingFile(false);
+    }
+  };
+
+  const handleCopyProblem = () => {
+    if (!fileAnalysis?.problemStatement) return;
+    navigator.clipboard.writeText(fileAnalysis.problemStatement);
+    setCopiedProblem(true);
+    setTimeout(() => setCopiedProblem(false), 2000);
+  };
+
+  const handleLaunchWithFile = async () => {
+    if (!fileAnalysis) return;
+    setIsSubmitting(true);
+    try {
+      // Ensure user session exists in background
+      await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: "student@college.edu", password: "Archaia2026!" }),
+      }).catch(() => {});
+
+      // Store prefilled diagnostic data
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("archaia_prefill_topic", fileAnalysis.topic);
+        sessionStorage.setItem("archaia_prefill_question", fileAnalysis.problemStatement);
+        sessionStorage.setItem("archaia_prefill_answer", fileAnalysis.suggestedAnswer);
+        if (fileAnalysis.codeSnippet) {
+          sessionStorage.setItem("archaia_prefill_code", fileAnalysis.codeSnippet);
+        }
+      }
+
+      setSuccessMessage(`Problem Statement ready! Opening Cognitive Diagnostic for "${fileAnalysis.topic}"...`);
+      setTimeout(() => {
+        router.push("/detector");
+      }, 500);
+    } catch {
+      router.push("/detector");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleLoadSampleFile = (type: "sql" | "dfs" | "memory") => {
+    let name = "transaction.sql";
+    let sampleContent = "";
+
+    if (type === "sql") {
+      name = "payment_reconciliation.sql";
+      sampleContent = `-- Transaction Isolation & Read Consistency
+BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
+-- Read 1: Check account balance
+SELECT balance FROM accounts WHERE user_id = 1042;
+-- (External payment worker commits a deduction concurrently here)
+-- Read 2: Verify account balance again within the same active transaction
+SELECT balance FROM accounts WHERE user_id = 1042;
+COMMIT;`;
+    } else if (type === "dfs") {
+      name = "graph_traversal.py";
+      sampleContent = `# Recursive Graph Traversal
+def dfs(graph, node, visited):
+    visited.add(node)
+    for neighbor in graph[node]:
+        if neighbor not in visited:
+            # Recursive child invocation
+            dfs(graph, neighbor, visited)
+    return visited`;
+    } else {
+      name = "buffer_allocation.cpp";
+      sampleContent = `// Dynamic Memory Pointer Lifecycle
+void process_packet(size_t size) {
+    char* buffer = (char*)malloc(size);
+    // Process network payload
+    free(buffer);
+    // Naive access after free
+    buffer[0] = '\\0';
+}`;
+    }
+
+    const blob = new Blob([sampleContent], { type: "text/plain" });
+    const file = new File([blob], name, { type: "text/plain" });
+    processFile(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -218,7 +360,310 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* 1-Click Instant Activation Banner */}
+              {/* Pipeline Mode Switcher Tabs */}
+              <div className="flex rounded-xl bg-[#0D1017] p-1 border border-[#282E3D]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPipelineMode("credentials");
+                    setErrorMessage(null);
+                    setSuccessMessage(null);
+                  }}
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold font-sans flex items-center justify-center space-x-1.5 transition-all ${
+                    pipelineMode === "credentials"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <KeyRound className="w-3.5 h-3.5" />
+                  <span>Account Login</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPipelineMode("file_upload");
+                    setErrorMessage(null);
+                    setSuccessMessage(null);
+                  }}
+                  className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold font-sans flex items-center justify-center space-x-1.5 transition-all ${
+                    pipelineMode === "file_upload"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <FolderOpen className="w-3.5 h-3.5 text-blue-300" />
+                  <span>File Manager Intake</span>
+                  <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-blue-400/20 text-blue-200 border border-blue-400/30 font-medium">
+                    Analysis
+                  </span>
+                </button>
+              </div>
+
+              {pipelineMode === "file_upload" ? (
+                <div className="space-y-4">
+                  {/* Hidden File Input connected to OS File Manager */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileSelect}
+                    accept=".sql,.py,.java,.cpp,.c,.js,.ts,.txt,.md,.json,.rs,.go"
+                  />
+
+                  {/* Header info */}
+                  <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-200 space-y-1">
+                    <div className="font-semibold flex items-center space-x-1.5 text-blue-300">
+                      <FolderOpen className="w-4 h-4" />
+                      <span>Local File Manager Analysis Pipeline</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                      Select any code file, SQL script, or assignment from your computer. The engine will inspect the code, extract its domain invariants, and synthesize the exact <span className="text-white font-medium">Problem Statement</span>.
+                    </p>
+                  </div>
+
+                  {/* Error Notification */}
+                  {fileError && (
+                    <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/50 text-rose-200 text-xs font-sans flex items-start space-x-2 animate-in fade-in">
+                      <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                      <div className="flex-1 space-y-1">
+                        <div>{fileError}</div>
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="text-[11px] text-rose-300 underline hover:text-white font-medium"
+                        >
+                          Select another file from file manager
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Analyzing Spinner */}
+                  {analyzingFile && (
+                    <div className="p-6 rounded-xl bg-[#0D1017] border border-blue-500/30 text-center space-y-3 animate-pulse">
+                      <div className="flex justify-center">
+                        <Sparkles className="w-8 h-8 text-blue-400 animate-spin" />
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-xs font-semibold text-white">
+                          Analyzing File & Formulating Problem Statement...
+                        </div>
+                        <div className="text-[11px] text-slate-400">
+                          Detecting language, isolating conceptual invariants, synthesizing diagnostic challenge.
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* File Upload Trigger Dropzone (shown when no analysis and not loading) */}
+                  {!fileAnalysis && !analyzingFile && (
+                    <div className="space-y-3">
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="group border-2 border-dashed border-blue-500/30 hover:border-blue-400/70 rounded-2xl p-6 text-center cursor-pointer bg-blue-500/5 hover:bg-blue-500/10 transition-all duration-200 space-y-3"
+                      >
+                        <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 mx-auto flex items-center justify-center group-hover:scale-105 group-hover:bg-blue-500/20 transition-all">
+                          <UploadCloud className="w-6 h-6" />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-xs font-semibold text-white">
+                            Choose File from Local File Manager
+                          </div>
+                          <div className="text-[11px] text-slate-400">
+                            Supports .sql, .py, .java, .cpp, .c, .js, .ts, .txt, .md
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            fileInputRef.current?.click();
+                          }}
+                          className="py-1.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition-colors shadow-sm inline-flex items-center space-x-1.5"
+                        >
+                          <FolderOpen className="w-3.5 h-3.5" />
+                          <span>Browse Files...</span>
+                        </button>
+                      </div>
+
+                      {/* Fast Sample File Chips */}
+                      <div className="pt-2 border-t border-[#282E3D]/80 space-y-1.5">
+                        <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+                          Or test immediately with a sample file:
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleLoadSampleFile("sql")}
+                            className="w-full text-left p-2 rounded-lg bg-[#0D1017] hover:bg-[#181C26] border border-[#282E3D] text-xs text-slate-300 hover:text-white transition-colors flex items-center justify-between group"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <FileCode className="w-3.5 h-3.5 text-blue-400" />
+                              <span className="font-mono text-[11px]">payment_reconciliation.sql</span>
+                            </div>
+                            <span className="text-[10px] text-slate-500 group-hover:text-blue-400">
+                              SQL Isolation
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleLoadSampleFile("dfs")}
+                            className="w-full text-left p-2 rounded-lg bg-[#0D1017] hover:bg-[#181C26] border border-[#282E3D] text-xs text-slate-300 hover:text-white transition-colors flex items-center justify-between group"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <FileCode className="w-3.5 h-3.5 text-indigo-400" />
+                              <span className="font-mono text-[11px]">graph_traversal.py</span>
+                            </div>
+                            <span className="text-[10px] text-slate-500 group-hover:text-indigo-400">
+                              DFS Recursion
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleLoadSampleFile("memory")}
+                            className="w-full text-left p-2 rounded-lg bg-[#0D1017] hover:bg-[#181C26] border border-[#282E3D] text-xs text-slate-300 hover:text-white transition-colors flex items-center justify-between group"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <FileCode className="w-3.5 h-3.5 text-emerald-400" />
+                              <span className="font-mono text-[11px]">buffer_allocation.cpp</span>
+                            </div>
+                            <span className="text-[10px] text-slate-500 group-hover:text-emerald-400">
+                              Memory Safety
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Analyzed File Output Card */}
+                  {fileAnalysis && !analyzingFile && (
+                    <div className="space-y-3.5 animate-in fade-in">
+                      {/* File Metadata Pill */}
+                      <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0D1017] border border-[#282E3D]">
+                        <div className="flex items-center space-x-2 truncate">
+                          <FileCode className="w-4 h-4 text-blue-400 shrink-0" />
+                          <span className="font-mono text-xs text-white truncate">
+                            {fileAnalysis.fileName}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-1.5 shrink-0">
+                          <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 text-[10px] font-semibold border border-blue-500/30">
+                            {fileAnalysis.detectedLanguage}
+                          </span>
+                          <span className="text-[10px] text-slate-500">
+                            {fileAnalysis.fileSize < 1024
+                              ? `${fileAnalysis.fileSize} B`
+                              : `${(fileAnalysis.fileSize / 1024).toFixed(1)} KB`}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Topic Identification */}
+                      <div className="p-2.5 rounded-xl bg-[#181C26] border border-[#282E3D] space-y-1">
+                        <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+                          Identified Topic
+                        </div>
+                        <div className="text-xs font-semibold text-white">
+                          {fileAnalysis.topic}
+                        </div>
+                      </div>
+
+                      {/* PROBLEM STATEMENT: PRIMARY HIGHLIGHT */}
+                      <div className="p-3.5 rounded-xl bg-gradient-to-br from-blue-950/40 to-indigo-950/30 border border-blue-500/40 space-y-2 shadow-inner">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-1.5 text-blue-300">
+                            <Sparkles className="w-4 h-4 text-blue-400" />
+                            <span className="text-xs font-bold uppercase tracking-wider">
+                              Problem Statement
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleCopyProblem}
+                            className="flex items-center space-x-1 px-2 py-0.5 rounded bg-blue-500/20 hover:bg-blue-500/30 text-[11px] text-blue-200 transition-colors"
+                          >
+                            {copiedProblem ? (
+                              <>
+                                <Check className="w-3 h-3 text-emerald-400" />
+                                <span className="text-emerald-300">Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3 h-3" />
+                                <span>Copy</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+
+                        <p className="text-xs text-slate-200 leading-relaxed font-sans font-medium">
+                          {fileAnalysis.problemStatement}
+                        </p>
+                      </div>
+
+                      {/* Key Concepts Tags */}
+                      {fileAnalysis.keyConcepts && fileAnalysis.keyConcepts.length > 0 && (
+                        <div className="space-y-1.5">
+                          <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+                            Key Invariants & Concepts
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {fileAnalysis.keyConcepts.map((c: string, idx: number) => (
+                              <span
+                                key={idx}
+                                className="px-2 py-0.5 rounded-md bg-[#0D1017] border border-[#282E3D] text-[10px] text-slate-300"
+                              >
+                                {c}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Naive Student Assumption / Trap Warning */}
+                      {fileAnalysis.potentialMisconceptions && fileAnalysis.potentialMisconceptions.length > 0 && (
+                        <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs space-y-1">
+                          <div className="text-[10px] uppercase font-semibold text-amber-300 tracking-wider flex items-center space-x-1">
+                            <AlertTriangle className="w-3 h-3" />
+                            <span>Potential Mental Model Misconception</span>
+                          </div>
+                          <p className="text-[11px] text-amber-200/90 leading-relaxed font-sans">
+                            {fileAnalysis.potentialMisconceptions[0]}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Primary Action Button: Launch into Diagnostic */}
+                      <button
+                        type="button"
+                        onClick={handleLaunchWithFile}
+                        disabled={isSubmitting}
+                        className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center justify-center space-x-2 shadow-md transition-all border border-blue-400/40 cursor-pointer disabled:opacity-75"
+                      >
+                        <Sparkles className="w-4 h-4 text-blue-200" />
+                        <span>Launch Cognitive Diagnostic with this Problem Statement →</span>
+                      </button>
+
+                      {/* Secondary Action: Select Another File */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFileAnalysis(null);
+                          setFileError(null);
+                          fileInputRef.current?.click();
+                        }}
+                        className="w-full py-2 px-3 rounded-lg border border-[#282E3D] bg-[#0D1017] hover:bg-[#181C26] text-slate-300 text-xs font-medium transition-colors flex items-center justify-center space-x-1.5"
+                      >
+                        <FolderOpen className="w-3.5 h-3.5 text-slate-400" />
+                        <span>Choose another file from File Manager</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* 1-Click Instant Activation Banner */}
               <button
                 type="button"
                 onClick={handleQuickActivate}
@@ -396,6 +841,8 @@ export default function LoginPage() {
                   </button>
                 </div>
               )}
+            </div>
+          )}
 
               {/* Card Footer Badge */}
               <div className="pt-2 border-t border-[#282E3D] flex items-center justify-center space-x-1.5 text-[11px] text-slate-400 font-sans">
@@ -440,21 +887,26 @@ export default function LoginPage() {
               <LoginConceptGraph />
             </div>
 
-            {/* Bottom 3 Feature Indicators */}
-            <div className="flex flex-wrap items-center gap-6 sm:gap-8 pt-4 border-t border-[#282E3D] text-slate-300">
-              <div className="flex items-center space-x-2.5">
+            {/* Bottom Feature Indicators */}
+            <div className="flex flex-wrap items-center gap-5 sm:gap-6 pt-4 border-t border-[#282E3D] text-slate-300">
+              <div className="flex items-center space-x-2">
                 <Brain className="w-4 h-4 text-blue-400" />
                 <span className="text-xs font-sans font-medium">Root Gap Isolation</span>
               </div>
 
-              <div className="flex items-center space-x-2.5">
+              <div className="flex items-center space-x-2">
                 <BarChart3 className="w-4 h-4 text-blue-400" />
                 <span className="text-xs font-sans font-medium">Causal Prerequisite Tracing</span>
               </div>
 
-              <div className="flex items-center space-x-2.5">
+              <div className="flex items-center space-x-2">
                 <Target className="w-4 h-4 text-blue-400" />
                 <span className="text-xs font-sans font-medium">Physical Memory Models</span>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <FolderOpen className="w-4 h-4 text-indigo-400" />
+                <span className="text-xs font-sans font-medium">File Manager Intake</span>
               </div>
             </div>
           </div>

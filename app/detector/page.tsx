@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -23,6 +23,8 @@ import {
   PlayCircle,
   XCircle,
   FileText,
+  FolderOpen,
+  UploadCloud,
 } from "lucide-react";
 import { ResponseType, Misconception } from "@/lib/types";
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
@@ -49,6 +51,11 @@ export default function DetectorPage() {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
 
+  // File Manager Import State
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [importingFile, setImportingFile] = useState(false);
+  const [importMessage, setImportMessage] = useState<string | null>(null);
+
   const [analyzing, setAnalyzing] = useState(false);
   const [detectedMisconception, setDetectedMisconception] = useState<Misconception | null>(null);
   const [normalizedReasoning, setNormalizedReasoning] = useState<string | null>(null);
@@ -66,9 +73,35 @@ export default function DetectorPage() {
     normalizedReasoning?: string;
   } | null>(null);
 
-  // Read URL query params
+  // Read URL query params & sessionStorage prefill
   useEffect(() => {
     if (typeof window !== "undefined") {
+      // Check for prefilled data from login file intake pipeline
+      const prefillTopic = sessionStorage.getItem("archaia_prefill_topic");
+      const prefillQuestion = sessionStorage.getItem("archaia_prefill_question");
+      const prefillAnswer = sessionStorage.getItem("archaia_prefill_answer");
+      const prefillCode = sessionStorage.getItem("archaia_prefill_code");
+
+      if (prefillTopic || prefillQuestion || prefillAnswer || prefillCode) {
+        setIsDemo(false);
+        if (prefillTopic) setCustomConceptName(prefillTopic);
+        if (prefillQuestion) setQuestionText(prefillQuestion);
+        if (prefillAnswer) setWrittenInput(prefillAnswer);
+        if (prefillCode) {
+          setCodeInput(prefillCode);
+          setResponseType("code");
+        } else {
+          setResponseType("written");
+        }
+        setImportMessage(`Loaded Problem Statement from File Manager: "${prefillTopic || "Custom Topic"}"`);
+        setTimeout(() => setImportMessage(null), 5000);
+        sessionStorage.removeItem("archaia_prefill_topic");
+        sessionStorage.removeItem("archaia_prefill_question");
+        sessionStorage.removeItem("archaia_prefill_answer");
+        sessionStorage.removeItem("archaia_prefill_code");
+        return;
+      }
+
       const params = new URLSearchParams(window.location.search);
       const urlDemo = params.get("demo");
       const urlConcept = params.get("concept");
@@ -94,6 +127,49 @@ export default function DetectorPage() {
       }
     }
   }, []);
+
+  const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImportingFile(true);
+    setApiError(null);
+    try {
+      const text = await file.text();
+      const res = await fetch("/api/analyze-file", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileContent: text,
+          fileSize: file.size,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.analysis) {
+        setIsDemo(false);
+        setCustomConceptName(data.analysis.topic);
+        setQuestionText(data.analysis.problemStatement);
+        setWrittenInput(data.analysis.suggestedAnswer);
+        if (data.analysis.codeSnippet) {
+          setCodeInput(data.analysis.codeSnippet);
+          setResponseType("code");
+        } else {
+          setResponseType("written");
+        }
+        setImportMessage(`Imported "${file.name}": Formulated Problem Statement for ${data.analysis.topic}`);
+        setTimeout(() => setImportMessage(null), 6000);
+      } else {
+        setApiError(data.error || "Failed to analyze imported file.");
+      }
+    } catch {
+      setApiError("Error reading imported file from file manager.");
+    } finally {
+      setImportingFile(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
 
   // Action 1: Start Clean New Diagnostic Session
   const handleStartNewDiagnostic = () => {
@@ -270,8 +346,31 @@ export default function DetectorPage() {
           </p>
         </div>
 
-        {/* Action Controls: New Diagnostic vs Load Isolated Demo */}
+        {/* Action Controls: New Diagnostic vs Load Isolated Demo vs Import File */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Hidden File Input for File Manager Import */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            onChange={handleFileImport}
+            accept=".sql,.py,.java,.cpp,.c,.js,.ts,.txt,.md,.json,.rs,.go"
+          />
+
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={importingFile}
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-blue-500/40 bg-blue-600/10 hover:bg-blue-600/20 text-blue-300 text-xs font-medium transition-colors"
+          >
+            {importingFile ? (
+              <Sparkles className="w-3.5 h-3.5 animate-spin text-blue-400" />
+            ) : (
+              <FolderOpen className="w-3.5 h-3.5 text-blue-400" />
+            )}
+            <span>{importingFile ? "Analyzing File..." : "Import from File Manager"}</span>
+          </button>
+
           <button
             type="button"
             onClick={handleStartNewDiagnostic}
@@ -295,6 +394,22 @@ export default function DetectorPage() {
           </button>
         </div>
       </div>
+
+      {/* File Import Success Banner */}
+      {importMessage && (
+        <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-between text-xs text-blue-200 animate-in fade-in">
+          <div className="flex items-center space-x-2">
+            <Sparkles className="w-4 h-4 text-blue-400 shrink-0" />
+            <span>{importMessage}</span>
+          </div>
+          <button
+            onClick={() => setImportMessage(null)}
+            className="text-[11px] text-slate-400 hover:text-white"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Demo Mode Indicator Banner */}
       {isDemo && (
