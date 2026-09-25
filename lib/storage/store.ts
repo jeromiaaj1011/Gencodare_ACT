@@ -119,6 +119,16 @@ class DataStore {
       } else if (this.courseMaterials.length > 0) {
         this.activeCourseId = this.courseMaterials[0].id;
       }
+
+      // 4. Load Demo Learner States
+      const demoStatesPath = path.join(SESSIONS_DIR, "demo_learner_states.json");
+      if (fs.existsSync(demoStatesPath)) {
+        const raw = fs.readFileSync(demoStatesPath, "utf-8");
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          this.demoLearnerStates = new Map(parsed);
+        }
+      }
     } catch (e) {
       this.courseMaterials = [...SEED_COURSE_MATERIALS];
     }
@@ -229,6 +239,14 @@ class DataStore {
       currentProbe: SEED_DIAGNOSTIC_PROBES.find((p) => p.conceptId === "call_stack"),
       status: "active",
     };
+
+    try {
+      ensureSessionsDir();
+      const demoStatesPath = path.join(SESSIONS_DIR, "demo_learner_states.json");
+      if (fs.existsSync(demoStatesPath)) {
+        fs.unlinkSync(demoStatesPath);
+      }
+    } catch (e) {}
   }
 
   // --- Diagnostic Session Lifecycle (Scoped by Session ID) ---
@@ -396,6 +414,17 @@ class DataStore {
 
   public getAllLearnerStates(sessionId?: string, userId?: string): LearnerConceptState[] {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
+      try {
+        ensureSessionsDir();
+        const demoStatesPath = path.join(SESSIONS_DIR, "demo_learner_states.json");
+        if (fs.existsSync(demoStatesPath)) {
+          const raw = fs.readFileSync(demoStatesPath, "utf-8");
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            this.demoLearnerStates = new Map(parsed);
+          }
+        }
+      } catch (e) {}
       return Array.from(this.demoLearnerStates.values());
     }
     if (sessionId) {
@@ -431,6 +460,17 @@ class DataStore {
 
   public getLearnerState(conceptId: string, sessionId?: string, userId?: string): LearnerConceptState | undefined {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
+      try {
+        ensureSessionsDir();
+        const demoStatesPath = path.join(SESSIONS_DIR, "demo_learner_states.json");
+        if (fs.existsSync(demoStatesPath)) {
+          const raw = fs.readFileSync(demoStatesPath, "utf-8");
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            this.demoLearnerStates = new Map(parsed);
+          }
+        }
+      } catch (e) {}
       return this.demoLearnerStates.get(conceptId);
     }
     if (sessionId) {
@@ -457,6 +497,17 @@ class DataStore {
     sessionId?: string
   ): LearnerConceptState {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
+      try {
+        ensureSessionsDir();
+        const demoStatesPath = path.join(SESSIONS_DIR, "demo_learner_states.json");
+        if (fs.existsSync(demoStatesPath)) {
+          const raw = fs.readFileSync(demoStatesPath, "utf-8");
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            this.demoLearnerStates = new Map(parsed);
+          }
+        }
+      } catch (e) {}
       const existing = this.demoLearnerStates.get(conceptId) || {
         conceptId,
         masteryScore: 0,
@@ -466,6 +517,14 @@ class DataStore {
       };
       const updated = { ...existing, ...updates };
       this.demoLearnerStates.set(conceptId, updated);
+      try {
+        ensureSessionsDir();
+        fs.writeFileSync(
+          path.join(SESSIONS_DIR, "demo_learner_states.json"),
+          JSON.stringify(Array.from(this.demoLearnerStates.entries())),
+          "utf-8"
+        );
+      } catch (e) {}
       return updated;
     }
 
@@ -669,7 +728,7 @@ class DataStore {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
       return this.calculateMetricsFromStates(
         this.demoConcepts,
-        Array.from(this.demoLearnerStates.values()),
+        this.getAllLearnerStates(sessionId),
         Array.from(this.demoMisconceptions.values())
       );
     }
@@ -700,7 +759,7 @@ class DataStore {
     // Default Demo Mode Metrics
     return this.calculateMetricsFromStates(
       this.demoConcepts,
-      Array.from(this.demoLearnerStates.values()),
+      this.getAllLearnerStates("demo"),
       Array.from(this.demoMisconceptions.values())
     );
   }
