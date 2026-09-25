@@ -120,11 +120,11 @@ export default function Navbar() {
 
   const navItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Knowledge Graph", href: "/graph", icon: Network },
     { label: "Bug Detector", href: "/detector", icon: Bug },
     { label: "Cognitive Bisect", href: "/bisect", icon: Split },
     { label: "Recovery Lab", href: "/recovery", icon: HeartPulse },
-    { label: "Progress", href: "/progress", icon: LineChart },
+    { label: "Adaptive Roadmap", href: "/progress", icon: LineChart },
+    { label: "Knowledge Graph", href: "/graph", icon: Network },
     { label: "Overview", href: "/overview", icon: BookOpen },
   ];
 

@@ -435,7 +435,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* 4 Core Workbench Modules (Slide 2 / Slide 7 Numbered Presentation Cards) */}
+        {/* 4 Core Workbench Modules Aligned with the 4-Step Cognitive Pipeline */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           <Link
             href="/detector"
@@ -456,30 +456,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <span className="text-xs font-medium text-rose-300 flex items-center space-x-1 font-sans">
-              <span>Run Detector →</span>
-            </span>
-          </Link>
-
-          <Link
-            href="/graph"
-            className="p-5 rounded-2xl bg-[#0e111a] hover:bg-[#141824] border border-white/[0.08] hover:border-rose-500/40 transition-all group flex flex-col justify-between space-y-3 card-shades"
-          >
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="slide-index-serif text-lg">02.</span>
-                <div className="w-8 h-8 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Network className="w-4 h-4" />
-                </div>
-              </div>
-              <h3 className="font-editorial text-base font-semibold text-white group-hover:text-rose-300 transition-colors">
-                Causal DAG Map
-              </h3>
-              <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-                Explore the {concepts.length}-node prerequisite topology and node inspection drawer.
-              </p>
-            </div>
-            <span className="text-xs font-medium text-rose-300 flex items-center space-x-1 font-sans">
-              <span>Inspect DAG →</span>
+              <span>Step 1: Run Detector →</span>
             </span>
           </Link>
 
@@ -489,7 +466,7 @@ export default function DashboardPage() {
           >
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="slide-index-serif text-lg text-amber-400">03.</span>
+                <span className="slide-index-serif text-lg text-amber-400">02.</span>
                 <div className="w-8 h-8 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center group-hover:scale-105 transition-transform">
                   <Split className="w-4 h-4" />
                 </div>
@@ -502,7 +479,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <span className="text-xs font-medium text-amber-300 flex items-center space-x-1 font-sans">
-              <span>Run Bisect →</span>
+              <span>Step 2: Run Bisect →</span>
             </span>
           </Link>
 
@@ -512,7 +489,7 @@ export default function DashboardPage() {
           >
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="slide-index-serif text-lg text-emerald-400">04.</span>
+                <span className="slide-index-serif text-lg text-emerald-400">03.</span>
                 <div className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform">
                   <HeartPulse className="w-4 h-4" />
                 </div>
@@ -525,7 +502,30 @@ export default function DashboardPage() {
               </p>
             </div>
             <span className="text-xs font-medium text-emerald-300 flex items-center space-x-1 font-sans">
-              <span>Enter Lab →</span>
+              <span>Step 3: Enter Lab →</span>
+            </span>
+          </Link>
+
+          <Link
+            href="/progress"
+            className="p-5 rounded-2xl bg-[#0e111a] hover:bg-[#141824] border border-white/[0.08] hover:border-purple-500/40 transition-all group flex flex-col justify-between space-y-3 card-shades"
+          >
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="slide-index-serif text-lg text-purple-400">04.</span>
+                <div className="w-8 h-8 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <TrendingUp className="w-4 h-4" />
+                </div>
+              </div>
+              <h3 className="font-editorial text-base font-semibold text-white group-hover:text-purple-300 transition-colors">
+                Adaptive Roadmap
+              </h3>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                Track verified invariants, unlocked concepts, and recalibrated learning trajectory.
+              </p>
+            </div>
+            <span className="text-xs font-medium text-purple-300 flex items-center space-x-1 font-sans">
+              <span>Step 4: View Roadmap →</span>
             </span>
           </Link>
         </div>

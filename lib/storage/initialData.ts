@@ -148,6 +148,28 @@ export const SEED_MISCONCEPTIONS: Misconception[] = [
 
 export const SEED_DIAGNOSTIC_PROBES: DiagnosticProbe[] = [
   {
+    id: "probe_tree_traversal_state",
+    conceptId: "tree_traversal",
+    targetConceptId: "graph_traversal",
+    question: "During binary tree recursive traversal (DFS), when traverse(node.left) finishes, how does the program know where node.right is located?",
+    options: [
+      {
+        id: "tt_opt_1",
+        text: "The left child return unwinds back to the parent frame, which still holds the original node reference to call traverse(node.right).",
+        isCorrect: true,
+        indicator: "Understands tree recursive sub-branch return flow.",
+      },
+      {
+        id: "tt_opt_2",
+        text: "The program loses the parent node once the left child completes, terminating the entire tree traversal.",
+        isCorrect: false,
+        indicator: "Believes tree traversal child calls destroy parent context.",
+      },
+    ],
+    invariantTested: "Tree traversal parent context retention across child branches.",
+    rationale: "Tests whether the learner understands hierarchical sub-problem resumption before graph cycles.",
+  },
+  {
     id: "probe_recursion_state",
     conceptId: "recursion",
     targetConceptId: "graph_traversal",
