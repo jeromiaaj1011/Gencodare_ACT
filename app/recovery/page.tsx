@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   HeartPulse,
@@ -18,9 +17,12 @@ import {
   Sparkles,
   ArrowRight,
   Flame,
-  Info,
-  ShieldAlert,
   Terminal,
+  Cpu,
+  HelpCircle,
+  ListOrdered,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import { InterventionContent, ReTestAssessment, Concept } from "@/lib/types";
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
@@ -28,12 +30,14 @@ import ContentModeBanner from "@/components/mode/ContentModeBanner";
 import ShadesFluidBlob from "@/components/decorations/ShadesFluidBlob";
 
 export default function RecoveryPage() {
-  const router = useRouter();
   const [concept, setConcept] = useState<Concept | null>(null);
   const [intervention, setIntervention] = useState<InterventionContent | null>(null);
   const [retest, setRetest] = useState<ReTestAssessment | null>(null);
-  const [activeTab, setActiveTab] = useState<
-    "visualizer" | "explain" | "puzzle" | "code" | "blast_radius" | "multilingual" | "retest"
+
+  // View presentation mode: 'flow' (all sections visible in clear studio order) vs 'focused' (stage tabs)
+  const [viewMode, setViewMode] = useState<"flow" | "focused">("flow");
+  const [focusedStage, setFocusedStage] = useState<
+    "visualizer" | "practice" | "retest" | "deepdive"
   >("visualizer");
 
   // Visualizer step state
@@ -106,7 +110,7 @@ export default function RecoveryPage() {
           setConcept(data.concept);
           setIntervention(data.intervention);
           setRetest(data.retest);
-          setActiveConceptId(data.concept?.id || cId || "");
+          setActiveConceptId(data.concept?.id || cId || "call_stack");
           if (data.intervention.codeExercise?.initialCode) {
             setUserCode(data.intervention.codeExercise.initialCode);
           }
@@ -140,7 +144,6 @@ export default function RecoveryPage() {
       loadConceptRecovery(initialConcept, resolvedSession);
     }
   }, []);
-
 
   const handleLanguageChange = async (lang: string) => {
     setSelectedLanguage(lang);
@@ -178,7 +181,7 @@ export default function RecoveryPage() {
 
   const handleReTestSubmit = async () => {
     if (!selectedReTestOpt) {
-      setReTestError("Please select an answer.");
+      setReTestError("Please select an answer to evaluate your understanding.");
       return;
     }
     setReTestError(null);
@@ -212,13 +215,24 @@ export default function RecoveryPage() {
     }
   };
 
+  const scrollToReTest = () => {
+    if (viewMode === "focused") {
+      setFocusedStage("retest");
+    } else {
+      const el = document.getElementById("retest-section");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
   if (loading) {
     return (
-      <div className="space-y-6 max-w-5xl mx-auto py-12">
+      <div className="space-y-6 max-w-6xl mx-auto py-12">
         <h1 className="sr-only">Targeted Recovery Lab Studio</h1>
-        <div className="h-64 flex items-center justify-center text-blue-400 font-sans text-xs space-x-2">
-          <RotateCcw className="w-4 h-4 animate-spin" />
-          <span>Loading Recovery Lab Modules...</span>
+        <div className="h-64 flex flex-col items-center justify-center text-rose-400 font-sans text-xs space-y-3">
+          <RotateCcw className="w-6 h-6 animate-spin text-rose-500" />
+          <span className="font-medium text-slate-300">Loading Targeted Recovery Studio...</span>
         </div>
       </div>
     );
@@ -226,27 +240,27 @@ export default function RecoveryPage() {
 
   if (!intervention) {
     return (
-      <div className="space-y-6 max-w-5xl mx-auto">
+      <div className="space-y-6 max-w-6xl mx-auto">
         <CognitivePipelineStepper currentStep={3} />
-        <div className="p-8 rounded-2xl bg-archaia-dark border border-archaia-border flex flex-col items-center justify-center text-center space-y-4">
-          <div className="p-3.5 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <div className="p-8 sm:p-12 rounded-3xl bg-[#0c0e17] border border-white/[0.08] flex flex-col items-center justify-center text-center space-y-4 shadow-xl">
+          <div className="p-4 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
             <HeartPulse className="w-8 h-8" />
           </div>
-          <div className="space-y-1.5 max-w-md">
-            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+          <div className="space-y-2 max-w-md">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-editorial">
               Targeted Recovery Lab Studio
             </h1>
-            <p className="text-xs text-slate-300 font-medium font-sans">
+            <p className="text-xs text-rose-300 font-medium font-sans">
               No Active Recovery Session Found
             </p>
             <p className="text-xs text-slate-400 font-sans leading-relaxed">
-              Targeted Recovery Labs remediate prerequisite conceptual gaps identified during Cognitive Bisect. Start a diagnostic in Step 1 or explore the benchmark demo investigation.
+              Targeted Recovery Labs remediate prerequisite conceptual gaps identified during Cognitive Bisect. Start a diagnostic in Step 1 or load the benchmark demo investigation.
             </p>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
             <Link
               href="/detector"
-              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-sm flex items-center space-x-1.5"
+              className="px-5 py-2.5 rounded-xl btn-shades-primary font-semibold text-xs transition-all shadow-md flex items-center space-x-2"
             >
               <span>Start Diagnostic in Step 1</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -257,10 +271,10 @@ export default function RecoveryPage() {
                 setSessionId("demo_dfs");
                 loadConceptRecovery("call_stack", "demo_dfs");
               }}
-              className="px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-700 text-slate-300 text-xs font-semibold transition-colors flex items-center space-x-1.5"
+              className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold transition-colors flex items-center space-x-2"
             >
-              <Play className="w-3.5 h-3.5 text-amber-400" />
-              <span>Try Demo Investigation</span>
+              <Play className="w-3.5 h-3.5 text-rose-400" />
+              <span>Load Demo Investigation</span>
             </button>
           </div>
         </div>
@@ -268,13 +282,82 @@ export default function RecoveryPage() {
     );
   }
 
-
   const currentFrame =
     intervention.visualMemoryModel.frames[visualStep] ||
     intervention.visualMemoryModel.frames[0];
 
+  // Dynamic code lines for the code trace according to concept
+  const renderCodeTraceLines = () => {
+    if (activeConceptId === "memory_allocation") {
+      return (
+        <div className="p-3.5 rounded-xl bg-slate-950 font-mono text-[11px] space-y-1.5 border border-slate-800">
+          <div className={currentFrame.activeLine === 1 ? "text-rose-300 bg-rose-950/60 border-l-2 border-rose-500 pl-2 py-0.5 rounded" : "text-slate-400 pl-2.5"}>
+            1: let visited = new Set([0]); // Heap Alloc
+          </div>
+          <div className={currentFrame.activeLine === 2 ? "text-rose-300 bg-rose-950/60 border-l-2 border-rose-500 pl-2 py-0.5 rounded" : "text-slate-400 pl-2.5"}>
+            2: let copy = visited;        // Pointer Aliasing
+          </div>
+          <div className={currentFrame.activeLine === 3 ? "text-rose-300 bg-rose-950/60 border-l-2 border-rose-500 pl-2 py-0.5 rounded" : "text-slate-400 pl-2.5"}>
+            3: copy.add(1);               // Mutates Shared Heap
+          </div>
+          <div className="text-slate-500 pl-2.5">
+            4: console.log(visited.size); // Prints 2, not 1!
+          </div>
+        </div>
+      );
+    }
+
+    if (activeConceptId === "recursion") {
+      return (
+        <div className="p-3.5 rounded-xl bg-slate-950 font-mono text-[11px] space-y-1.5 border border-slate-800">
+          <div className="text-slate-400 pl-2.5">
+            1: function solve(n) &#123;
+          </div>
+          <div className={currentFrame.activeLine === 2 ? "text-rose-300 bg-rose-950/60 border-l-2 border-rose-500 pl-2 py-0.5 rounded" : "text-slate-400 pl-2.5"}>
+            2:   if (n &lt;= 0) return 1;    // Base Case
+          </div>
+          <div className={currentFrame.activeLine === 4 ? "text-rose-300 bg-rose-950/60 border-l-2 border-rose-500 pl-2 py-0.5 rounded" : "text-slate-400 pl-2.5"}>
+            3:   let sub = solve(n - 1);  // Recurse &amp; Suspend
+          </div>
+          <div className={currentFrame.activeLine === 4 ? "text-rose-300 bg-rose-950/60 border-l-2 border-rose-500 pl-2 py-0.5 rounded" : "text-slate-400 pl-2.5"}>
+            4:   return n * sub;          // Bubble Value Up
+          </div>
+          <div className="text-slate-400 pl-2.5">
+            5: &#125;
+          </div>
+        </div>
+      );
+    }
+
+    // Default: DFS Call Stack
+    return (
+      <div className="p-3.5 rounded-xl bg-slate-950 font-mono text-[11px] space-y-1.5 border border-slate-800">
+        <div className={currentFrame.activeLine === 1 ? "text-rose-300 bg-rose-950/60 border-l-2 border-rose-500 pl-2 py-0.5 rounded" : "text-slate-400 pl-2.5"}>
+          1: function dfs(node) &#123;
+        </div>
+        <div className={currentFrame.activeLine === 2 ? "text-rose-300 bg-rose-950/60 border-l-2 border-rose-500 pl-2 py-0.5 rounded" : "text-slate-400 pl-2.5"}>
+          2:   visited.add(node);
+        </div>
+        <div className={currentFrame.activeLine === 3 ? "text-rose-300 bg-rose-950/60 border-l-2 border-rose-500 pl-2 py-0.5 rounded" : "text-slate-400 pl-2.5"}>
+          3:   for (let n of neighbors) &#123;
+        </div>
+        <div className={currentFrame.activeLine === 6 ? "text-rose-300 bg-rose-950/60 border-l-2 border-rose-500 pl-2 py-0.5 rounded" : "text-slate-400 pl-2.5"}>
+          4:     dfs(n); // RECURSIVE INVOCATION
+        </div>
+        <div className={currentFrame.activeLine === 8 ? "text-rose-300 bg-rose-950/60 border-l-2 border-rose-500 pl-2 py-0.5 rounded" : "text-slate-400 pl-2.5"}>
+          5:   &#125; // RESUMES PRECISE LOOP STATE HERE
+        </div>
+        <div className="text-slate-400 pl-2.5">
+          6: &#125;
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
+    <div className="space-y-6 max-w-6xl mx-auto animate-in fade-in duration-300 relative">
+      <ShadesFluidBlob variant="top-right" />
+
       {/* 4-Step Cognitive Diagnostic Pipeline Stepper */}
       <CognitivePipelineStepper
         currentStep={3}
@@ -286,206 +369,182 @@ export default function RecoveryPage() {
       {/* Mode Indicator & Switcher Banner */}
       <ContentModeBanner onModeChange={() => loadConceptRecovery(undefined, sessionId || undefined)} />
 
-      {/* Continuation Context Banner */}
-      {fromTarget && (
-        <div className="p-4 rounded-xl bg-gradient-to-r from-blue-950/40 via-[#141722] to-slate-900 border border-blue-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2">
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40 uppercase">
-                Step 3 of 4: Active Remediation
+      {/* Active Remediation Context Banner */}
+      <div className="p-5 rounded-2xl bg-gradient-to-r from-[#17121b] via-[#101322] to-[#0c0e17] border border-rose-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg">
+        <div className="space-y-1.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 uppercase tracking-wide">
+              Step 03 • Prerequisite Recovery Studio
+            </span>
+            <span className="text-xs font-semibold text-white">
+              Remediating Root Gap: <strong className="text-rose-400">{concept?.name || activeConceptId}</strong>
+            </span>
+            {fromTarget && (
+              <span className="text-[11px] text-slate-400">
+                (Blocks: <span className="text-slate-200 font-medium">{fromTarget}</span>)
               </span>
-              <span className="text-xs font-semibold text-white">
-                Repairing Root Gap: {concept?.name || activeConceptId}
-              </span>
-            </div>
-            <p className="text-xs text-slate-300 font-sans">
-              Isolating this gap resolves the conceptual failure previously detected in <strong>{fromTarget}</strong>. Complete the visual model and re-test to restore the runtime invariant.
-            </p>
+            )}
           </div>
+          <p className="text-xs text-slate-300 font-sans leading-relaxed max-w-2xl">
+            Cognitive Bisect isolated this foundational invariant failure. Master the visual memory model, verify the counterexample, and pass the re-test to restore the concept in your Causal Knowledge Graph.
+          </p>
+        </div>
 
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
-            onClick={() => setActiveTab("retest")}
-            className="shrink-0 flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-all"
+            onClick={scrollToReTest}
+            className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl btn-shades-primary font-semibold text-xs shadow-md transition-all"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Go to Re-Test →</span>
           </button>
         </div>
-      )}
+      </div>
 
       {/* Concept Remediation Lab Selector Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-2 rounded-2xl bg-archaia-dark border border-archaia-border">
-        <span className="text-xs text-slate-400 font-sans px-2 font-medium">
-          Select Remediation Concept Lab:
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-[#0c0e17] border border-white/[0.08]">
+        <span className="text-xs text-slate-300 font-sans px-2 font-medium flex items-center space-x-1.5">
+          <Cpu className="w-3.5 h-3.5 text-rose-400" />
+          <span>Switch Remediation Target:</span>
         </span>
-        <div className="flex flex-wrap gap-1.5">
-          {(() => {
-            const defaultLabs = [
-              { id: "call_stack", label: "Call Stack & LIFO Frames" },
-              { id: "memory_allocation", label: "Memory Allocation & Aliasing" },
-              { id: "recursion", label: "Recursion & Return Bubbling" },
-            ];
-            if (!defaultLabs.some((t) => t.id === activeConceptId)) {
-              defaultLabs.unshift({
-                id: activeConceptId,
-                label: `${concept?.name || activeConceptId} (Active Root Gap)`,
-              });
-            }
-            return defaultLabs.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => loadConceptRecovery(c.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all ${
-                  activeConceptId === c.id
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "bg-archaia-card hover:bg-archaia-cardHover text-slate-400"
-                }`}
-              >
-                {c.label}
-              </button>
-            ));
-          })()}
+        <div className="flex flex-wrap gap-2">
+          {[
+            { id: "call_stack", label: "Call Stack & LIFO Frames" },
+            { id: "memory_allocation", label: "Memory Allocation & Aliasing" },
+            { id: "recursion", label: "Recursion & Return Bubbling" },
+          ].map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => loadConceptRecovery(c.id)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-sans font-medium transition-all ${
+                activeConceptId === c.id
+                  ? "bg-rose-500 text-white shadow-sm font-semibold"
+                  : "bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-800"
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Header and Studio View Mode Switcher */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
         <div>
-          <div className="flex items-center space-x-2">
-            <HeartPulse className="w-5 h-5 text-amber-400" />
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+          <div className="flex items-center space-x-2.5">
+            <div className="p-2 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+              <HeartPulse className="w-5 h-5" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-editorial">
               Targeted Recovery Lab Studio
             </h1>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Targeting Invariant Gap: <strong className="text-amber-300">{concept?.name || intervention.title}</strong>. Repair the foundational mental model before returning to downstream topics.
+          <p className="text-xs text-slate-300 mt-1 font-sans">
+            Active Module: <strong className="text-rose-400 font-semibold">{intervention.title}</strong>
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("retest")}
-          className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-all btn-interactive"
-        >
-          <Sparkles className="w-4 h-4" />
-          <span>Take Mandatory Re-Test →</span>
-        </button>
-      </div>
-
-      {/* ARCHAIA Recovery Pedagogical Progression Ribbon: Concept → Learn → Practice → Re-test */}
-      <div className="p-3.5 rounded-2xl bg-[#0E1117] border border-[#282E3D] shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-sans">
-          <span className="text-slate-400 font-medium">Recovery Progression:</span>
-          <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-semibold">
-            <span
-              className={`px-2.5 py-1 rounded-lg border transition-all ${
-                activeTab === "visualizer"
-                  ? "bg-blue-600/20 text-blue-300 border-blue-500/50 shadow-sm"
-                  : "bg-slate-900 border-slate-800 text-slate-400"
-              }`}
-            >
-              1. Concept & Invariant
-            </span>
-            <span className="text-slate-600">→</span>
-            <span
-              className={`px-2.5 py-1 rounded-lg border transition-all ${
-                activeTab === "explain" || activeTab === "blast_radius" || activeTab === "multilingual"
-                  ? "bg-blue-600/20 text-blue-300 border-blue-500/50 shadow-sm"
-                  : "bg-slate-900 border-slate-800 text-slate-400"
-              }`}
-            >
-              2. Learn & Deconstruct
-            </span>
-            <span className="text-slate-600">→</span>
-            <span
-              className={`px-2.5 py-1 rounded-lg border transition-all ${
-                activeTab === "puzzle" || activeTab === "code"
-                  ? "bg-amber-600/20 text-amber-300 border-amber-500/50 shadow-sm"
-                  : "bg-slate-900 border-slate-800 text-slate-400"
-              }`}
-            >
-              3. Practice & Disconfirm
-            </span>
-            <span className="text-slate-600">→</span>
-            <span
-              className={`px-2.5 py-1 rounded-lg border transition-all ${
-                activeTab === "retest"
-                  ? "bg-emerald-600/20 text-emerald-300 border-emerald-500/50 shadow-sm"
-                  : "bg-slate-900 border-slate-800 text-slate-400"
-              }`}
-            >
-              4. Mandatory Re-Test
-            </span>
-          </div>
+        {/* View Mode Toggle: All-In-One Flow vs Guided Focused Stages */}
+        <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+          <button
+            type="button"
+            onClick={() => setViewMode("flow")}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+              viewMode === "flow"
+                ? "bg-rose-600 text-white shadow-sm"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <Maximize2 className="w-3 h-3" />
+            <span>Studio Flow (All Sections)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("focused")}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+              viewMode === "focused"
+                ? "bg-rose-600 text-white shadow-sm"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <ListOrdered className="w-3 h-3" />
+            <span>Guided Stages</span>
+          </button>
         </div>
       </div>
 
-      {/* Lab Navigation Tabs */}
-      <div className="flex flex-wrap gap-1.5 p-1.5 rounded-2xl bg-archaia-dark border border-archaia-border">
-        {[
-          { id: "visualizer", label: "Visual Memory Simulator", icon: Layers },
-          { id: "explain", label: "Targeted Explanation", icon: BookOpen },
-          { id: "puzzle", label: "Micro-Puzzle", icon: Puzzle },
-          { id: "code", label: "Interactive Code Fix", icon: Code2 },
-          { id: "blast_radius", label: "Industry Blast Radius", icon: Flame },
-          { id: "multilingual", label: "Multilingual Bridge", icon: Globe },
-          { id: "retest", label: "Mandatory Re-Test", icon: CheckCircle },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isSelected = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={isSelected}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
-                isSelected
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "hover:bg-archaia-card text-slate-400 hover:text-white"
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* If Focused Mode is active, show the 4 stage buttons */}
+      {viewMode === "focused" && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 rounded-2xl bg-[#0c0e17] border border-white/[0.08]">
+          {[
+            { id: "visualizer", label: "1. Visual Model & Invariant", icon: Layers },
+            { id: "practice", label: "2. Practice & Code Repair", icon: Code2 },
+            { id: "retest", label: "3. Mandatory Re-Test", icon: CheckCircle },
+            { id: "deepdive", label: "4. Industry & Multilingual", icon: Flame },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isSelected = focusedStage === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={isSelected}
+                onClick={() => setFocusedStage(tab.id as any)}
+                className={`flex items-center justify-center space-x-2 py-3 px-3 rounded-xl text-xs font-semibold transition-all ${
+                  isSelected
+                    ? "bg-rose-600 text-white shadow-md"
+                    : "bg-slate-900/60 hover:bg-slate-800 text-slate-300 border border-slate-800"
+                }`}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span className="truncate">{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
-      {/* TAB 1: VISUAL MEMORY SIMULATOR (Feature 20 & 23) */}
-      {activeTab === "visualizer" && (
-        <div className="p-6 rounded-2xl bg-archaia-dark border border-archaia-border shadow-sm space-y-6 animate-in fade-in">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-archaia-border pb-4">
-            <div>
+      {/* ========================================================================= */}
+      {/* SECTION 1: INTERACTIVE VISUAL MEMORY MODEL & INVARIANT DECONSTRUCTION     */}
+      {/* ========================================================================= */}
+      {(viewMode === "flow" || focusedStage === "visualizer") && (
+        <section
+          id="visualizer-section"
+          aria-labelledby="visualizer-heading"
+          className="p-6 sm:p-7 rounded-3xl bg-[#0c0e17] border border-white/[0.08] shadow-xl space-y-6"
+        >
+          {/* Section Header with Step Stepper Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-5">
+            <div className="space-y-1">
               <div className="flex items-center space-x-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wider">
-                  Interactive Memory Trace
+                <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase tracking-wide">
+                  Stage 01 • Interactive Memory Trace
                 </span>
-                <h3 className="text-base font-bold text-white">
+                <h2 id="visualizer-heading" className="text-lg font-bold text-white font-editorial">
                   {intervention.visualMemoryModel.title}
-                </h3>
+                </h2>
               </div>
-              <p className="text-xs text-archaia-muted mt-0.5 font-sans">
+              <p className="text-xs text-slate-300 font-sans leading-relaxed">
                 {intervention.visualMemoryModel.description}
               </p>
             </div>
 
             {/* Stepper Controls */}
-            <div className="flex items-center space-x-2 text-xs">
+            <div className="flex items-center space-x-2 shrink-0">
               <button
                 type="button"
                 onClick={() => setVisualStep((s) => Math.max(0, s - 1))}
                 disabled={visualStep === 0}
-                className="px-3 py-1.5 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white disabled:opacity-40"
+                className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold disabled:opacity-40 transition-colors"
               >
                 ← Prev Step
               </button>
-              <span className="text-blue-400 px-2 font-semibold font-mono">
+              <div className="px-3 py-1.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 font-mono text-xs font-bold">
                 Step {visualStep + 1} / {intervention.visualMemoryModel.frames.length}
-              </span>
+              </div>
               <button
                 type="button"
                 onClick={() =>
@@ -494,508 +553,540 @@ export default function RecoveryPage() {
                   )
                 }
                 disabled={visualStep === intervention.visualMemoryModel.frames.length - 1}
-                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium disabled:opacity-40"
+                className="px-3.5 py-2 rounded-xl btn-shades-primary text-white text-xs font-semibold disabled:opacity-40 transition-colors"
               >
                 Next Step →
               </button>
+              <button
+                type="button"
+                title="Reset simulation to step 1"
+                aria-label="Reset simulation to step 1"
+                onClick={() => setVisualStep(0)}
+                className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-white transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
 
-          {/* 3-Column Interactive Sandbox */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-            {/* Col 1: Code Trace with Active Line */}
-            <div className="p-4 rounded-2xl bg-archaia-card border border-archaia-border space-y-2">
-              <div className="text-[11px] font-medium text-slate-300 flex items-center space-x-1.5">
-                <Terminal className="w-3.5 h-3.5 text-blue-400" />
-                <span>Runtime Code Trace</span>
+          {/* Interactive Split Sandbox: Runtime Code Trace + Hardware Call Stack Tube */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+            {/* Col 1: Code Trace with Active Line (5 cols on md) */}
+            <div className="md:col-span-5 p-4 rounded-2xl bg-slate-900/60 border border-white/[0.08] space-y-3">
+              <div className="text-xs font-semibold text-slate-200 flex items-center space-x-2">
+                <Terminal className="w-4 h-4 text-rose-400" />
+                <span>Runtime Code Execution Trace</span>
               </div>
-              <div className="p-3 rounded-xl bg-slate-950 font-mono text-[11px] space-y-1 border border-slate-800">
-                <div className={currentFrame.activeLine === 1 ? "text-blue-300 bg-blue-950/60 px-1.5 py-0.5 rounded" : "text-slate-400"}>
-                  1: function dfs(node) &#123;
-                </div>
-                <div className={currentFrame.activeLine === 2 ? "text-blue-300 bg-blue-950/60 px-1.5 py-0.5 rounded" : "text-slate-400"}>
-                  2:   visited.add(node);
-                </div>
-                <div className={currentFrame.activeLine === 3 ? "text-blue-300 bg-blue-950/60 px-1.5 py-0.5 rounded" : "text-slate-400"}>
-                  3:   for (let n of neighbors) &#123;
-                </div>
-                <div className={currentFrame.activeLine === 6 ? "text-blue-300 bg-blue-950/60 px-1.5 py-0.5 rounded" : "text-slate-400"}>
-                  4:     dfs(n); // RECURSIVE CALL
-                </div>
-                <div className={currentFrame.activeLine === 8 ? "text-blue-300 bg-blue-950/60 px-1.5 py-0.5 rounded" : "text-slate-400"}>
-                  5:   &#125; // RESUMES LOOP HERE!
-                </div>
-                <div className="text-slate-400">
-                  6: &#125;
-                </div>
-              </div>
-              <div className="text-[10px] text-slate-400 font-sans">
-                Active Execution: Line {currentFrame.activeLine}
+
+              {renderCodeTraceLines()}
+
+              <div className="flex items-center justify-between text-[11px] text-slate-400 font-sans px-1">
+                <span>Active Pointer: Line {currentFrame.activeLine}</span>
+                <span className="text-rose-400 font-mono">Frame #{currentFrame.step}</span>
               </div>
             </div>
 
-            {/* Col 2: The Physical Stack Tube */}
-            <div className="p-4 rounded-2xl bg-archaia-card border border-archaia-border flex flex-col items-center space-y-3">
-              <div className="text-[11px] text-slate-400 uppercase tracking-wider font-medium">
-                Hardware Call Stack (LIFO)
+            {/* Col 2: The Physical Stack Tube (7 cols on md) */}
+            <div className="md:col-span-7 p-4 rounded-2xl bg-slate-900/60 border border-white/[0.08] flex flex-col space-y-3">
+              <div className="flex items-center justify-between text-xs font-semibold text-slate-200">
+                <div className="flex items-center space-x-2">
+                  <Layers className="w-4 h-4 text-rose-400" />
+                  <span>Physical Hardware Memory Tube (LIFO Stack)</span>
+                </div>
+                <span className="text-[10px] text-slate-400 font-mono">Frame Growth: Upward ↑</span>
               </div>
 
-              <div className="w-full h-56 border-2 border-dashed border-archaia-border rounded-xl p-2.5 flex flex-col-reverse justify-start gap-2 bg-slate-950/80 overflow-hidden">
-                {currentFrame.stackFrames.map((frame, idx) => (
-                  <div
-                    key={idx}
-                    className={`p-2.5 rounded-lg border text-xs font-mono font-semibold transition-all ${
-                      idx === currentFrame.stackFrames.length - 1
-                        ? "bg-slate-800 border-blue-500/80 text-white shadow-sm"
-                        : "bg-slate-900 border-slate-700/60 text-slate-400 opacity-70"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between text-[10px] text-blue-400 font-sans font-medium">
-                      <span>{idx === currentFrame.stackFrames.length - 1 ? "TOP (ACTIVE)" : "SUSPENDED"}</span>
-                      <span>LIFO</span>
+              {/* Physical Tube Container */}
+              <div className="w-full min-h-[200px] border-2 border-dashed border-slate-700/80 rounded-2xl p-3 flex flex-col-reverse justify-start gap-2.5 bg-slate-950/90">
+                {currentFrame.stackFrames.map((frameText, idx) => {
+                  const isTop = idx === currentFrame.stackFrames.length - 1;
+                  return (
+                    <div
+                      key={idx}
+                      className={`p-3 rounded-xl border text-xs font-mono transition-all shadow-sm ${
+                        isTop
+                          ? "bg-gradient-to-r from-rose-950/70 to-slate-900 border-rose-500/80 text-white ring-1 ring-rose-500/30"
+                          : "bg-slate-900/80 border-slate-800 text-slate-300 opacity-80"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-[10px] font-sans font-bold">
+                        <span className={isTop ? "text-rose-300" : "text-slate-400"}>
+                          {isTop ? "● TOP (ACTIVE EXECUTION)" : "○ SUSPENDED (PRESERVED IN MEMORY)"}
+                        </span>
+                        <span className="text-slate-400 font-mono">FRAME {idx + 1}</span>
+                      </div>
+                      <div className="mt-1 font-semibold text-[11px] text-slate-100">{frameText}</div>
                     </div>
-                    <div className="mt-0.5 text-[11px]">{frame}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="text-[11px] text-slate-400 text-center font-sans">
-                Bottom frames stay preserved; never overwritten!
-              </div>
-            </div>
-
-            {/* Col 3: Explanation & Invariant Truth */}
-            <div className="space-y-3">
-              <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1.5">
-                <span className="text-[10px] font-sans uppercase tracking-wider text-blue-400 font-semibold">
-                  Step {currentFrame.step}: {currentFrame.label}
-                </span>
-                <p className="text-xs text-slate-200 leading-relaxed font-sans">
-                  {currentFrame.explanation}
-                </p>
-              </div>
-
-              <div className="p-3 rounded-xl bg-archaia-card border border-archaia-border space-y-1 text-xs">
-                <div className="text-amber-400 font-sans text-[11px] font-semibold">
-                  Counterexample Check:
-                </div>
-                <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-                  {intervention.counterexample.mentalModelExplanation}
-                </p>
+                Notice: Bottom frames stay frozen in hardware memory — they are <strong className="text-white">never overwritten</strong>!
               </div>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* TAB 2: TARGETED EXPLANATION (Feature 19) */}
-      {activeTab === "explain" && (
-        <div className="p-6 rounded-3xl bg-archaia-dark border border-archaia-border space-y-4 animate-in fade-in">
-          <div className="flex items-center space-x-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wider">
-              Pedagogical Deconstruction
-            </span>
-            <h3 className="text-lg font-bold text-white">{intervention.title}</h3>
-          </div>
-          <p className="text-sm text-slate-300 leading-relaxed font-sans">
-            {intervention.explanation}
-          </p>
-
-          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2 text-xs">
-            <span className="text-blue-400 font-semibold uppercase text-[11px] font-sans">
-              Why this broke your Graph Traversal code:
-            </span>
-            <p className="text-slate-300 leading-relaxed font-sans">
-              In graph DFS, when visiting node neighbors in a loop `for (let neighbor of neighbors)`, calling `dfs(neighbor)` suspends the current loop frame. Once the branch explores depth 4 and returns, your stack frame resumes at the exact neighbor index it paused at. Without understanding stack frames, learners mistakenly write `return dfs(...)` or assume the loop terminated!
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: MICRO-PUZZLE (Feature 21 & 24) */}
-      {activeTab === "puzzle" && (
-        <div className="p-6 rounded-3xl bg-archaia-dark border border-archaia-border space-y-4 animate-in fade-in">
-          <div>
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
-              Cognitive Disconfirmation Micro-Puzzle
-            </span>
-            <h3 className="text-base font-bold text-white mt-1">
-              {intervention.microPuzzle.question}
-            </h3>
-          </div>
-
-          {intervention.microPuzzle.codeSnippet && (
-            <pre className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200">
-              {intervention.microPuzzle.codeSnippet}
-            </pre>
-          )}
-
-          <div className="space-y-2">
-            {intervention.microPuzzle.options.map((opt, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => {
-                  setSelectedPuzzleIdx(idx);
-                  setPuzzleSubmitted(true);
-                }}
-                className={`w-full text-left p-3.5 rounded-xl border text-xs font-sans transition-all flex items-center justify-between ${
-                  selectedPuzzleIdx === idx
-                    ? idx === intervention.microPuzzle.correctIndex
-                      ? "bg-emerald-950/60 border-emerald-500 text-emerald-200"
-                      : "bg-rose-950/60 border-rose-500 text-rose-200"
-                    : "bg-archaia-card hover:bg-archaia-cardHover border-archaia-border text-slate-300"
-                }`}
-              >
-                <span>{opt}</span>
-                {selectedPuzzleIdx === idx && (
-                  <span className="font-semibold">
-                    {idx === intervention.microPuzzle.correctIndex ? "✓ Correct!" : "✗ Try again"}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {puzzleSubmitted && (
-            <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 leading-relaxed font-sans">
-              {intervention.microPuzzle.explanation}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* TAB 4: INTERACTIVE CODE FIX (Feature 25) */}
-      {activeTab === "code" && (
-        <div className="p-6 rounded-3xl bg-archaia-dark border border-archaia-border space-y-4 animate-in fade-in">
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
-                Code Invariant Repair
-              </span>
-              <h3 className="text-base font-bold text-white">Interactive Recursive Code Fix</h3>
-            </div>
-            <p className="text-xs text-archaia-muted mt-0.5 font-sans">
-              {intervention.codeExercise.instructions}
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <textarea
-              rows={10}
-              value={userCode}
-              onChange={(e) => setUserCode(e.target.value)}
-              className="w-full p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-emerald-300 focus:outline-none focus:border-blue-500 leading-relaxed"
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <button
-              type="button"
-              onClick={handleCodeCheck}
-              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-all"
-            >
-              <Play className="w-3.5 h-3.5" />
-              <span>Verify Recursive Invariant</span>
-            </button>
-
-            {codeTested && (
-              <span
-                className={`text-xs font-sans font-semibold ${
-                  codeSuccess ? "text-emerald-400" : "text-rose-400"
-                }`}
-              >
-                {codeSuccess
-                  ? "✓ Excellent! You removed the premature return, allowing stack resumption!"
-                  : "✗ Notice: You still have an early 'return' inside the neighbor loop."}
-              </span>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* TAB 5: INDUSTRY BLAST RADIUS (Feature 22, 36 & 37) */}
-      {activeTab === "blast_radius" && (
-        <div className="p-6 rounded-3xl bg-archaia-dark border border-amber-500/30 shadow-sm space-y-4 animate-in fade-in">
-          <div className="flex items-center space-x-2 text-amber-400 text-xs font-semibold font-sans">
-            <Flame className="w-4 h-4" />
-            <span>Production Architecture & Blast Radius Case Study</span>
-          </div>
-
-          <h3 className="text-lg font-bold text-white">
-            {intervention.industryBlastRadius.incidentTitle}
-          </h3>
-          <div className="text-xs font-sans text-slate-400">
-            Organization Type: <span className="text-slate-200 font-medium">{intervention.industryBlastRadius.organizationType}</span>
-          </div>
-
-          <p className="text-xs text-slate-300 leading-relaxed font-sans">
-            {intervention.industryBlastRadius.outageDescription}
-          </p>
-
-          <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-900/40 space-y-2 text-xs font-sans">
-            <span className="text-amber-400 font-semibold uppercase text-[10px]">
-              How this Misconception Translates to Production Outages:
-            </span>
-            <p className="text-amber-200/90 leading-relaxed">
-              {intervention.industryBlastRadius.howMisconceptionCausesIt}
-            </p>
-          </div>
-
-          <div className="text-[11px] text-slate-400 italic border-t border-slate-800 pt-2 font-sans">
-            * {intervention.industryBlastRadius.illustrativeNote}
-          </div>
-        </div>
-      )}
-
-      {/* TAB 6: MULTILINGUAL BRIDGE */}
-      {activeTab === "multilingual" && (
-        <div className="p-6 rounded-3xl bg-archaia-dark border border-archaia-border space-y-5 animate-in fade-in">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-archaia-border pb-3">
-            <div>
-              <h3 className="text-base font-bold text-white">
-                Multilingual Conceptual Bridge
-              </h3>
-              <p className="text-xs text-archaia-muted mt-0.5 font-sans">
-                Preserves technical English terms (`Call Stack`, `LIFO`, `Stack Frame`) while adapting conceptual intuition into regional languages.
+          {/* Current Step Explanation & Conceptual Counterexample */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-900/90 to-[#0e111a] border border-white/[0.08] space-y-2">
+              <div className="flex items-center space-x-2 text-rose-400 font-bold text-xs">
+                <BookOpen className="w-4 h-4" />
+                <span>Step {currentFrame.step} Execution Mechanics: {currentFrame.label}</span>
+              </div>
+              <p className="text-xs text-slate-200 leading-relaxed font-sans">
+                {currentFrame.explanation}
               </p>
             </div>
 
-            <div className="flex items-center space-x-2">
-              {[
-                { code: "ta", label: "தமிழ் (Tamil)" },
-                { code: "hi", label: "हिन्दी (Hindi)" },
-                { code: "te", label: "తెలుగు (Telugu)" },
-              ].map((lang) => (
-                <button
-                  key={lang.code}
-                  type="button"
-                  onClick={() => handleLanguageChange(lang.code)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-sans font-medium transition-all ${
-                    selectedLanguage === lang.code
-                      ? "bg-blue-600 text-white shadow-sm"
-                      : "bg-archaia-card hover:bg-archaia-cardHover text-slate-400"
-                  }`}
-                >
-                  {lang.label}
-                </button>
-              ))}
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-[#161219] to-slate-900/90 border border-rose-500/20 space-y-2">
+              <div className="flex items-center space-x-2 text-rose-300 font-bold text-xs">
+                <Sparkles className="w-4 h-4" />
+                <span>Invariant Counterexample: {intervention.counterexample.title}</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                {intervention.counterexample.mentalModelExplanation}
+              </p>
+              {intervention.counterexample.actualOutput && (
+                <div className="p-2.5 rounded-lg bg-slate-950 font-mono text-[11px] text-emerald-300 border border-slate-800">
+                  Observed Output: {intervention.counterexample.actualOutput.replace(/\n/g, " → ")}
+                </div>
+              )}
             </div>
           </div>
 
-          {loadingTranslation ? (
-            <div className="p-8 text-center text-xs font-sans text-slate-400">
-              Generating contextual regional analogy with preserved terminology...
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="p-5 rounded-2xl bg-archaia-card border border-archaia-border space-y-3">
-                <span className="text-[11px] font-sans uppercase text-blue-400 font-semibold">
-                  Conceptual Translation
-                </span>
-                <p className="text-sm text-slate-200 leading-relaxed font-sans">
-                  {localizedData?.explanation ||
-                    "ஒரு function மற்றொரு function-ஐ அழைக்கும் போது, அது பழைய function-ஐ அழிக்காது. கணினியின் Call Stack-ல் ஒவ்வொரு function invocation-க்கும் ஒரு தனிப்பட்ட Stack Frame ஒதுக்கப்படுகிறது. அழைக்கப்பட்ட குழந்தை function முடியும் வரை, பெற்றோர் function-ன் local variables பாதுகாப்பாக suspend நிலையில் இருக்கும்."}
-                </p>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
-                <span className="text-[11px] font-sans uppercase text-amber-400 font-semibold">
-                  Intuitive Cultural Analogy
-                </span>
-                <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                  {localizedData?.analogy ||
-                    "நீங்கள் ஒரு புத்தகத்தைப் படித்துக் கொண்டிருக்கும் போது ஒரு குறிப்பை சரிபார்க்க மற்றொரு குறிப்பேட்டைத் திறப்பது போல. நீங்கள் அசல் புத்தகத்தை தூக்கி எறிய மாட்டீர்கள்; குறிப்பேட்டை முடித்துவிட்டு, புத்தகத்தில் விட்ட இடத்திலிருந்தே தொடர்வீர்கள்."}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2 pt-2 text-xs">
-                <span className="text-slate-400 font-sans">Preserved Technical Terms:</span>
-                {(
-                  localizedData?.preservedTechnicalTerms || [
-                    "Call Stack",
-                    "Stack Frame",
-                    "function invocation",
-                    "local variables",
-                    "suspend",
-                  ]
-                ).map((term: string) => (
-                  <span
-                    key={term}
-                    className="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-blue-300 text-[11px] font-mono"
-                  >
-                    {term}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+          {/* Pedagogical Deconstruction (Why it broke student code) */}
+          <div className="p-5 rounded-2xl bg-slate-900/70 border border-white/[0.08] space-y-2 text-xs">
+            <span className="text-rose-400 font-bold uppercase text-[11px] font-sans flex items-center space-x-1.5">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>Core Deconstruction: Why this broke your previous solution</span>
+            </span>
+            <p className="text-slate-300 leading-relaxed font-sans">
+              {intervention.explanation}
+            </p>
+          </div>
+        </section>
       )}
 
-      {/* TAB 7: MANDATORY RE-TEST (Feature 27, 28, 29 & 30) */}
-      {activeTab === "retest" && retest && (
-        <div className="p-6 rounded-3xl bg-archaia-dark border border-emerald-500/30 shadow-sm space-y-5 animate-in fade-in">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-archaia-border pb-3">
-            <div>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
-                Prerequisite Mastery Verification Assessment
-              </span>
-              <h3 className="text-base font-bold text-white mt-1">{retest.question}</h3>
+      {/* ========================================================================= */}
+      {/* SECTION 2: HANDS-ON PRACTICE & DISCONFIRMATION (MICRO-PUZZLE + CODE FIX) */}
+      {/* ========================================================================= */}
+      {(viewMode === "flow" || focusedStage === "practice") && (
+        <section
+          id="practice-section"
+          aria-labelledby="practice-heading"
+          className="p-6 sm:p-7 rounded-3xl bg-[#0c0e17] border border-white/[0.08] shadow-xl space-y-6"
+        >
+          <div className="border-b border-white/[0.08] pb-4">
+            <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wide">
+              Stage 02 • Hands-On Practice & Disconfirmation
+            </span>
+            <h2 id="practice-heading" className="text-lg font-bold text-white font-editorial mt-1">
+              Test & Repair the Invariant
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            {/* Left: Micro-Puzzle Disconfirmation */}
+            <div className="p-5 rounded-2xl bg-slate-900/60 border border-white/[0.08] space-y-4">
+              <div className="flex items-center space-x-2 text-amber-400 font-bold text-xs">
+                <Puzzle className="w-4 h-4" />
+                <span>Cognitive Disconfirmation Micro-Puzzle</span>
+              </div>
+
+              <p className="text-xs text-white font-semibold font-sans leading-relaxed">
+                {intervention.microPuzzle.question}
+              </p>
+
+              {intervention.microPuzzle.codeSnippet && (
+                <pre className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px] font-mono text-slate-200 overflow-x-auto leading-relaxed">
+                  {intervention.microPuzzle.codeSnippet}
+                </pre>
+              )}
+
+              <div className="space-y-2">
+                {intervention.microPuzzle.options.map((opt, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setSelectedPuzzleIdx(idx);
+                      setPuzzleSubmitted(true);
+                    }}
+                    className={`w-full text-left p-3.5 rounded-xl border text-xs font-sans transition-all flex items-center justify-between ${
+                      selectedPuzzleIdx === idx
+                        ? idx === intervention.microPuzzle.correctIndex
+                          ? "bg-emerald-950/70 border-emerald-500 text-emerald-200 font-semibold"
+                          : "bg-rose-950/70 border-rose-500 text-rose-200 font-semibold"
+                        : "bg-slate-950/80 hover:bg-slate-900 border-slate-800 text-slate-300"
+                    }`}
+                  >
+                    <span>{opt}</span>
+                    {selectedPuzzleIdx === idx && (
+                      <span className="font-bold text-xs shrink-0 ml-2">
+                        {idx === intervention.microPuzzle.correctIndex ? "✓ Correct!" : "✗ Try again"}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {puzzleSubmitted && (
+                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 leading-relaxed font-sans">
+                  {intervention.microPuzzle.explanation}
+                </div>
+              )}
             </div>
 
-            {/* Dynamic Status Transition: Needs Recovery -> Re-testing -> ✓ Recovered OR ⚠ Still Unresolved */}
+            {/* Right: Interactive Code Fix Sandbox */}
+            <div className="p-5 rounded-2xl bg-slate-900/60 border border-white/[0.08] space-y-4">
+              <div className="flex items-center space-x-2 text-rose-400 font-bold text-xs">
+                <Code2 className="w-4 h-4" />
+                <span>Interactive Code Fix Sandbox</span>
+              </div>
+
+              <p className="text-xs text-slate-300 font-sans leading-relaxed">
+                {intervention.codeExercise.instructions}
+              </p>
+
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="recovery_code_editor"
+                  className="text-[11px] font-sans text-slate-400 block font-medium"
+                >
+                  Editable Recursive Function:
+                </label>
+                <textarea
+                  id="recovery_code_editor"
+                  rows={9}
+                  aria-label="Interactive Code Fix Input"
+                  value={userCode}
+                  onChange={(e) => setUserCode(e.target.value)}
+                  className="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-emerald-300 focus:outline-none focus:border-rose-500 leading-relaxed shadow-inner"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={handleCodeCheck}
+                  className="flex items-center justify-center space-x-2 px-5 py-2.5 rounded-xl btn-shades-primary text-white text-xs font-semibold shadow-md transition-all"
+                >
+                  <Play className="w-3.5 h-3.5" />
+                  <span>Verify Recursive Invariant</span>
+                </button>
+
+                {codeTested && (
+                  <span
+                    className={`text-xs font-sans font-semibold ${
+                      codeSuccess ? "text-emerald-400" : "text-rose-400"
+                    }`}
+                  >
+                    {codeSuccess
+                      ? "✓ Excellent! Preserves parent loop state across calls!"
+                      : "✗ Notice: An early return inside the loop still aborts traversal."}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SECTION 3: MANDATORY RE-TEST & MASTERY VERIFICATION ASSESSMENT            */}
+      {/* ========================================================================= */}
+      {(viewMode === "flow" || focusedStage === "retest") && retest && (
+        <section
+          id="retest-section"
+          aria-labelledby="retest-heading"
+          className="p-6 sm:p-7 rounded-3xl bg-[#0c0e17] border border-emerald-500/30 shadow-xl space-y-6"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
+            <div>
+              <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 uppercase tracking-wide">
+                Stage 03 • Mandatory Re-Test Verification
+              </span>
+              <h2 id="retest-heading" className="text-lg font-bold text-white font-editorial mt-1">
+                Prerequisite Mastery Verification Assessment
+              </h2>
+            </div>
+
+            {/* Dynamic Status Indicator */}
             <div className="shrink-0">
               {reTestResult ? (
                 reTestResult.isCorrect ? (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center space-x-1.5 shadow-sm animate-in zoom-in-95">
-                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>✓ Recovered</span>
+                  <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 flex items-center space-x-2 shadow-sm animate-in zoom-in-95">
+                    <CheckCircle className="w-4 h-4 text-emerald-400" />
+                    <span>✓ Invariant Recovered</span>
                   </span>
                 ) : (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center space-x-1.5 shadow-sm animate-in zoom-in-95">
-                    <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-                    <span>⚠ Still Unresolved</span>
+                  <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/50 flex items-center space-x-2 shadow-sm animate-in zoom-in-95">
+                    <AlertTriangle className="w-4 h-4 text-rose-400" />
+                    <span>⚠ Needs Further Review</span>
                   </span>
                 )
               ) : reTesting ? (
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40 flex items-center space-x-1.5 shadow-sm">
-                  <RotateCcw className="w-3.5 h-3.5 animate-spin text-blue-400" />
-                  <span>Re-testing...</span>
+                <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center space-x-2 shadow-sm">
+                  <RotateCcw className="w-4 h-4 animate-spin text-rose-400" />
+                  <span>Evaluating Response...</span>
                 </span>
               ) : (
-                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center space-x-1.5">
+                <span className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center space-x-2">
                   <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                  <span>Needs Recovery</span>
+                  <span>Pending Re-Test</span>
                 </span>
               )}
             </div>
           </div>
 
-          {retest.codeSnippet && (
-            <pre className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200">
-              {retest.codeSnippet}
-            </pre>
-          )}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-white font-sans leading-relaxed">
+              {retest.question}
+            </h3>
 
-          <div className="space-y-2.5">
-            {retest.options.map((opt) => (
-              <label
-                key={opt.id}
-                onClick={() => {
-                  setSelectedReTestOpt(opt.id);
-                  setReTestError(null);
-                }}
-                className={`block p-4 rounded-xl border text-xs font-sans cursor-pointer transition-all ${
-                  selectedReTestOpt === opt.id
-                    ? "bg-slate-800/90 border-blue-500 text-white shadow-sm"
-                    : "bg-archaia-card hover:bg-archaia-cardHover border-archaia-border text-slate-300"
+            {retest.codeSnippet && (
+              <pre className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200 leading-relaxed overflow-x-auto">
+                {retest.codeSnippet}
+              </pre>
+            )}
+
+            {/* Assessment Options */}
+            <div className="space-y-2.5">
+              {retest.options.map((opt) => (
+                <label
+                  key={opt.id}
+                  htmlFor={`retest_opt_${opt.id}`}
+                  onClick={() => {
+                    setSelectedReTestOpt(opt.id);
+                    setReTestError(null);
+                  }}
+                  className={`block p-4 rounded-xl border text-xs font-sans cursor-pointer transition-all ${
+                    selectedReTestOpt === opt.id
+                      ? "bg-slate-800/90 border-rose-500 text-white shadow-md ring-1 ring-rose-500/40"
+                      : "bg-slate-950/80 hover:bg-slate-900 border-slate-800 text-slate-300"
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <input
+                      type="radio"
+                      id={`retest_opt_${opt.id}`}
+                      name="retest_choice"
+                      checked={selectedReTestOpt === opt.id}
+                      onChange={() => {
+                        setSelectedReTestOpt(opt.id);
+                        setReTestError(null);
+                      }}
+                      className="accent-rose-500"
+                    />
+                    <span className="leading-relaxed">{opt.text}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+              <button
+                type="button"
+                onClick={handleReTestSubmit}
+                disabled={reTesting}
+                className="flex items-center justify-center space-x-2 px-6 py-3 rounded-xl btn-shades-primary text-white font-semibold text-xs shadow-md transition-all disabled:opacity-50"
+              >
+                <CheckCircle className="w-4 h-4" />
+                <span>{reTesting ? "Verifying Mastery..." : "Submit Re-Test & Verify Invariant"}</span>
+              </button>
+
+              {reTestError && (
+                <div className="flex items-center space-x-2 text-xs font-semibold text-rose-400 bg-rose-950/40 border border-rose-800/50 px-3.5 py-2 rounded-xl animate-in fade-in">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{reTestError}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Evaluation Result Feedback */}
+            {reTestResult && (
+              <div
+                className={`p-6 rounded-2xl border space-y-4 animate-in zoom-in-95 ${
+                  reTestResult.isCorrect
+                    ? "bg-emerald-950/70 border-emerald-500 text-emerald-200"
+                    : "bg-rose-950/70 border-rose-500 text-rose-200"
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="radio"
-                    name="retest_choice"
-                    checked={selectedReTestOpt === opt.id}
-                    onChange={() => {
-                      setSelectedReTestOpt(opt.id);
-                      setReTestError(null);
-                    }}
-                    className="accent-blue-600"
-                  />
-                  <span>{opt.text}</span>
+                <div className="flex items-center space-x-2.5 font-bold text-sm">
+                  {reTestResult.isCorrect ? (
+                    <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
+                  ) : (
+                    <XCircle className="w-5 h-5 text-rose-400 shrink-0" />
+                  )}
+                  <span className={reTestResult.isCorrect ? "text-emerald-300" : "text-rose-300"}>
+                    {reTestResult.isCorrect
+                      ? "Concept Invariant Restructured — Mastery Verified!"
+                      : "Cognitive Gap Unresolved — Remediation Logged."}
+                  </span>
                 </div>
-              </label>
-            ))}
-          </div>
+                <p className="text-xs text-slate-200 leading-relaxed font-sans">{reTestResult.feedback}</p>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-            <button
-              type="button"
-              onClick={handleReTestSubmit}
-              disabled={reTesting}
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-all disabled:opacity-50"
-            >
-              <CheckCircle className="w-4 h-4" />
-              <span>{reTesting ? "Evaluating Re-Assessment..." : "Submit Re-Test & Update Model"}</span>
-            </button>
-
-            {reTestError && (
-              <div className="flex items-center space-x-1.5 text-xs font-semibold text-rose-400 bg-rose-950/40 border border-rose-800/50 px-3 py-1.5 rounded-lg animate-in fade-in">
-                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                <span>{reTestError}</span>
+                {reTestResult.isCorrect && (
+                  <div className="pt-3 border-t border-emerald-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <span className="text-xs font-sans text-slate-300">
+                      Unlocked in Causal DAG: <strong>{reTestResult.unlockedConcepts?.join(", ") || "Downstream concepts unblocked"}</strong> 🔓
+                    </span>
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <Link
+                        href={
+                          getEffectiveSessionId()
+                            ? `/progress?sessionId=${encodeURIComponent(getEffectiveSessionId()!)}&recoveredConcept=${encodeURIComponent(activeConceptId)}&fromTarget=${encodeURIComponent(fromTarget || "")}`
+                            : `/progress?recoveredConcept=${encodeURIComponent(activeConceptId)}&fromTarget=${encodeURIComponent(fromTarget || "")}`
+                        }
+                        className="flex items-center space-x-1.5 px-5 py-2.5 rounded-xl btn-shades-primary text-white font-semibold text-xs shadow-md transition-all"
+                      >
+                        <span>Proceed to Step 4: Adaptive Roadmap →</span>
+                      </Link>
+                      <Link
+                        href={
+                          getEffectiveSessionId()
+                            ? `/graph?sessionId=${encodeURIComponent(getEffectiveSessionId()!)}&highlight=${encodeURIComponent(activeConceptId)}`
+                            : `/graph?highlight=${encodeURIComponent(activeConceptId)}`
+                        }
+                        className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
+                      >
+                        Inspect in DAG
+                      </Link>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
+        </section>
+      )}
 
-          {reTestResult && (
-            <div
-              className={`p-5 rounded-2xl border space-y-3 animate-in zoom-in-95 ${
-                reTestResult.isCorrect
-                  ? "bg-emerald-950/70 border-emerald-500 text-emerald-200"
-                  : "bg-rose-950/70 border-rose-500 text-rose-200"
-              }`}
-            >
-              <div className="flex items-center space-x-2 font-bold text-sm">
-                {reTestResult.isCorrect ? (
-                  <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
-                ) : (
-                  <XCircle className="w-5 h-5 text-rose-400 shrink-0" />
-                )}
-                <span className={reTestResult.isCorrect ? "text-emerald-300" : "text-rose-300"}>
-                  {reTestResult.isCorrect
-                    ? "Concept Invariant Restructured — Mastery Verified!"
-                    : "Cognitive Gap Unresolved — Remediation Logged."}
-                </span>
+      {/* ========================================================================= */}
+      {/* SECTION 4: REAL-WORLD INDUSTRY BLAST RADIUS & MULTILINGUAL BRIDGE         */}
+      {/* ========================================================================= */}
+      {(viewMode === "flow" || focusedStage === "deepdive") && (
+        <section
+          id="deepdive-section"
+          aria-labelledby="deepdive-heading"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        >
+          {/* Industry Blast Radius */}
+          <div className="p-6 rounded-3xl bg-[#0c0e17] border border-amber-500/30 shadow-xl space-y-4">
+            <div className="flex items-center space-x-2 text-amber-400 text-xs font-bold font-sans">
+              <Flame className="w-4 h-4" />
+              <span>Production Architecture &amp; Blast Radius Case Study</span>
+            </div>
+
+            <h3 id="deepdive-heading" className="text-base font-bold text-white font-editorial">
+              {intervention.industryBlastRadius.incidentTitle}
+            </h3>
+            <div className="text-xs font-sans text-slate-400">
+              Organization: <span className="text-slate-200 font-medium">{intervention.industryBlastRadius.organizationType}</span>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed font-sans">
+              {intervention.industryBlastRadius.outageDescription}
+            </p>
+
+            <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-900/40 space-y-2 text-xs font-sans">
+              <span className="text-amber-400 font-bold uppercase text-[10px]">
+                How this Misconception Triggers Outages:
+              </span>
+              <p className="text-amber-200/90 leading-relaxed">
+                {intervention.industryBlastRadius.howMisconceptionCausesIt}
+              </p>
+            </div>
+
+            <div className="text-[11px] text-slate-400 italic border-t border-slate-800/80 pt-2 font-sans">
+              * {intervention.industryBlastRadius.illustrativeNote}
+            </div>
+          </div>
+
+          {/* Multilingual Bridge */}
+          <div className="p-6 rounded-3xl bg-[#0c0e17] border border-white/[0.08] shadow-xl space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
+              <div>
+                <div className="flex items-center space-x-2 text-rose-400 text-xs font-bold font-sans">
+                  <Globe className="w-4 h-4" />
+                  <span>Multilingual Conceptual Bridge</span>
+                </div>
+                <h3 className="text-base font-bold text-white font-editorial mt-0.5">
+                  Regional Intuition &amp; Preserved Terms
+                </h3>
               </div>
-              <p className="text-xs text-slate-200 leading-relaxed font-sans">{reTestResult.feedback}</p>
 
-              {!reTestResult.isCorrect && (
-                <div className="p-3 rounded-xl bg-slate-950/80 border border-rose-900/60 text-xs font-sans text-rose-300 space-y-1">
-                  <div className="font-semibold flex items-center space-x-1.5 text-rose-400">
-                    <AlertTriangle className="w-3.5 h-3.5" />
-                    <span>Evaluation Result: Concept Invariant Fault Persists</span>
-                  </div>
-                  <p className="text-[11px] text-slate-300">
-                    {reTestResult.furtherDiagnosisNotes ||
-                      "The mental model gap persists. Additional remediation is required before concept can be verified."}
+              <div className="flex items-center space-x-1.5">
+                {[
+                  { code: "ta", label: "தமிழ்" },
+                  { code: "hi", label: "हिन्दी" },
+                  { code: "te", label: "తెలుగు" },
+                ].map((lang) => (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={() => handleLanguageChange(lang.code)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-sans font-medium transition-all ${
+                      selectedLanguage === lang.code
+                        ? "bg-rose-600 text-white shadow-sm font-semibold"
+                        : "bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800"
+                    }`}
+                  >
+                    {lang.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {loadingTranslation ? (
+              <div className="p-8 text-center text-xs font-sans text-slate-400">
+                Generating contextual regional analogy with preserved terminology...
+              </div>
+            ) : (
+              <div className="space-y-3.5">
+                <div className="p-4 rounded-2xl bg-slate-900/60 border border-white/[0.08] space-y-2">
+                  <span className="text-[10px] font-sans uppercase text-rose-400 font-bold">
+                    Conceptual Regional Translation
+                  </span>
+                  <p className="text-xs text-slate-200 leading-relaxed font-sans">
+                    {localizedData?.explanation ||
+                      "ஒரு function மற்றொரு function-ஐ அழைக்கும் போது, அது பழைய function-ஐ அழிக்காது. கணினியின் Call Stack-ல் ஒவ்வொரு function invocation-க்கும் ஒரு தனிப்பட்ட Stack Frame ஒதுக்கப்படுகிறது. அழைக்கப்பட்ட குழந்தை function முடியும் வரை, பெற்றோர் function-ன் local variables பாதுகாப்பாக suspend நிலையில் இருக்கும்."}
                   </p>
                 </div>
-              )}
 
-              {reTestResult.isCorrect && (
-                <div className="pt-2 border-t border-emerald-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <span className="text-xs font-sans text-slate-300">
-                    Unlocked Downstream: {reTestResult.unlockedConcepts?.join(", ") || "Downstream concepts unblocked in Causal DAG"} 🔓
+                <div className="p-4 rounded-2xl bg-slate-900/40 border border-slate-800 space-y-1.5">
+                  <span className="text-[10px] font-sans uppercase text-amber-400 font-bold">
+                    Cultural Analogy
                   </span>
-                  <div className="flex items-center space-x-2">
-                    <Link
-                      href={
-                        getEffectiveSessionId()
-                          ? `/progress?sessionId=${encodeURIComponent(getEffectiveSessionId()!)}&recoveredConcept=${encodeURIComponent(activeConceptId)}&fromTarget=${encodeURIComponent(fromTarget || "")}`
-                          : `/progress?recoveredConcept=${encodeURIComponent(activeConceptId)}&fromTarget=${encodeURIComponent(fromTarget || "")}`
-                      }
-                      className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors shadow-sm"
-                    >
-                      <span>Proceed to Step 4: Adaptive Roadmap →</span>
-                    </Link>
-                    <Link
-                      href={
-                        getEffectiveSessionId()
-                          ? `/graph?sessionId=${encodeURIComponent(getEffectiveSessionId()!)}&highlight=${encodeURIComponent(activeConceptId)}`
-                          : `/graph?highlight=${encodeURIComponent(activeConceptId)}`
-                      }
-                      className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors"
-                    >
-                      Inspect in DAG
-                    </Link>
-                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                    {localizedData?.analogy ||
+                      "நீங்கள் ஒரு புத்தகத்தைப் படித்துக் கொண்டிருக்கும் போது ஒரு குறிப்பை சரிபார்க்க மற்றொரு குறிப்பேட்டைத் திறப்பது போல. நீங்கள் அசல் புத்தகத்தை தூக்கி எறிய மாட்டீர்கள்; குறிப்பேட்டை முடித்துவிட்டு, புத்தகத்தில் விட்ட இடத்திலிருந்தே தொடர்வீர்கள்."}
+                  </p>
                 </div>
-              )}
 
-            </div>
-          )}
-        </div>
+                <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+                  <span className="text-slate-400 font-sans text-[11px]">Preserved Terms:</span>
+                  {(
+                    localizedData?.preservedTechnicalTerms || [
+                      "Call Stack",
+                      "Stack Frame",
+                      "function invocation",
+                      "local variables",
+                      "suspend",
+                    ]
+                  ).map((term: string) => (
+                    <span
+                      key={term}
+                      className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-rose-300 text-[10px] font-mono"
+                    >
+                      {term}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
       )}
     </div>
   );
