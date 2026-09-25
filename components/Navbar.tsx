@@ -175,7 +175,7 @@ export default function Navbar() {
                 className="w-8 h-8 group-hover:scale-105 transition-transform"
               />
               <div>
-                <span className="text-xl font-bold tracking-[0.15em] text-white">
+                <span className="text-xl font-bold tracking-[0.15em] text-white logo-shimmer block">
                   ARCHAIA
                 </span>
                 <span className="hidden sm:block text-[10px] uppercase font-medium tracking-wider text-slate-400 -mt-1">
@@ -194,13 +194,16 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium nav-item-interactive ${
                     isActive
-                      ? "bg-blue-600/15 text-blue-400 border border-blue-500/30 font-semibold shadow-sm"
-                      : "text-slate-400 hover:text-white hover:bg-archaia-card"
+                      ? "bg-blue-600/15 text-blue-300 border border-blue-500/35 font-semibold shadow-[0_0_14px_rgba(59,130,246,0.18)]"
+                      : "text-slate-400 hover:text-white hover:bg-archaia-card/80 border border-transparent"
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  {isActive && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 mr-0.5 animate-pulse" />
+                  )}
+                  <Icon className="w-3.5 h-3.5 nav-icon" />
                   <span>{item.label}</span>
                 </Link>
               );

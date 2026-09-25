@@ -14,12 +14,29 @@ import {
   ArrowRight,
   ShieldAlert,
   PlayCircle,
+  BookOpen,
+  FolderOpen,
+  Layers,
+  GraduationCap,
+  Target,
+  Compass,
 } from "lucide-react";
-import { LearningProgressMetrics, Misconception } from "@/lib/types";
+import {
+  LearningProgressMetrics,
+  Misconception,
+  Concept,
+  CourseMaterial,
+  AppContentMode,
+  LearnerConceptState,
+} from "@/lib/types";
 import ContentModeBanner from "@/components/mode/ContentModeBanner";
 
 export default function DashboardPage() {
   const [metrics, setMetrics] = useState<LearningProgressMetrics | null>(null);
+  const [concepts, setConcepts] = useState<Concept[]>([]);
+  const [learnerStates, setLearnerStates] = useState<Record<string, LearnerConceptState>>({});
+  const [mode, setMode] = useState<AppContentMode>("demo");
+  const [activeCourse, setActiveCourse] = useState<CourseMaterial | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<{
     fullName: string;
@@ -28,13 +45,21 @@ export default function DashboardPage() {
   } | null>(null);
   const [customTopic, setCustomTopic] = useState("");
 
-  const fetchMetrics = () => {
+  const fetchDashboardData = () => {
     setLoading(true);
-    fetch("/api/graph")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setMetrics(data.metrics);
+    Promise.all([
+      fetch("/api/graph").then((res) => res.json()),
+      fetch("/api/course").then((res) => res.json()),
+    ])
+      .then(([graphData, courseData]) => {
+        if (graphData.success) {
+          setMetrics(graphData.metrics || null);
+          setConcepts(graphData.concepts || []);
+          setLearnerStates(graphData.learnerStates || {});
+        }
+        if (courseData.success) {
+          setMode(courseData.mode || "demo");
+          setActiveCourse(courseData.activeCourse || null);
         }
       })
       .catch((e) => console.error(e))
@@ -57,24 +82,50 @@ export default function DashboardPage() {
       })
       .catch(() => {});
 
-    fetchMetrics();
+    fetchDashboardData();
+
+    const handleModeChange = () => fetchDashboardData();
+    window.addEventListener("archaia-mode-change", handleModeChange);
+    return () => window.removeEventListener("archaia-mode-change", handleModeChange);
   }, []);
+
+  // Compute recommended next concept dynamically based on current mode
+  const getRecommendedNextConcept = () => {
+    if (mode === "course" && activeCourse?.concepts && activeCourse.concepts.length > 0) {
+      // Find concept that needs recovery or is untested
+      const needingRecovery = activeCourse.concepts.find(
+        (c) =>
+          c.recoveryStatus === "root_gap_identified" ||
+          c.recoveryStatus === "misconception_detected" ||
+          c.recoveryStatus === "unresolved"
+      );
+      if (needingRecovery) return needingRecovery;
+      const untested = activeCourse.concepts.find((c) => c.recoveryStatus === "untested" || !c.recoveryStatus);
+      if (untested) return untested;
+      return activeCourse.concepts[0];
+    }
+    // Demo Mode default
+    return concepts.find((c) => c.id === "call_stack") || concepts[0] || null;
+  };
+
+  const recommendedConcept = getRecommendedNextConcept();
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      {/* Content Mode Indicator & Switcher Banner */}
-      <ContentModeBanner onModeChange={() => fetchMetrics()} />
-      {/* Top Banner / Hero */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-950/60 via-archaia-dark to-slate-900 border border-archaia-border p-6 sm:p-8 shadow-2xl">
+      {/* Universal Content Mode Banner & Quick Switcher */}
+      <ContentModeBanner onModeChange={() => fetchDashboardData()} />
+
+      {/* Top Hero Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-950/70 via-archaia-dark to-slate-900 border border-archaia-border p-6 sm:p-8 shadow-2xl">
         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-mono">
               <Sparkles className="w-3.5 h-3.5" />
               <span>
-                {currentUser
-                  ? `Active Diagnostic Session • ${currentUser.fullName} (${currentUser.role})`
-                  : "Cognitive Diagnostic Engine Active"}
+                {mode === "demo"
+                  ? "DEMO DATASET • Seeded Graph Traversal Investigation"
+                  : `COURSE MODE • Operating on: ${activeCourse?.title || "Active Course"}`}
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
@@ -82,25 +133,30 @@ export default function DashboardPage() {
                 ? `Welcome back, ${currentUser.fullName}`
                 : "Learner Cognitive Diagnostic Hub"}
             </h1>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              {currentUser?.institution ? (
-                <span className="text-blue-400 font-medium">{currentUser.institution} • </span>
-              ) : null}
-              ARCHAIA continuously models your conceptual invariants across the Causal Knowledge Graph. When advanced errors occur, we trace and isolate the foundational root gap rather than simply re-showing answers.
+            <p className="text-slate-400 text-sm leading-relaxed font-sans">
+              {mode === "demo" ? (
+                <>
+                  ARCHAIA continuously models conceptual invariants across the Causal Knowledge Graph. When advanced errors occur, we trace and isolate the foundational root gap rather than simply re-showing answers.
+                </>
+              ) : (
+                <>
+                  Diagnosing conceptual understanding across <strong>{activeCourse?.title || "Uploaded Material"}</strong> ({concepts.length} dynamic concepts). Invariant probes isolate foundational gaps across your curriculum.
+                </>
+              )}
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/detector"
-              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-sm transition-all"
+              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-sm transition-all btn-interactive"
             >
               <PlayCircle className="w-4 h-4" />
               <span>Launch Live Diagnostic</span>
             </Link>
             <Link
               href="/graph"
-              className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white text-xs font-medium transition-all"
+              className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white text-xs font-medium transition-all btn-interactive-subtle"
             >
               <Network className="w-4 h-4 text-blue-400" />
               <span>Inspect DAG Map</span>
@@ -157,26 +213,31 @@ export default function DashboardPage() {
               value={customTopic}
               onChange={(e) => setCustomTopic(e.target.value)}
               placeholder="e.g. Asynchronous Event Loop, Binary Search Trees, Dynamic Programming, Memory Pointers..."
-              className="flex-1 px-4 py-2.5 rounded-xl bg-black/60 border border-archaia-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-sans"
+              className="flex-1 px-4 py-2.5 rounded-xl bg-black/60 border border-archaia-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-sans input-focus-glow"
             />
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-sm shrink-0 flex items-center justify-center space-x-1.5"
+              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-sm shrink-0 flex items-center justify-center space-x-1.5 btn-interactive"
             >
               <span>Launch Pipeline →</span>
             </button>
           </form>
 
-          {/* Quick Starter Topics */}
+          {/* Quick Starter Topics / Dynamic Course Concept Chips */}
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
-            <span className="text-[10px] text-slate-400">Popular Diagnostic Targets:</span>
-            {[
-              "Asynchronous Event Loop",
-              "Binary Tree Traversal",
-              "Recursion Base Invariants",
-              "Memory Pointer Aliasing",
-              "Dynamic Programming",
-            ].map((tag) => (
+            <span className="text-[10px] text-slate-400">
+              {mode === "course" && activeCourse ? "Course Concepts to Diagnose:" : "Popular Diagnostic Targets:"}
+            </span>
+            {(mode === "course" && activeCourse?.concepts
+              ? activeCourse.concepts.map((c) => c.name)
+              : [
+                  "Asynchronous Event Loop",
+                  "Binary Tree Traversal",
+                  "Recursion Base Invariants",
+                  "Memory Pointer Aliasing",
+                  "Dynamic Programming",
+                ]
+            ).map((tag) => (
               <button
                 key={tag}
                 type="button"
@@ -184,7 +245,7 @@ export default function DashboardPage() {
                   setCustomTopic(tag);
                   window.location.href = `/detector?custom=true&concept=${encodeURIComponent(tag)}`;
                 }}
-                className="text-[10px] font-sans px-2.5 py-1 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-300 hover:text-white transition-colors"
+                className="text-[10px] font-sans px-2.5 py-1 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-300 hover:text-white transition-colors btn-interactive-subtle"
               >
                 {tag}
               </button>
@@ -192,10 +253,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* 4 Core Workbench Modules */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Link
             href="/detector"
-            className="p-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border hover:border-blue-500/50 transition-all group flex flex-col justify-between space-y-3"
+            className="p-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border hover:border-blue-500/50 transition-all group flex flex-col justify-between space-y-3 card-interactive"
           >
             <div className="space-y-1.5">
               <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -205,7 +267,7 @@ export default function DashboardPage() {
                 1. Test Mental Model
               </h3>
               <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-                Submit explanations or code on Graph DFS, Aliasing, or Recursion.
+                Submit explanations or code on {concepts[0]?.name || "any concept"} to isolate cognitive bugs.
               </p>
             </div>
             <span className="text-xs font-medium text-blue-400 flex items-center space-x-1 font-sans">
@@ -215,7 +277,7 @@ export default function DashboardPage() {
 
           <Link
             href="/graph"
-            className="p-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border hover:border-blue-500/50 transition-all group flex flex-col justify-between space-y-3"
+            className="p-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border hover:border-blue-500/50 transition-all group flex flex-col justify-between space-y-3 card-interactive"
           >
             <div className="space-y-1.5">
               <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -225,7 +287,7 @@ export default function DashboardPage() {
                 2. Explore Causal DAG
               </h3>
               <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-                Interact with the 2D prerequisite dependency topology and node drawer.
+                Interact with the {concepts.length}-node prerequisite topology and node inspection drawer.
               </p>
             </div>
             <span className="text-xs font-medium text-blue-400 flex items-center space-x-1 font-sans">
@@ -235,7 +297,7 @@ export default function DashboardPage() {
 
           <Link
             href="/bisect"
-            className="p-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border hover:border-amber-500/50 transition-all group flex flex-col justify-between space-y-3"
+            className="p-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border hover:border-amber-500/50 transition-all group flex flex-col justify-between space-y-3 card-interactive"
           >
             <div className="space-y-1.5">
               <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -245,7 +307,7 @@ export default function DashboardPage() {
                 3. Cognitive Bisect
               </h3>
               <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-                Issue micro-probes on ancestor concepts to pinpoint the true root gap.
+                Issue micro-probes on ancestor concepts to pinpoint the true likely root gap.
               </p>
             </div>
             <span className="text-xs font-medium text-amber-400 flex items-center space-x-1 font-sans">
@@ -255,7 +317,7 @@ export default function DashboardPage() {
 
           <Link
             href="/recovery"
-            className="p-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border hover:border-emerald-500/50 transition-all group flex flex-col justify-between space-y-3"
+            className="p-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border hover:border-emerald-500/50 transition-all group flex flex-col justify-between space-y-3 card-interactive"
           >
             <div className="space-y-1.5">
               <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -265,7 +327,7 @@ export default function DashboardPage() {
                 4. Recovery Lab
               </h3>
               <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-                Step through visual stack frames, counterexamples, and re-test mastery.
+                Step through visual memory models, counterexamples, and mandatory re-test.
               </p>
             </div>
             <span className="text-xs font-medium text-emerald-400 flex items-center space-x-1 font-sans">
@@ -275,70 +337,80 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Metrics Row */}
+      {/* Metrics Row (Interactive 3D Tilt & Numerical Emphasis) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2">
+        <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2 card-interactive">
           <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
             <span>Overall Mastery</span>
             <TrendingUp className="w-4 h-4 text-blue-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-sans text-white">
+          <div className="text-2xl sm:text-3xl font-bold font-sans text-white number-emphasis">
             {metrics ? `${metrics.overallMasteryPercentage}%` : "--"}
           </div>
           <div className="text-[11px] text-slate-400">
-            {metrics && metrics.totalConcepts > 0 ? `Across ${metrics.totalConcepts} active concepts` : "No diagnostic completed yet"}
+            {metrics && metrics.totalConcepts > 0
+              ? `Across ${metrics.totalConcepts} active concepts`
+              : "No diagnostic completed yet"}
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2">
+        <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2 card-interactive">
           <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
             <span>Active Cognitive Bugs</span>
             <AlertOctagon className="w-4 h-4 text-rose-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-sans text-rose-400">
+          <div className="text-2xl sm:text-3xl font-bold font-sans text-rose-400 number-emphasis">
             {metrics ? metrics.activeMisconceptions.length : 0}
           </div>
           <div className="text-[11px] text-slate-400">
-            {metrics && metrics.activeMisconceptions.length > 0 ? "Isolated for Cognitive Bisect" : "No active cognitive bugs"}
+            {metrics && metrics.activeMisconceptions.length > 0
+              ? "Isolated for Cognitive Bisect"
+              : "No active cognitive bugs"}
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2">
+        <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2 card-interactive">
           <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
             <span>Mastered Concepts</span>
             <CheckCircle className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-sans text-emerald-400">
+          <div className="text-2xl sm:text-3xl font-bold font-sans text-emerald-400 number-emphasis">
             {metrics ? metrics.masteredCount : 0}
           </div>
           <div className="text-[11px] text-slate-400">
-            {metrics && metrics.masteredCount > 0 ? "Solid mental models verified" : "Start diagnostic to verify"}
+            {metrics && metrics.masteredCount > 0
+              ? "Solid mental models verified"
+              : "Start diagnostic to verify"}
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2">
+        <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2 card-interactive">
           <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
             <span>Recovery Success</span>
             <HeartPulse className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-sans text-amber-400">
+          <div className="text-2xl sm:text-3xl font-bold font-sans text-amber-400 number-emphasis">
             {metrics && metrics.recoveredCount > 0 ? `${metrics.recoverySuccessRate}%` : "--"}
           </div>
           <div className="text-[11px] text-slate-400">Post-intervention re-test rate</div>
         </div>
       </div>
 
-
-      {/* Main Content Split: Active Misconceptions vs Recommended Actions */}
+      {/* Main Content Split: Active Misconceptions vs Recommended Recovery Path */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Active Cognitive Misconceptions (2 cols) */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Bug className="w-4 h-4 text-rose-400" />
-              <h2 className="text-base font-bold text-white">Active Cognitive Gaps Requiring Bisect</h2>
+              <h2 className="text-base font-bold text-white">
+                Active Cognitive Gaps Requiring Bisect
+              </h2>
             </div>
-            <Link href="/detector" className="text-xs text-blue-400 hover:underline flex items-center font-medium">
+            <Link
+              href="/detector"
+              className="text-xs text-blue-400 hover:underline flex items-center font-medium"
+            >
               <span>Submit New Response</span>
               <ArrowRight className="w-3 h-3 ml-1" />
             </Link>
@@ -349,7 +421,7 @@ export default function DashboardPage() {
               metrics.activeMisconceptions.map((misc) => (
                 <div
                   key={misc.id}
-                  className="p-5 rounded-2xl bg-archaia-card border border-rose-500/30 hover:border-rose-500/50 transition-all space-y-3 shadow-sm"
+                  className="p-5 rounded-2xl bg-archaia-card border border-rose-500/30 hover:border-rose-500/50 transition-all space-y-3 shadow-sm card-interactive"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -366,7 +438,7 @@ export default function DashboardPage() {
 
                     <Link
                       href="/bisect"
-                      className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium shadow-sm flex items-center space-x-1 shrink-0"
+                      className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium shadow-sm flex items-center space-x-1 shrink-0 btn-interactive"
                     >
                       <Split className="w-3.5 h-3.5" />
                       <span>Run Bisect →</span>
@@ -382,28 +454,34 @@ export default function DashboardPage() {
                       <div className="text-[10px] font-semibold text-rose-400 mb-1 uppercase tracking-wider">
                         Learner's Flawed Assumption
                       </div>
-                      <div className="text-rose-200 text-[11px] leading-relaxed">{misc.studentAssumption}</div>
+                      <div className="text-rose-200 text-[11px] leading-relaxed">
+                        {misc.studentAssumption}
+                      </div>
                     </div>
 
                     <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-900/50">
                       <div className="text-[10px] font-semibold text-emerald-400 mb-1 uppercase tracking-wider">
                         Formal Computing Reality
                       </div>
-                      <div className="text-emerald-200 text-[11px] leading-relaxed">{misc.formalReality}</div>
+                      <div className="text-emerald-200 text-[11px] leading-relaxed">
+                        {misc.formalReality}
+                      </div>
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="p-6 rounded-2xl bg-archaia-card border border-archaia-border text-center space-y-2">
+              <div className="p-6 rounded-2xl bg-archaia-card border border-archaia-border text-center space-y-2 card-interactive">
                 <ShieldAlert className="w-8 h-8 text-emerald-400 mx-auto" />
                 <h4 className="text-sm font-semibold text-white">No Unresolved Misconceptions</h4>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                  All active learning paths have verified mental model invariants. Submit a response to stress-test your understanding!
+                <p className="text-xs text-slate-400 max-w-sm mx-auto font-sans">
+                  {mode === "demo"
+                    ? "All active learning paths have verified mental model invariants. Submit a response to stress-test your understanding!"
+                    : `No cognitive gaps detected in ${activeCourse?.title || "active course"}. Select any concept below to test invariants.`}
                 </p>
                 <Link
                   href="/detector"
-                  className="inline-block px-4 py-2 mt-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium shadow-sm"
+                  className="inline-block px-4 py-2 mt-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium shadow-sm btn-interactive"
                 >
                   Take Diagnostic Probe
                 </Link>
@@ -412,51 +490,91 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Right: Recommended Learning Actions (1 col) */}
+        {/* Right: Data-Driven Recommended Recovery / Learning Path (1 col) */}
         <div className="space-y-4">
           <h2 className="text-base font-bold text-white flex items-center space-x-2">
             <Sparkles className="w-4 h-4 text-blue-400" />
-            <span>Recommended Recovery Path</span>
+            <span>
+              {mode === "demo" ? "Recommended Recovery Path" : "Course Curriculum Roadmap"}
+            </span>
           </h2>
 
           <div className="space-y-3">
-            <div className="p-4 rounded-2xl bg-archaia-card border border-archaia-border space-y-3">
-              <div className="flex items-center justify-between text-xs font-medium">
-                <span className="text-amber-400 font-semibold">STEP 1: Root Prerequisite</span>
-                <span className="text-slate-400">Estimated: 10m</span>
+            {recommendedConcept ? (
+              <div className="p-4 rounded-2xl bg-archaia-card border border-blue-500/30 space-y-3 card-interactive">
+                <div className="flex items-center justify-between text-xs font-medium">
+                  <span className="text-amber-400 font-semibold uppercase tracking-wider text-[10px]">
+                    Recommended Next Concept
+                  </span>
+                  <span className="text-slate-400 text-[11px]">
+                    ~{recommendedConcept.estimatedMinutes}m
+                  </span>
+                </div>
+                <h4 className="text-sm font-bold text-white">{recommendedConcept.name}</h4>
+                <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                  {recommendedConcept.description}
+                </p>
+                <div className="flex items-center space-x-2 pt-1">
+                  <Link
+                    href={`/detector?custom=true&concept=${encodeURIComponent(recommendedConcept.name)}`}
+                    className="flex-1 text-center py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-all btn-interactive"
+                  >
+                    Test Invariant →
+                  </Link>
+                  <Link
+                    href={`/graph?highlight=${encodeURIComponent(recommendedConcept.id)}`}
+                    className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors btn-interactive-subtle"
+                  >
+                    Inspect in DAG
+                  </Link>
+                </div>
               </div>
-              <h4 className="text-sm font-bold text-white">Rebuild Call Stack LIFO Invariants</h4>
-              <p className="text-xs text-slate-400 leading-relaxed font-sans">
-                Interactive stack frame visualizer and micro-puzzle to disconfirm the recursive replacement fallacy.
-              </p>
-              <Link
-                href="/recovery"
-                className="block text-center py-2 rounded-lg bg-blue-600/15 hover:bg-blue-600/25 text-blue-400 border border-blue-500/30 text-xs font-medium transition-colors"
-              >
-                Launch Recovery Lab →
-              </Link>
-            </div>
+            ) : null}
 
-            <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2 opacity-80">
-              <div className="flex items-center justify-between text-xs font-medium">
-                <span className="text-slate-400">STEP 2: Upstream Concept</span>
-                <span className="text-archaia-muted">Estimated: 15m</span>
+            {/* Curriculum Concepts List */}
+            <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-3 card-interactive">
+              <div className="flex items-center justify-between text-xs font-medium border-b border-archaia-border pb-2">
+                <span className="text-slate-300 font-semibold flex items-center space-x-1.5">
+                  <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+                  <span>
+                    {mode === "demo" ? "Seeded Demo Curriculum" : "Extracted Course Concepts"}
+                  </span>
+                </span>
+                <span className="text-slate-400 text-[11px]">{concepts.length} total</span>
               </div>
-              <h4 className="text-sm font-semibold text-white">Recursion Base Cases & Returns</h4>
-              <p className="text-xs text-archaia-muted">
-                Will automatically unlock once Call Stack recovery re-test is passed.
-              </p>
-            </div>
 
-            <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2 opacity-60">
-              <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-slate-500">STEP 3: Advanced Concept</span>
-                <span className="text-archaia-muted">Locked</span>
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                {concepts.map((c, idx) => {
+                  const state = learnerStates[c.id];
+                  const isMastered =
+                    state?.status === "mastered" ||
+                    state?.status === "recovered" ||
+                    c.recoveryStatus === "mastered" ||
+                    c.recoveryStatus === "recovered";
+                  return (
+                    <div
+                      key={c.id}
+                      className="p-2.5 rounded-xl bg-archaia-card/70 border border-slate-800/80 flex items-center justify-between text-xs font-sans hover:border-slate-700 transition-colors"
+                    >
+                      <div className="flex items-center space-x-2 truncate">
+                        <span className="w-5 h-5 rounded-full bg-slate-900 text-slate-400 flex items-center justify-center text-[10px] font-mono shrink-0">
+                          {idx + 1}
+                        </span>
+                        <span className="text-slate-200 truncate">{c.name}</span>
+                      </div>
+                      <span
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${
+                          isMastered
+                            ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                            : "bg-slate-800 text-slate-400"
+                        }`}
+                      >
+                        {isMastered ? "Mastered" : "Ready"}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-              <h4 className="text-sm font-semibold text-white">Graph Traversal (DFS Backtracking)</h4>
-              <p className="text-xs text-archaia-muted">
-                Final target concept assessment.
-              </p>
             </div>
           </div>
         </div>

@@ -721,7 +721,7 @@ void process_packet(size_t size) {
                         onChange={(e) => setFullName(e.target.value)}
                         placeholder="Alex Chen"
                         required
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#0D1017] border border-[#282E3D] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors font-sans"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#0D1017] border border-[#282E3D] text-xs text-white placeholder-slate-500 transition-colors font-sans input-focus-glow"
                       />
                     </div>
                   </div>
@@ -742,7 +742,7 @@ void process_packet(size_t size) {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@college.edu"
                       required
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#0D1017] border border-[#282E3D] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors font-sans"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#0D1017] border border-[#282E3D] text-xs text-white placeholder-slate-500 transition-colors font-sans input-focus-glow"
                     />
                   </div>
                 </div>
@@ -769,7 +769,7 @@ void process_packet(size_t size) {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
                       required
-                      className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#0D1017] border border-[#282E3D] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors font-sans"
+                      className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#0D1017] border border-[#282E3D] text-xs text-white placeholder-slate-500 transition-colors font-sans input-focus-glow"
                     />
                     <button
                       type="button"
@@ -785,7 +785,7 @@ void process_packet(size_t size) {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all duration-200 shadow-sm flex items-center justify-center space-x-1.5 active:scale-[0.99] disabled:opacity-75 pt-2.5"
+                  className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all duration-200 shadow-sm flex items-center justify-center space-x-1.5 active:scale-[0.98] disabled:opacity-75 pt-2.5 btn-interactive"
                 >
                   <span>
                     {isSubmitting

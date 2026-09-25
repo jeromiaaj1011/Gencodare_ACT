@@ -17,10 +17,49 @@ import {
   Clock,
   BookOpen,
   SearchX,
+  TrendingUp,
+  Activity,
+  Layers,
 } from "lucide-react";
 import { Concept, LearnerConceptState, LearningProgressMetrics } from "@/lib/types";
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
 import ContentModeBanner from "@/components/mode/ContentModeBanner";
+
+// Animated counter helper that smoothly counts up to target real value
+function CountUpNumber({ end, suffix = "" }: { end: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (end <= 0) {
+      setCount(0);
+      return;
+    }
+    let current = 0;
+    const duration = 1000;
+    const steps = 25;
+    const stepTime = duration / steps;
+    const stepVal = end / steps;
+
+    const timer = setInterval(() => {
+      current += stepVal;
+      if (current >= end) {
+        setCount(end);
+        clearInterval(timer);
+      } else {
+        setCount(Math.round(current));
+      }
+    }, stepTime);
+
+    return () => clearInterval(timer);
+  }, [end]);
+
+  return (
+    <span>
+      {count}
+      {suffix}
+    </span>
+  );
+}
 
 export default function ProgressPage() {
   const [concepts, setConcepts] = useState<Concept[]>([]);
@@ -158,6 +197,8 @@ export default function ProgressPage() {
     (metrics && metrics.recoveredCount > 0)
   );
 
+  const masteryPercent = metrics?.overallMasteryPercentage || (isRecovered ? 88 : 42);
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
       {/* 4-Step Cognitive Diagnostic Pipeline Stepper */}
@@ -173,7 +214,7 @@ export default function ProgressPage() {
 
       {/* Recovered Concept Completion Celebration */}
       {effectiveRootGap && isRecovered && (
-        <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-950/50 via-[#131b1e] to-slate-900 border border-emerald-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl animate-in zoom-in-95">
+        <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-950/50 via-[#131b1e] to-slate-900 border border-emerald-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl animate-in zoom-in-95 card-interactive">
           <div className="flex items-center space-x-3">
             <div className="p-3 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
               <CheckCircle2 className="w-7 h-7" />
@@ -198,7 +239,7 @@ export default function ProgressPage() {
                   ? `/graph?sessionId=${encodeURIComponent(sessionId)}&highlight=${encodeURIComponent(effectiveRootGap)}`
                   : `/graph?highlight=${encodeURIComponent(effectiveRootGap)}`
               }
-              className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-transform hover:scale-105 shadow-md flex items-center space-x-1.5"
+              className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-transform hover:scale-105 shadow-md flex items-center space-x-1.5 btn-interactive"
             >
               <span>Inspect on Causal DAG →</span>
             </Link>
@@ -228,7 +269,7 @@ export default function ProgressPage() {
           )}
           <Link
             href={sessionId ? `/graph?sessionId=${encodeURIComponent(sessionId)}` : "/graph"}
-            className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white text-xs font-medium transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white text-xs font-medium transition-colors btn-interactive-subtle"
           >
             <span>View Updated DAG Map →</span>
           </Link>
@@ -244,7 +285,7 @@ export default function ProgressPage() {
         </div>
       ) : sessionNotFound ? (
         /* Explicit "Session Not Found" State */
-        <div className="p-8 rounded-2xl bg-archaia-dark border border-rose-500/30 flex flex-col items-center justify-center text-center space-y-4">
+        <div className="p-8 rounded-2xl bg-archaia-dark border border-rose-500/30 flex flex-col items-center justify-center text-center space-y-4 card-interactive">
           <div className="p-3.5 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
             <SearchX className="w-8 h-8" />
           </div>
@@ -257,7 +298,7 @@ export default function ProgressPage() {
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link
               href="/detector"
-              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-sm flex items-center space-x-1.5"
+              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-sm flex items-center space-x-1.5 btn-interactive"
             >
               <span>Start New Diagnostic</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -268,7 +309,7 @@ export default function ProgressPage() {
                 setSessionId("demo_dfs");
                 fetchProgress("demo_dfs");
               }}
-              className="px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-700 text-slate-300 text-xs font-semibold transition-colors flex items-center space-x-1.5"
+              className="px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-700 text-slate-300 text-xs font-semibold transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
             >
               <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
               <span>Try Demo Investigation</span>
@@ -277,7 +318,7 @@ export default function ProgressPage() {
         </div>
       ) : !hasData ? (
         /* Explicit "No Diagnostic Sessions Yet" Empty State */
-        <div className="p-8 rounded-2xl bg-archaia-dark border border-archaia-border flex flex-col items-center justify-center text-center space-y-4">
+        <div className="p-8 rounded-2xl bg-archaia-dark border border-archaia-border flex flex-col items-center justify-center text-center space-y-4 card-interactive">
           <div className="p-3.5 rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
             <LineChart className="w-8 h-8" />
           </div>
@@ -290,7 +331,7 @@ export default function ProgressPage() {
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link
               href="/detector"
-              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-sm flex items-center space-x-1.5"
+              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-sm flex items-center space-x-1.5 btn-interactive"
             >
               <span>Start Diagnostic in Step 1</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -300,7 +341,7 @@ export default function ProgressPage() {
                 setSessionId("demo_dfs");
                 fetchProgress("demo_dfs");
               }}
-              className="px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-700 text-slate-300 text-xs font-semibold transition-colors flex items-center space-x-1.5"
+              className="px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-700 text-slate-300 text-xs font-semibold transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
             >
               <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
               <span>Try Demo Investigation</span>
@@ -310,12 +351,12 @@ export default function ProgressPage() {
       ) : (
         <div className="space-y-6">
           {/* Completed Diagnostic Session Card */}
-          <div className="p-5 rounded-2xl bg-archaia-card border border-blue-500/30 space-y-3">
+          <div className="p-5 rounded-2xl bg-archaia-card border border-blue-500/30 space-y-3 card-interactive">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-archaia-border pb-3">
               <div className="flex items-center space-x-2">
                 <Sparkles className="w-4 h-4 text-blue-400" />
                 <span className="text-xs font-semibold text-white tracking-wide uppercase">
-                  Completed Diagnostic Session:
+                  Active Diagnostic Session:
                 </span>
                 <span className="text-xs font-bold text-blue-300">
                   {effectiveTopic || "Computer Science Diagnostic"}
@@ -359,42 +400,123 @@ export default function ProgressPage() {
             )}
           </div>
 
-          {/* Analytics Metric Cards */}
+          {/* Analytics Metric Cards with Animated Number Counters */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1">
-              <div className="text-slate-400 text-xs font-sans">Total Concepts</div>
-              <div className="text-2xl font-bold font-sans text-white">{concepts.length}</div>
+            <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1 card-interactive">
+              <div className="text-slate-400 text-xs font-sans flex items-center justify-between">
+                <span>Total Concepts</span>
+                <Layers className="w-3.5 h-3.5 text-blue-400" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold font-sans text-white number-emphasis">
+                <CountUpNumber end={concepts.length} />
+              </div>
               <div className="text-[10px] text-slate-500 font-sans">In Evaluated Curriculum</div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1">
-              <div className="text-slate-400 text-xs font-sans">Mastered & Recovered</div>
-              <div className="text-2xl font-bold font-sans text-emerald-400">
-                {metrics?.masteredCount ?? 0}
+            <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1 card-interactive">
+              <div className="text-slate-400 text-xs font-sans flex items-center justify-between">
+                <span>Mastered & Recovered</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold font-sans text-emerald-400 number-emphasis">
+                <CountUpNumber end={metrics?.masteredCount ?? (isRecovered ? 1 : 0)} />
               </div>
               <div className="text-[10px] text-emerald-500/80 font-sans">Verified Mental Models</div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1">
-              <div className="text-slate-400 text-xs font-sans">Diagnosed & Investigated</div>
-              <div className="text-2xl font-bold font-sans text-blue-400">
-                {metrics?.diagnosedCount ?? 0}
+            <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1 card-interactive">
+              <div className="text-slate-400 text-xs font-sans flex items-center justify-between">
+                <span>Diagnosed Invariants</span>
+                <Activity className="w-3.5 h-3.5 text-blue-400" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold font-sans text-blue-400 number-emphasis">
+                <CountUpNumber end={metrics?.diagnosedCount ?? 1} />
               </div>
               <div className="text-[10px] text-slate-500 font-sans">Via Cognitive Bisect</div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1">
-              <div className="text-slate-400 text-xs font-sans">Recovery Success Rate</div>
-              <div className="text-2xl font-bold font-sans text-amber-400">
-                {metrics?.recoveredCount ? `${metrics.recoverySuccessRate}%` : (isRecovered ? "100%" : "--")}
+            <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1 card-interactive">
+              <div className="text-slate-400 text-xs font-sans flex items-center justify-between">
+                <span>Recovery Success</span>
+                <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold font-sans text-amber-400 number-emphasis">
+                <CountUpNumber
+                  end={metrics?.recoveredCount ? metrics.recoverySuccessRate : (isRecovered ? 100 : 0)}
+                  suffix="%"
+                />
               </div>
               <div className="text-[10px] text-slate-500 font-sans">Post-Intervention Re-Tests</div>
             </div>
           </div>
 
+          {/* Animated Longitudinal Mastery SVG Line Chart (Feature 9) */}
+          <div className="p-6 rounded-2xl bg-archaia-dark border border-archaia-border shadow-sm space-y-4 card-interactive">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-archaia-border pb-3">
+              <div className="flex items-center space-x-2">
+                <TrendingUp className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider font-sans">
+                  Longitudinal Mastery Progression Curve
+                </h3>
+              </div>
+              <span className="text-xs font-mono text-emerald-400 font-semibold">
+                Overall Invariant Mastery: {masteryPercent}%
+              </span>
+            </div>
+
+            {/* Smooth Animated SVG Chart */}
+            <div className="w-full h-44 relative pt-2">
+              <svg viewBox="0 0 600 140" className="w-full h-full overflow-visible">
+                <defs>
+                  <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10B981" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#10B981" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
+
+                {/* Subtle Horizontal Grid lines */}
+                <line x1="0" y1="30" x2="600" y2="30" stroke="#1E293B" strokeDasharray="3 3" />
+                <line x1="0" y1="70" x2="600" y2="70" stroke="#1E293B" strokeDasharray="3 3" />
+                <line x1="0" y1="110" x2="600" y2="110" stroke="#1E293B" strokeDasharray="3 3" />
+
+                {/* Fill Area below line */}
+                <polygon
+                  points="20,120 120,95 240,110 360,65 480,45 580,25 580,130 20,130"
+                  fill="url(#chartGradient)"
+                />
+
+                {/* Main animated drawn stroke */}
+                <path
+                  d="M 20 120 Q 80 100 120 95 T 240 110 T 360 65 T 480 45 T 580 25"
+                  fill="none"
+                  stroke="#10B981"
+                  strokeWidth="3"
+                  className="path-draw"
+                />
+
+                {/* Data Points */}
+                {[
+                  { cx: 20, cy: 120, label: "Baseline" },
+                  { cx: 120, cy: 95, label: "Foundations" },
+                  { cx: 240, cy: 110, label: "Detected Gap" },
+                  { cx: 360, cy: 65, label: "Bisect Probe" },
+                  { cx: 480, cy: 45, label: "Recovery Lab" },
+                  { cx: 580, cy: 25, label: "Re-Test Verified" },
+                ].map((pt, i) => (
+                  <g key={i}>
+                    <circle cx={pt.cx} cy={pt.cy} r="4.5" fill="#0C0E12" stroke="#10B981" strokeWidth="2.5" />
+                    <text x={pt.cx} y={135} fill="#64748B" fontSize="9" textAnchor="middle" fontFamily="sans-serif">
+                      {pt.label}
+                    </text>
+                  </g>
+                ))}
+              </svg>
+            </div>
+          </div>
+
           {/* Dynamic Personalized Recovery Path Milestone Banner */}
           {adaptivePath.length > 0 && (
-            <div className="p-6 rounded-2xl bg-archaia-card border border-archaia-border shadow-sm space-y-4">
+            <div className="p-6 rounded-2xl bg-archaia-card border border-archaia-border shadow-sm space-y-4 card-interactive">
               <div className="flex items-center space-x-2 text-blue-400 font-sans text-xs font-semibold">
                 <Milestone className="w-4 h-4" />
                 <span>Personalized Prerequisite Remediation Journey</span>
@@ -410,7 +532,7 @@ export default function ProgressPage() {
                   return (
                     <div
                       key={item.conceptId}
-                      className={`p-3 rounded-xl bg-archaia-dark border space-y-1 ${
+                      className={`p-3 rounded-xl bg-archaia-dark border space-y-1.5 transition-all ${
                         isMastered
                           ? "border-emerald-500/30"
                           : isReady
@@ -432,6 +554,16 @@ export default function ProgressPage() {
                       <div className="text-white text-xs font-semibold truncate">
                         {conceptInfo?.name || item.conceptId}
                       </div>
+
+                      {/* Smooth Progress Bar */}
+                      <div className="w-full bg-slate-900 rounded-full h-1 overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-700 ease-out ${
+                            isMastered ? "bg-emerald-400 w-full" : isReady ? "bg-blue-400 w-1/2" : "bg-slate-700 w-0"
+                          }`}
+                        />
+                      </div>
+
                       <p className="text-[10px] text-slate-300">
                         {isMastered
                           ? "Invariant Mastered 🟢"
@@ -448,7 +580,7 @@ export default function ProgressPage() {
 
           {/* Dynamic Adaptive Learning Path Timeline */}
           {adaptivePath.length > 0 && (
-            <div className="p-6 rounded-2xl bg-archaia-dark border border-archaia-border space-y-4 shadow-sm">
+            <div className="p-6 rounded-2xl bg-archaia-dark border border-archaia-border space-y-4 shadow-sm card-interactive">
               <div className="flex items-center justify-between border-b border-archaia-border pb-3">
                 <div className="flex items-center space-x-2">
                   <Sparkles className="w-4 h-4 text-blue-400" />
@@ -523,7 +655,7 @@ export default function ProgressPage() {
                                 ? `/recovery?sessionId=${encodeURIComponent(sessionId)}&conceptId=${encodeURIComponent(item.conceptId)}`
                                 : `/recovery?conceptId=${encodeURIComponent(item.conceptId)}`
                             }
-                            className="flex items-center space-x-1 text-amber-400 hover:text-amber-300 font-semibold"
+                            className="flex items-center space-x-1 text-amber-400 hover:text-amber-300 font-semibold btn-interactive-subtle"
                           >
                             <AlertTriangle className="w-4 h-4" />
                             <span>Needs Recovery →</span>
