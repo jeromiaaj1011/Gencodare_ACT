@@ -9,6 +9,8 @@ export async function GET(req: NextRequest) {
     const { searchParams } = req.nextUrl;
     const rawSessionId = searchParams.get("sessionId");
     const sessionId = rawSessionId && rawSessionId.trim().length > 0 ? rawSessionId.trim() : undefined;
+    const mode = store.getMode();
+    const activeCourse = store.getActiveCourse();
 
     // Check if an explicit non-demo session was requested but does not exist
     if (sessionId && sessionId !== "demo" && sessionId !== "demo_dfs") {
@@ -19,6 +21,8 @@ export async function GET(req: NextRequest) {
           isEmpty: true,
           sessionNotFound: true,
           requestedSessionId: sessionId,
+          mode,
+          activeCourse,
           concepts: [],
           edges: [],
           positions: {},
@@ -39,6 +43,8 @@ export async function GET(req: NextRequest) {
         success: true,
         isEmpty: true,
         sessionNotFound: false,
+        mode,
+        activeCourse,
         concepts: [],
         edges: [],
         positions: {},
@@ -68,6 +74,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       success: true,
       isEmpty: false,
+      mode,
+      activeCourse,
       concepts,
       edges,
       positions: positionsRecord,

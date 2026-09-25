@@ -29,27 +29,28 @@ export class ReTestService {
     const isCorrect = selectedOption?.isCorrect ?? false;
     const feedback = selectedOption?.feedback || (isCorrect ? "Correct answer!" : "Incorrect answer.");
 
-    const dagEngine = store.getDagEngine(sessionId);
+    const effectiveSessionId =
+      sessionId && sessionId.trim().length > 0
+        ? sessionId.trim()
+        : store.getLatestSession()?.id;
+    const session = effectiveSessionId ? store.getDiagnosticSession(effectiveSessionId) : undefined;
+
+    const dagEngine = store.getDagEngine(effectiveSessionId);
 
     const targetConcept = retest.conceptId || conceptId;
 
     if (isCorrect) {
-      // 1. Mark concept as recovered
-      store.updateLearnerState(
-        targetConcept,
-        {
-          status: "recovered",
-          masteryScore: 92,
-          confidence: 95,
-          activeMisconceptionId: undefined,
-          lastTestedAt: new Date().toISOString(),
-        },
-        sessionId
-      );
+      // 1. Mark concept and any associated session root gap IDs as recovered
+      const conceptsToRecover = new Set<string>();
+      if (targetConcept) conceptsToRecover.add(targetConcept);
+      if (conceptId) conceptsToRecover.add(conceptId);
+      if (session?.bisectSession?.likelyRootGapId) conceptsToRecover.add(session.bisectSession.likelyRootGapId);
+      if (session?.recoveryIntervention?.rootConceptId) conceptsToRecover.add(session.recoveryIntervention.rootConceptId);
+      if (session?.retestAssessment?.conceptId) conceptsToRecover.add(session.retestAssessment.conceptId);
 
-      if (conceptId && conceptId !== targetConcept) {
+      for (const cId of conceptsToRecover) {
         store.updateLearnerState(
-          conceptId,
+          cId,
           {
             status: "recovered",
             masteryScore: 92,
@@ -57,7 +58,7 @@ export class ReTestService {
             activeMisconceptionId: undefined,
             lastTestedAt: new Date().toISOString(),
           },
-          sessionId
+          effectiveSessionId
         );
       }
 
@@ -66,7 +67,7 @@ export class ReTestService {
       const dependentIds = edges.filter((e) => e.from === conceptId).map((e) => e.to);
 
       for (const depId of dependentIds) {
-        const depState = store.getLearnerState(depId, sessionId);
+        const depState = store.getLearnerState(depId, effectiveSessionId);
         if (!depState || depState.status === "untested" || depState.status === "misconception_detected") {
           store.updateLearnerState(
             depId,
@@ -75,14 +76,14 @@ export class ReTestService {
               confidence: Math.max(70, depState?.confidence || 60),
               activeMisconceptionId: undefined,
             },
-            sessionId
+            effectiveSessionId
           );
         }
       }
 
       // Record in session
-      if (sessionId) {
-        store.updateDiagnosticSession(sessionId, {
+      if (effectiveSessionId) {
+        store.updateDiagnosticSession(effectiveSessionId, {
           recoveryCompleted: true,
           retestResult: {
             isCorrect: true,
@@ -93,7 +94,7 @@ export class ReTestService {
         });
       }
 
-      const allStates = store.getAllLearnerStates(sessionId);
+      const allStates = store.getAllLearnerStates(effectiveSessionId);
       const statesMap = new Map(allStates.map((s) => [s.conceptId, s]));
       const adaptivePath = dagEngine.computeAdaptivePath(statesMap);
 
@@ -115,7 +116,7 @@ export class ReTestService {
           confidence: 50,
           lastTestedAt: new Date().toISOString(),
         },
-        sessionId
+        effectiveSessionId
       );
 
       if (conceptId && conceptId !== targetConcept) {
@@ -127,12 +128,12 @@ export class ReTestService {
             confidence: 50,
             lastTestedAt: new Date().toISOString(),
           },
-          sessionId
+          effectiveSessionId
         );
       }
 
-      if (sessionId) {
-        store.updateDiagnosticSession(sessionId, {
+      if (effectiveSessionId) {
+        store.updateDiagnosticSession(effectiveSessionId, {
           recoveryCompleted: false,
           retestResult: {
             isCorrect: false,

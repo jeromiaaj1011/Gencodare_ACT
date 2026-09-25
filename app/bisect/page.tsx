@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { BisectSession, Concept } from "@/lib/types";
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
+import ContentModeBanner from "@/components/mode/ContentModeBanner";
 
 export default function BisectPage() {
   const [session, setSession] = useState<BisectSession | null>(null);
@@ -140,6 +141,9 @@ export default function BisectPage() {
         targetConceptId={session?.targetConceptId}
         misconceptionId={session?.detectedMisconceptionId}
       />
+
+      {/* Mode Indicator & Switcher Banner */}
+      <ContentModeBanner onModeChange={() => fetchSession()} />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

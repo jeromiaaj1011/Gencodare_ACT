@@ -11,6 +11,7 @@ import {
   CourseMaterial,
   LearningProgressMetrics,
   DiagnosticSession,
+  AppContentMode,
 } from "../types/index";
 import { INITIAL_CONCEPTS, INITIAL_EDGES } from "../graph/topology";
 import {
@@ -62,6 +63,9 @@ class DataStore {
   // Session Registry: Isolated per diagnostic session
   private diagnosticSessions: Map<string, DiagnosticSession> = new Map();
 
+  // Mode: "demo" (seeded DFS worked example) vs "course" (user uploaded course material)
+  private currentMode: AppContentMode = "demo";
+
   // Curated Demo investigation store (isolated from normal user flow)
   private demoConcepts: Concept[] = [...INITIAL_CONCEPTS];
   private demoEdges: ConceptEdge[] = [...INITIAL_EDGES];
@@ -72,14 +76,124 @@ class DataStore {
   private demoReTests: Map<string, ReTestAssessment> = new Map();
   private demoActiveBisect?: BisectSession;
 
-  private courseMaterials: CourseMaterial[];
-  private dagEngine: DAGEngine;
+  // Course Mode Stores (user uploaded materials)
+  private courseMaterials: CourseMaterial[] = [];
+  private activeCourseId: string | null = null;
 
   constructor() {
-    this.courseMaterials = [...SEED_COURSE_MATERIALS];
     this.resetDemoData();
-    this.dagEngine = new DAGEngine(this.demoConcepts, this.demoEdges);
+    this.loadPersistentState();
   }
+
+  private loadPersistentState() {
+    try {
+      ensureSessionsDir();
+      // 1. Load Mode
+      const modePath = path.join(SESSIONS_DIR, "mode.json");
+      if (fs.existsSync(modePath)) {
+        const raw = fs.readFileSync(modePath, "utf-8");
+        const parsed = JSON.parse(raw);
+        if (parsed.mode === "demo" || parsed.mode === "course") {
+          this.currentMode = parsed.mode;
+        }
+      }
+
+      // 2. Load Courses
+      const coursesPath = path.join(SESSIONS_DIR, "courses.json");
+      if (fs.existsSync(coursesPath)) {
+        const raw = fs.readFileSync(coursesPath, "utf-8");
+        this.courseMaterials = JSON.parse(raw);
+      } else {
+        this.courseMaterials = [...SEED_COURSE_MATERIALS];
+      }
+
+      // 3. Load Active Course Id
+      const activePath = path.join(SESSIONS_DIR, "active_course_id.json");
+      if (fs.existsSync(activePath)) {
+        const raw = fs.readFileSync(activePath, "utf-8");
+        const parsed = JSON.parse(raw);
+        if (parsed.activeCourseId) {
+          this.activeCourseId = parsed.activeCourseId;
+        }
+      } else if (this.courseMaterials.length > 0) {
+        this.activeCourseId = this.courseMaterials[0].id;
+      }
+    } catch (e) {
+      this.courseMaterials = [...SEED_COURSE_MATERIALS];
+    }
+  }
+
+  private saveStateToDisk() {
+    try {
+      ensureSessionsDir();
+      fs.writeFileSync(
+        path.join(SESSIONS_DIR, "mode.json"),
+        JSON.stringify({ mode: this.currentMode }),
+        "utf-8"
+      );
+      fs.writeFileSync(
+        path.join(SESSIONS_DIR, "courses.json"),
+        JSON.stringify(this.courseMaterials),
+        "utf-8"
+      );
+      fs.writeFileSync(
+        path.join(SESSIONS_DIR, "active_course_id.json"),
+        JSON.stringify({ activeCourseId: this.activeCourseId }),
+        "utf-8"
+      );
+    } catch (e) {}
+  }
+
+  // --- Content Mode Management ---
+
+  public getMode(): AppContentMode {
+    return this.currentMode;
+  }
+
+  public setMode(mode: AppContentMode): void {
+    this.currentMode = mode;
+    this.saveStateToDisk();
+  }
+
+  public getActiveCourse(): CourseMaterial | null {
+    if (!this.activeCourseId || this.courseMaterials.length === 0) {
+      return this.courseMaterials.length > 0 ? this.courseMaterials[0] : null;
+    }
+    return this.courseMaterials.find((c) => c.id === this.activeCourseId) || this.courseMaterials[0];
+  }
+
+  public setActiveCourse(courseId: string): boolean {
+    const exists = this.courseMaterials.some((c) => c.id === courseId);
+    if (exists) {
+      this.activeCourseId = courseId;
+      this.currentMode = "course";
+      this.saveStateToDisk();
+      return true;
+    }
+    return false;
+  }
+
+  public addCourseMaterial(material: CourseMaterial, setAsActive: boolean = true): void {
+    // Check if course with this ID already exists, update or push
+    const idx = this.courseMaterials.findIndex((c) => c.id === material.id);
+    if (idx >= 0) {
+      this.courseMaterials[idx] = material;
+    } else {
+      this.courseMaterials.push(material);
+    }
+
+    if (setAsActive) {
+      this.activeCourseId = material.id;
+      this.currentMode = "course";
+    }
+    this.saveStateToDisk();
+  }
+
+  public getCourseMaterials(): CourseMaterial[] {
+    return this.courseMaterials;
+  }
+
+  // --- Demo Mode Management (Non-Contaminating) ---
 
   public resetDemoData(): void {
     this.demoConcepts = [...INITIAL_CONCEPTS];
@@ -164,6 +278,7 @@ class DataStore {
         ensureSessionsDir();
         const files = fs.readdirSync(SESSIONS_DIR).filter((f) => f.endsWith(".json"));
         for (const file of files) {
+          if (["mode.json", "courses.json", "active_course_id.json"].includes(file)) continue;
           const s = loadSessionFromDisk(file.replace(".json", ""));
           if (s && !s.isDemo && (!userId || s.userId === userId)) {
             this.diagnosticSessions.set(s.id, s);
@@ -231,7 +346,7 @@ class DataStore {
     };
   }
 
-  // --- Session-Aware DAG & Concept Methods ---
+  // --- Dynamic Causal DAG & Concept Methods (Unified Across Modes) ---
 
   public getConcepts(sessionId?: string, userId?: string): Concept[] {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
@@ -244,9 +359,18 @@ class DataStore {
     }
     if (userId) {
       const latest = this.getLatestSession(userId);
-      return latest ? latest.graph.concepts : [];
+      if (latest) return latest.graph.concepts;
     }
-    return [];
+
+    // Fallback based on active content mode
+    if (this.currentMode === "course") {
+      const active = this.getActiveCourse();
+      if (active && active.concepts && active.concepts.length > 0) {
+        return active.concepts;
+      }
+    }
+
+    return this.demoConcepts;
   }
 
   public getEdges(sessionId?: string, userId?: string): ConceptEdge[] {
@@ -260,9 +384,17 @@ class DataStore {
     }
     if (userId) {
       const latest = this.getLatestSession(userId);
-      return latest ? latest.graph.edges : [];
+      if (latest) return latest.graph.edges;
     }
-    return [];
+
+    if (this.currentMode === "course") {
+      const active = this.getActiveCourse();
+      if (active && active.edges && active.edges.length > 0) {
+        return active.edges;
+      }
+    }
+
+    return this.demoEdges;
   }
 
   public getAllLearnerStates(sessionId?: string, userId?: string): LearnerConceptState[] {
@@ -276,9 +408,28 @@ class DataStore {
     }
     if (userId) {
       const latest = this.getLatestSession(userId);
-      return latest ? Object.values(latest.graph.learnerStates) : [];
+      if (latest) return Object.values(latest.graph.learnerStates);
     }
-    return [];
+
+    if (this.currentMode === "course") {
+      const active = this.getActiveCourse();
+      if (active) {
+        if (active.learnerStates && Object.keys(active.learnerStates).length > 0) {
+          return Object.values(active.learnerStates);
+        }
+        if (active.concepts) {
+          return active.concepts.map((c) => ({
+            conceptId: c.id,
+            masteryScore: 0,
+            status: "untested" as const,
+            confidence: 0,
+            recoveryAttempts: 0,
+          }));
+        }
+      }
+    }
+
+    return Array.from(this.demoLearnerStates.values());
   }
 
   public getLearnerState(conceptId: string, sessionId?: string, userId?: string): LearnerConceptState | undefined {
@@ -294,7 +445,13 @@ class DataStore {
       const latest = this.getLatestSession(userId);
       return latest?.graph.learnerStates[conceptId];
     }
-    return undefined;
+
+    if (this.currentMode === "course") {
+      const active = this.getActiveCourse();
+      return active?.learnerStates?.[conceptId];
+    }
+
+    return this.demoLearnerStates.get(conceptId);
   }
 
   public updateLearnerState(
@@ -315,30 +472,52 @@ class DataStore {
       return updated;
     }
 
-    const session = sessionId ? this.getDiagnosticSession(sessionId) : this.getLatestSession();
-    if (session) {
-      const existing = session.graph.learnerStates[conceptId] || {
-        conceptId,
-        masteryScore: 0,
-        status: "untested",
-        confidence: 0,
-        recoveryAttempts: 0,
-      };
-      const updated = { ...existing, ...updates };
-      session.graph.learnerStates[conceptId] = updated;
-      saveSessionToDisk(session);
-      return updated;
+    if (sessionId) {
+      const session = this.getDiagnosticSession(sessionId);
+      if (session) {
+        const existing = session.graph.learnerStates[conceptId] || {
+          conceptId,
+          masteryScore: 0,
+          status: "untested",
+          confidence: 0,
+          recoveryAttempts: 0,
+        };
+        const updated = { ...existing, ...updates };
+        session.graph.learnerStates[conceptId] = updated;
+        saveSessionToDisk(session);
+        return updated;
+      }
     }
 
-    const fallback: LearnerConceptState = {
+    // In course mode, update active course's learner states
+    if (this.currentMode === "course") {
+      const active = this.getActiveCourse();
+      if (active) {
+        if (!active.learnerStates) active.learnerStates = {};
+        const existing = active.learnerStates[conceptId] || {
+          conceptId,
+          masteryScore: 0,
+          status: "untested",
+          confidence: 0,
+          recoveryAttempts: 0,
+        };
+        active.learnerStates[conceptId] = { ...existing, ...updates };
+        this.saveStateToDisk();
+        return active.learnerStates[conceptId];
+      }
+    }
+
+    // Fallback to demo learner states
+    const existing = this.demoLearnerStates.get(conceptId) || {
       conceptId,
       masteryScore: 0,
       status: "untested",
       confidence: 0,
       recoveryAttempts: 0,
-      ...updates,
     };
-    return fallback;
+    const updated = { ...existing, ...updates };
+    this.demoLearnerStates.set(conceptId, updated);
+    return updated;
   }
 
   public getDagEngine(sessionId?: string): DAGEngine {
@@ -359,7 +538,33 @@ class DataStore {
     if (userId) {
       return this.getLatestSession(userId)?.bisectSession;
     }
-    return undefined;
+
+    if (this.currentMode === "course") {
+      const active = this.getActiveCourse();
+      if (active && active.concepts && active.concepts.length > 0) {
+        const target = active.concepts[active.concepts.length - 1];
+        const root = active.concepts[0];
+        const scores: Record<string, number> = {};
+        active.concepts.forEach((c) => {
+          scores[c.id] = c.id === root.id ? 90 : 50;
+        });
+
+        return {
+          id: `bisect_${active.id}`,
+          targetConceptId: target.id,
+          detectedMisconceptionId: `misc_${target.id}`,
+          ancestorChain: active.concepts.map((c) => c.id),
+          investigatedConcepts: [],
+          probesAnswered: [],
+          candidateScores: scores,
+          currentProbe: active.probes && active.probes.length > 0 ? active.probes[0] : undefined,
+          likelyRootGapId: root.id,
+          status: "active",
+        };
+      }
+    }
+
+    return this.demoActiveBisect;
   }
 
   public setActiveBisectSession(session: BisectSession, sessionId?: string): void {
@@ -378,21 +583,40 @@ class DataStore {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
       return Array.from(this.demoProbes.values()).filter((p) => p.conceptId === conceptId);
     }
-    const diagSession = sessionId ? this.getDiagnosticSession(sessionId) : this.getLatestSession();
-    if (diagSession) {
-      return diagSession.bisectProbes.filter((p) => p.conceptId === conceptId);
+    if (sessionId) {
+      const diagSession = this.getDiagnosticSession(sessionId);
+      if (diagSession) {
+        return diagSession.bisectProbes.filter((p) => p.conceptId === conceptId);
+      }
     }
-    return [];
+
+    if (this.currentMode === "course") {
+      const active = this.getActiveCourse();
+      if (active && active.probes) {
+        return active.probes.filter((p) => p.conceptId === conceptId);
+      }
+    }
+
+    return Array.from(this.demoProbes.values()).filter((p) => p.conceptId === conceptId);
   }
 
   public getProbe(probeId: string, sessionId?: string): DiagnosticProbe | undefined {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
       return this.demoProbes.get(probeId);
     }
-    const diagSession = sessionId ? this.getDiagnosticSession(sessionId) : this.getLatestSession();
-    if (diagSession) {
-      return diagSession.bisectProbes.find((p) => p.id === probeId);
+    if (sessionId) {
+      const diagSession = this.getDiagnosticSession(sessionId);
+      if (diagSession) {
+        return diagSession.bisectProbes.find((p) => p.id === probeId);
+      }
     }
+
+    if (this.currentMode === "course") {
+      const active = this.getActiveCourse();
+      const p = active?.probes?.find((pr) => pr.id === probeId);
+      if (p) return p;
+    }
+
     return this.demoProbes.get(probeId);
   }
 
@@ -406,7 +630,18 @@ class DataStore {
     if (diagSession && diagSession.recoveryIntervention) {
       return diagSession.recoveryIntervention;
     }
-    return undefined;
+
+    if (this.currentMode === "course") {
+      const active = this.getActiveCourse();
+      if (active?.interventions?.[conceptId]) {
+        return active.interventions[conceptId];
+      }
+      if (active?.interventions && Object.values(active.interventions).length > 0) {
+        return Object.values(active.interventions)[0];
+      }
+    }
+
+    return this.demoInterventions.get(conceptId) || this.demoInterventions.get("call_stack");
   }
 
   public getReTest(conceptId: string, sessionId?: string, userId?: string): ReTestAssessment | undefined {
@@ -417,7 +652,18 @@ class DataStore {
     if (diagSession && diagSession.retestAssessment) {
       return diagSession.retestAssessment;
     }
-    return undefined;
+
+    if (this.currentMode === "course") {
+      const active = this.getActiveCourse();
+      if (active?.retests?.[conceptId]) {
+        return active.retests[conceptId];
+      }
+      if (active?.retests && Object.values(active.retests).length > 0) {
+        return Object.values(active.retests)[0];
+      }
+    }
+
+    return this.demoReTests.get(conceptId) || this.demoReTests.get("call_stack");
   }
 
   // --- Metrics Calculation ---
@@ -437,17 +683,29 @@ class DataStore {
       ? this.getLatestSession(userId)
       : undefined;
 
-    // If user has no sessions, return null (indicating clean empty state!)
-    if (!targetSession) {
-      return null;
+    if (targetSession) {
+      const states = Object.values(targetSession.graph.learnerStates);
+      const misconceptions = targetSession.analysis.misconception
+        ? [targetSession.analysis.misconception]
+        : [];
+      return this.calculateMetricsFromStates(targetSession.graph.concepts, states, misconceptions);
     }
 
-    const states = Object.values(targetSession.graph.learnerStates);
-    const misconceptions = targetSession.analysis.misconception
-      ? [targetSession.analysis.misconception]
-      : [];
+    // If in Course Mode without a session
+    if (this.currentMode === "course") {
+      const active = this.getActiveCourse();
+      if (active && active.concepts && active.concepts.length > 0) {
+        const states = active.learnerStates ? Object.values(active.learnerStates) : [];
+        return this.calculateMetricsFromStates(active.concepts, states, []);
+      }
+    }
 
-    return this.calculateMetricsFromStates(targetSession.graph.concepts, states, misconceptions);
+    // Default Demo Mode Metrics
+    return this.calculateMetricsFromStates(
+      this.demoConcepts,
+      Array.from(this.demoLearnerStates.values()),
+      Array.from(this.demoMisconceptions.values())
+    );
   }
 
   private calculateMetricsFromStates(
@@ -503,14 +761,6 @@ class DataStore {
       activeMisconceptions,
     };
   }
-
-  public getCourseMaterials(): CourseMaterial[] {
-    return this.courseMaterials;
-  }
-
-  public addCourseMaterial(material: CourseMaterial): void {
-    this.courseMaterials.push(material);
-  }
 }
 
 // Global singleton instance for in-memory persistence across routes
@@ -519,4 +769,3 @@ const globalForStore = globalThis as unknown as { archaiaStore?: DataStore };
 export const store = globalForStore.archaiaStore ?? new DataStore();
 
 globalForStore.archaiaStore = store;
-

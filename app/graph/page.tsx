@@ -5,6 +5,7 @@ import Link from "next/link";
 import KnowledgeGraphCanvas from "@/components/graph/KnowledgeGraphCanvas";
 import { Concept, ConceptEdge, LearnerConceptState } from "@/lib/types";
 import { Network, Upload, FileText, CheckCircle, RefreshCw, PlayCircle, ArrowRight } from "lucide-react";
+import ContentModeBanner from "@/components/mode/ContentModeBanner";
 
 export default function GraphPage() {
   const [concepts, setConcepts] = useState<Concept[]>([]);
@@ -108,6 +109,8 @@ export default function GraphPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      {/* Mode Indicator & Switcher Banner */}
+      <ContentModeBanner onModeChange={() => fetchGraph()} />
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

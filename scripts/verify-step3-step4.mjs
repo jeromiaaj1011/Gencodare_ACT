@@ -192,12 +192,18 @@ async function runVerification() {
   assert(graphData.concepts.length > 0, `Graph concepts populated (${graphData.concepts.length} nodes)`);
   assert(graphData.sessionNotFound !== true, "Graph does not report sessionNotFound");
 
-  // TEST 9: Verify Session Preservation on Refresh
+  // TEST 9: Verify Session Preservation & Mastery Persistence on Refresh
   console.log("\n--- TEST 9: Refresh Step 4 (Repeated Request) ---");
+  const rootItemInitial = step4Data.adaptivePath.find(p => p.conceptId === step4Data.session.rootGap);
+  assert(rootItemInitial && rootItemInitial.status === "mastered", `Recovered concept "${step4Data.session.rootGap}" initially has status: 'mastered'`);
+
   const refreshRes = await clientFetch(`${BASE_URL}/api/adaptive-path?sessionId=${sessionId}`);
   const refreshData = await refreshRes.json();
   assert(refreshData.session != null && refreshData.session.id === sessionId, "Session remains intact after refresh");
   assert(refreshData.session.recoveryCompleted === true, "Recovery state persists across requests");
+
+  const rootItemRefresh = refreshData.adaptivePath.find(p => p.conceptId === refreshData.session.rootGap);
+  assert(rootItemRefresh && rootItemRefresh.status === "mastered", `Recovered concept "${refreshData.session.rootGap}" remains 'mastered' after refresh (does not revert to ready_to_learn)`);
 
   console.log("\n================================================================");
   console.log("🎉 ALL STEP 3 AND STEP 4 ACCEPTANCE TESTS PASSED SUCCESSFULLY!");

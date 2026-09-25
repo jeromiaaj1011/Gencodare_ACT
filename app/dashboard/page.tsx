@@ -16,6 +16,7 @@ import {
   PlayCircle,
 } from "lucide-react";
 import { LearningProgressMetrics, Misconception } from "@/lib/types";
+import ContentModeBanner from "@/components/mode/ContentModeBanner";
 
 export default function DashboardPage() {
   const [metrics, setMetrics] = useState<LearningProgressMetrics | null>(null);
@@ -26,6 +27,19 @@ export default function DashboardPage() {
     institution?: string;
   } | null>(null);
   const [customTopic, setCustomTopic] = useState("");
+
+  const fetchMetrics = () => {
+    setLoading(true);
+    fetch("/api/graph")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setMetrics(data.metrics);
+        }
+      })
+      .catch((e) => console.error(e))
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
     try {
@@ -43,19 +57,13 @@ export default function DashboardPage() {
       })
       .catch(() => {});
 
-    fetch("/api/graph")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setMetrics(data.metrics);
-        }
-      })
-      .catch((e) => console.error(e))
-      .finally(() => setLoading(false));
+    fetchMetrics();
   }, []);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-6 animate-in fade-in duration-300">
+      {/* Content Mode Indicator & Switcher Banner */}
+      <ContentModeBanner onModeChange={() => fetchMetrics()} />
       {/* Top Banner / Hero */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-950/60 via-archaia-dark to-slate-900 border border-archaia-border p-6 sm:p-8 shadow-2xl">
         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />

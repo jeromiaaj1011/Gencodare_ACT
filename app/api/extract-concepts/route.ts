@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/storage/store";
+import { extractCourseMaterial } from "@/lib/ai/courseExtractor";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,40 +16,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Heuristic concept extractor (can also call Gemini LLM if key is present)
-    const lines = content.split("\n");
-    const extracted: string[] = [];
-
-    const keywordPatterns = [
-      { id: "memory_allocation", match: /memory|pointer|stack|heap/i },
-      { id: "functions_context", match: /function|scope|variable|lifetime/i },
-      { id: "call_stack", match: /call stack|activation frame|lifo/i },
-      { id: "recursion", match: /recursion|base case|inductive/i },
-      { id: "tree_traversal", match: /tree|binary tree|inorder|preorder/i },
-      { id: "graph_traversal", match: /graph|dfs|bfs|visited/i },
-      { id: "dynamic_programming", match: /dynamic programming|memoization|subproblem/i },
-    ];
-
-    keywordPatterns.forEach((p) => {
-      if (p.match.test(content)) {
-        extracted.push(p.id);
-      }
-    });
-
-    const newMaterial = {
-      id: "mat_" + Date.now(),
+    const newMaterial = await extractCourseMaterial(
       title,
-      subject: subject || "Computer Science",
       content,
-      extractedConcepts: extracted.length > 0 ? extracted : ["recursion", "call_stack"],
-    };
+      subject || "Computer Science"
+    );
 
-    store.addCourseMaterial(newMaterial);
+    store.addCourseMaterial(newMaterial, true);
 
     return NextResponse.json({
       success: true,
+      mode: "course",
       material: newMaterial,
-      message: `Extracted ${newMaterial.extractedConcepts.length} concepts and mapped to Causal Knowledge Graph.`,
+      message: `Extracted ${newMaterial.concepts?.length || newMaterial.extractedConcepts.length} concepts and mapped to Causal Knowledge Graph. Switched to COURSE MODE.`,
     });
   } catch (error: any) {
     return NextResponse.json(
@@ -59,6 +41,8 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   return NextResponse.json({
     success: true,
+    mode: store.getMode(),
+    activeCourse: store.getActiveCourse(),
     materials: store.getCourseMaterials(),
   });
 }

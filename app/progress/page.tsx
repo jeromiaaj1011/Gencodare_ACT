@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Concept, LearnerConceptState, LearningProgressMetrics } from "@/lib/types";
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
+import ContentModeBanner from "@/components/mode/ContentModeBanner";
 
 export default function ProgressPage() {
   const [concepts, setConcepts] = useState<Concept[]>([]);
@@ -166,6 +167,9 @@ export default function ProgressPage() {
         activeConceptName={effectiveTopic || undefined}
         rootConceptName={effectiveRootGap || undefined}
       />
+
+      {/* Mode Indicator & Switcher Banner */}
+      <ContentModeBanner onModeChange={() => fetchProgress(sessionId || undefined)} />
 
       {/* Recovered Concept Completion Celebration */}
       {effectiveRootGap && isRecovered && (
@@ -399,8 +403,10 @@ export default function ProgressPage() {
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs font-sans">
                 {adaptivePath.slice(0, 4).map((item, idx) => {
                   const conceptInfo = concepts.find((c) => c.id === item.conceptId);
-                  const isMastered = item.status === "mastered";
-                  const isReady = item.status === "ready_to_learn";
+                  const isRecoveredConcept = isRecovered && (item.conceptId === effectiveRootGap || item.conceptId === sessionData?.rootGap);
+                  const isMastered = item.status === "mastered" || isRecoveredConcept;
+                  const isReady = item.status === "ready_to_learn" && !isRecoveredConcept;
+                  const displayStatus = (isMastered ? "mastered" : item.status).toUpperCase().replace("_", " ");
                   return (
                     <div
                       key={item.conceptId}
@@ -421,7 +427,7 @@ export default function ProgressPage() {
                             : "text-slate-400"
                         }`}
                       >
-                        {idx + 1}. {item.status.toUpperCase().replace("_", " ")}
+                        {idx + 1}. {displayStatus}
                       </span>
                       <div className="text-white text-xs font-semibold truncate">
                         {conceptInfo?.name || item.conceptId}
@@ -458,10 +464,12 @@ export default function ProgressPage() {
               <div className="space-y-3">
                 {adaptivePath.map((item, idx) => {
                   const conceptInfo = concepts.find((c) => c.id === item.conceptId);
-                  const isMastered = item.status === "mastered";
-                  const isReady = item.status === "ready_to_learn";
-                  const isLocked = item.status === "locked";
-                  const needsRecovery = item.status === "needs_recovery";
+                  const isRecoveredConcept = isRecovered && (item.conceptId === effectiveRootGap || item.conceptId === sessionData?.rootGap);
+                  const isMastered = item.status === "mastered" || isRecoveredConcept;
+                  const isReady = item.status === "ready_to_learn" && !isRecoveredConcept;
+                  const isLocked = item.status === "locked" && !isRecoveredConcept;
+                  const needsRecovery = item.status === "needs_recovery" && !isRecoveredConcept;
+                  const displayStatus = (isMastered ? "mastered" : item.status).replace("_", " ");
 
                   return (
                     <div
@@ -486,7 +494,7 @@ export default function ProgressPage() {
                               {conceptInfo?.name || item.conceptId}
                             </h4>
                             <span className="text-[10px] font-sans px-2 py-0.5 rounded uppercase border border-slate-700 bg-slate-900/60 text-slate-300">
-                              {item.status.replace("_", " ")}
+                              {displayStatus}
                             </span>
                           </div>
                           <p className="text-xs opacity-75 mt-0.5 font-sans">

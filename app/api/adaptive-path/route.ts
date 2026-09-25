@@ -25,6 +25,39 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    const targetSession = sessionId ? store.getDiagnosticSession(sessionId) : store.getLatestSession();
+
+    // If recovery was completed or retest was passed, ensure the session's root gap concepts persist as recovered
+    if (targetSession && (targetSession.recoveryCompleted || targetSession.retestResult?.isCorrect)) {
+      const rootGap =
+        targetSession.bisectSession?.likelyRootGapId ||
+        targetSession.recoveryIntervention?.rootConceptId ||
+        targetSession.retestAssessment?.conceptId;
+
+      const conceptsToEnsure = new Set<string>();
+      if (rootGap) conceptsToEnsure.add(rootGap);
+      if (targetSession.bisectSession?.likelyRootGapId) conceptsToEnsure.add(targetSession.bisectSession.likelyRootGapId);
+      if (targetSession.recoveryIntervention?.rootConceptId) conceptsToEnsure.add(targetSession.recoveryIntervention.rootConceptId);
+      if (targetSession.retestAssessment?.conceptId) conceptsToEnsure.add(targetSession.retestAssessment.conceptId);
+
+      for (const cId of conceptsToEnsure) {
+        const state = targetSession.graph.learnerStates[cId];
+        if (!state || (state.status !== "mastered" && state.status !== "recovered")) {
+          store.updateLearnerState(
+            cId,
+            {
+              status: "recovered",
+              masteryScore: 92,
+              confidence: 95,
+              activeMisconceptionId: undefined,
+              lastTestedAt: state?.lastTestedAt || new Date().toISOString(),
+            },
+            targetSession.id
+          );
+        }
+      }
+    }
+
     const dagEngine = store.getDagEngine(sessionId);
     const states = store.getAllLearnerStates(sessionId);
 
@@ -43,7 +76,6 @@ export async function GET(req: NextRequest) {
     const allStates = new Map(states.map((s) => [s.conceptId, s]));
     const adaptivePath = dagEngine.computeAdaptivePath(allStates);
     const metrics = store.calculateMetrics(sessionId);
-    const targetSession = sessionId ? store.getDiagnosticSession(sessionId) : store.getLatestSession();
 
     return NextResponse.json({
       success: true,

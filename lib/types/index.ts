@@ -11,14 +11,20 @@ export type MasteryStatus =
 
 export type ResponseType = "mcq" | "written" | "code" | "steps" | "quiz";
 
+export type AppContentMode = "demo" | "course";
+
 export interface Concept {
   id: string;
+  conceptId?: string; // Generic alias
   name: string;
   category: string;
   description: string;
   prerequisites: string[]; // List of concept IDs that must be learned prior
+  dependentConcepts?: string[]; // Concepts that depend on this concept
+  learningMaterialReference?: string; // Source citation (section, page, slide)
   difficulty: "beginner" | "intermediate" | "advanced";
   estimatedMinutes: number;
+  recoveryStatus?: MasteryStatus;
 }
 
 export interface ConceptEdge {
@@ -166,6 +172,14 @@ export interface CourseMaterial {
   subject: string;
   content: string;
   extractedConcepts: string[];
+  concepts?: Concept[];
+  edges?: ConceptEdge[];
+  probes?: DiagnosticProbe[];
+  interventions?: Record<string, InterventionContent>;
+  retests?: Record<string, ReTestAssessment>;
+  learnerStates?: Record<string, LearnerConceptState>;
+  createdAt?: string;
+  isDefault?: boolean;
 }
 
 export interface LearningProgressMetrics {

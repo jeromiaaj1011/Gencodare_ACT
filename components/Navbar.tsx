@@ -37,11 +37,41 @@ export default function Navbar() {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentMode, setCurrentMode] = useState<"demo" | "course">("demo");
 
   // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
+
+  const syncMode = () => {
+    fetch("/api/course")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.mode) {
+          setCurrentMode(data.mode);
+        }
+      })
+      .catch(() => {});
+  };
+
+  const handleToggleMode = async () => {
+    const nextMode = currentMode === "demo" ? "course" : "demo";
+    try {
+      const res = await fetch("/api/course", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "setMode", mode: nextMode }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCurrentMode(data.mode);
+        window.dispatchEvent(new Event("archaia-mode-change"));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   // Sync user state from localStorage and verify with session API
   const syncSession = () => {
@@ -70,11 +100,17 @@ export default function Navbar() {
 
   useEffect(() => {
     syncSession();
+    syncMode();
 
-    // Listen to custom auth events
+    // Listen to custom auth & mode events
     const handleAuthChange = () => syncSession();
+    const handleModeChange = () => syncMode();
     window.addEventListener("archaia-auth-change", handleAuthChange);
-    return () => window.removeEventListener("archaia-auth-change", handleAuthChange);
+    window.addEventListener("archaia-mode-change", handleModeChange);
+    return () => {
+      window.removeEventListener("archaia-auth-change", handleAuthChange);
+      window.removeEventListener("archaia-mode-change", handleModeChange);
+    };
   }, []);
 
   const navItems = [
@@ -173,10 +209,28 @@ export default function Navbar() {
 
           {/* Quick Actions & Auth Profile */}
           <div className="flex items-center space-x-2">
+            {/* Mode Switcher Pill */}
+            <button
+              onClick={handleToggleMode}
+              className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider border transition-all btn-interactive-subtle ${
+                currentMode === "demo"
+                  ? "bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25"
+                  : "bg-blue-600/15 text-blue-300 border-blue-500/30 hover:bg-blue-600/25"
+              }`}
+              title={`Active Content Mode: ${currentMode.toUpperCase()}. Click to switch between Demo & Course Mode.`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  currentMode === "demo" ? "bg-amber-400 animate-pulse" : "bg-blue-400 animate-pulse"
+                }`}
+              />
+              <span>{currentMode === "demo" ? "DEMO MODE" : "COURSE MODE"}</span>
+            </button>
+
             <button
               onClick={handleReset}
               disabled={resetting}
-              className="flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs font-medium bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-400 hover:text-white transition-colors"
+              className="flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs font-medium bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-400 hover:text-white transition-colors btn-interactive-subtle"
               title="Reset state to initial demo seed"
             >
               <RotateCcw className={`w-3.5 h-3.5 ${resetting ? "animate-spin" : ""}`} />

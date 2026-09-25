@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { InterventionContent, ReTestAssessment, Concept } from "@/lib/types";
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
+import ContentModeBanner from "@/components/mode/ContentModeBanner";
 
 export default function RecoveryPage() {
   const router = useRouter();
@@ -270,6 +271,9 @@ export default function RecoveryPage() {
         activeConceptName={fromTarget || activeConceptId}
         rootConceptName={activeConceptId}
       />
+
+      {/* Mode Indicator & Switcher Banner */}
+      <ContentModeBanner onModeChange={() => loadConceptRecovery(undefined, sessionId || undefined)} />
 
       {/* Continuation Context Banner */}
       {fromTarget && (

@@ -25,9 +25,12 @@ import {
   FileText,
   FolderOpen,
   UploadCloud,
+  BookOpen,
 } from "lucide-react";
-import { ResponseType, Misconception } from "@/lib/types";
+import { ResponseType, Misconception, CourseMaterial, AppContentMode } from "@/lib/types";
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
+import ContentModeBanner from "@/components/mode/ContentModeBanner";
+import StagedScanSequence from "@/components/detector/StagedScanSequence";
 
 export default function DetectorPage() {
   const router = useRouter();
@@ -36,6 +39,12 @@ export default function DetectorPage() {
   // Mode: Curated benchmark demo vs Custom real user input
   const [isDemo, setIsDemo] = useState(false);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [currentMode, setCurrentMode] = useState<AppContentMode>("demo");
+  const [activeCourse, setActiveCourse] = useState<CourseMaterial | null>(null);
+
+  // Staged Scan Motion Animation state
+  const [showStagedScan, setShowStagedScan] = useState(false);
+  const [pendingAnalysisData, setPendingAnalysisData] = useState<any>(null);
 
   // Default fields start completely empty for real users
   const [customConceptName, setCustomConceptName] = useState("");
@@ -287,37 +296,52 @@ export default function DetectorPage() {
         return;
       }
 
-      const returnedSessionId = data.sessionId || data.diagnosticSessionId;
-      if (returnedSessionId) {
-        setActiveSessionId(returnedSessionId);
-        if (typeof window !== "undefined") {
-          sessionStorage.setItem("archaia_session_id", returnedSessionId);
-        }
-      }
-
-      setSubmittedSnapshot({
-        topic: activeTopic,
-        question: questionText,
-        answer: content,
-        evidence: data.evidence,
+      setPendingAnalysisData({
+        data,
+        activeTopic,
+        questionText,
+        content,
+        activeId,
       });
-
-      if (data.hasMisconception && data.misconception) {
-        setDetectedMisconception(data.misconception);
-        setNormalizedReasoning(data.normalizedReasoning);
-      } else {
-        setVerifiedResult({
-          message: data.explanation || data.message || "Mental model invariant verified against formal reality.",
-          masteryScore: data.masteryScore || 92,
-          conceptId: activeId,
-          normalizedReasoning: data.normalizedReasoning,
-        });
-      }
+      setShowStagedScan(true);
     } catch (err: any) {
       console.error(err);
       setApiError("Network connection error. Unable to reach diagnostic engine. Please retry.");
     } finally {
       setAnalyzing(false);
+    }
+  };
+
+  const handleScanComplete = () => {
+    setShowStagedScan(false);
+    if (!pendingAnalysisData) return;
+    const { data, activeTopic, questionText, content, activeId } = pendingAnalysisData;
+
+    const returnedSessionId = data.sessionId || data.diagnosticSessionId;
+    if (returnedSessionId) {
+      setActiveSessionId(returnedSessionId);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("archaia_session_id", returnedSessionId);
+      }
+    }
+
+    setSubmittedSnapshot({
+      topic: activeTopic,
+      question: questionText,
+      answer: content,
+      evidence: data.evidence,
+    });
+
+    if (data.hasMisconception && data.misconception) {
+      setDetectedMisconception(data.misconception);
+      setNormalizedReasoning(data.normalizedReasoning);
+    } else {
+      setVerifiedResult({
+        message: data.explanation || data.message || "Mental model invariant verified against formal reality.",
+        masteryScore: data.masteryScore || 92,
+        conceptId: activeId,
+        normalizedReasoning: data.normalizedReasoning,
+      });
     }
   };
 
@@ -330,6 +354,19 @@ export default function DetectorPage() {
         activeConceptName={customConceptName || conceptId || undefined}
         targetConceptId={detectedMisconception?.conceptId}
         misconceptionId={detectedMisconception?.id}
+      />
+
+      {/* Mode Indicator & Switcher Banner */}
+      <ContentModeBanner
+        onModeChange={(newMode, course) => {
+          setCurrentMode(newMode);
+          setActiveCourse(course || null);
+          if (newMode === "demo") {
+            setIsDemo(true);
+          } else {
+            setIsDemo(false);
+          }
+        }}
       />
 
       {/* Header */}
@@ -463,6 +500,41 @@ export default function DetectorPage() {
         </div>
 
         <form onSubmit={handleAnalyze} className="space-y-4">
+          {/* Active Course Concepts Quick Selector */}
+          {currentMode === "course" && activeCourse?.concepts && activeCourse.concepts.length > 0 && (
+            <div className="p-3.5 rounded-xl bg-blue-950/30 border border-blue-500/30 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-blue-300 flex items-center space-x-1.5">
+                  <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Active Course Concepts ({activeCourse.title}):</span>
+                </span>
+                <span className="text-[11px] text-slate-400 font-sans">Click to test concept invariant</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {activeCourse.concepts.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => {
+                      setCustomConceptName(c.name);
+                      setConceptId(c.id);
+                      setQuestionText(`What formal invariant governs ${c.name} across execution boundaries?`);
+                      setWrittenInput("");
+                      setValidationError(null);
+                    }}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-sans border transition-all btn-interactive-subtle ${
+                      customConceptName === c.name
+                        ? "bg-blue-600 text-white border-blue-500 font-semibold shadow-sm"
+                        : "bg-archaia-card hover:bg-archaia-cardHover border-archaia-border text-slate-300 hover:text-white"
+                    }`}
+                  >
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
               <label className="block text-xs font-medium text-slate-300 mb-1">
@@ -655,6 +727,15 @@ export default function DetectorPage() {
           </div>
         </form>
       </div>
+
+      {/* Staged Diagnostic Scan Sequence Motion Animation */}
+      {showStagedScan && (
+        <StagedScanSequence
+          topic={customConceptName || conceptId || "Concept"}
+          onComplete={handleScanComplete}
+          durationMs={1500}
+        />
+      )}
 
       {/* Submitted Details Snapshot Display */}
       {submittedSnapshot && (

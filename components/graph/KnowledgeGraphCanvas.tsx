@@ -25,6 +25,7 @@ import {
   Activity,
   X,
   Compass,
+  BookOpen,
 } from "lucide-react";
 
 interface CanvasProps {
@@ -52,7 +53,7 @@ export default function KnowledgeGraphCanvas({
 }: CanvasProps) {
   const router = useRouter();
   const [nodePositions, setNodePositions] = useState<Record<string, { x: number; y: number; layer: number }>>({});
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>("graph_traversal");
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [hoveredEdge, setHoveredEdge] = useState<ConceptEdge | null>(null);
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   const [scale, setScale] = useState(1);
@@ -73,23 +74,20 @@ export default function KnowledgeGraphCanvas({
       const hl = params.get("highlight");
       if (hl) {
         setSelectedNodeId(hl);
+      } else if (!selectedNodeId && concepts.length > 0) {
+        setSelectedNodeId(concepts[concepts.length - 1].id);
       }
+    } else if (!selectedNodeId && concepts.length > 0) {
+      setSelectedNodeId(concepts[concepts.length - 1].id);
     }
-  }, [initialPositions]);
+  }, [initialPositions, concepts]);
 
-  const selectedConcept = concepts.find((c) => c.id === selectedNodeId);
+  const selectedConcept = concepts.find((c) => c.id === selectedNodeId) || concepts[0];
 
-  // Determine analysis-based statuses
-  const observedErrorNodeId = activeBisect?.targetConceptId || "graph_traversal";
-  const likelyRootGapId = activeBisect?.likelyRootGapId || "call_stack";
-  const ancestorChain: string[] = activeBisect?.ancestorChain || [
-    "memory_allocation",
-    "functions_context",
-    "call_stack",
-    "recursion",
-    "tree_traversal",
-    "graph_traversal",
-  ];
+  // Dynamic analysis-based statuses
+  const observedErrorNodeId = activeBisect?.targetConceptId || (concepts.length > 0 ? concepts[concepts.length - 1].id : "");
+  const likelyRootGapId = activeBisect?.likelyRootGapId || (concepts.length > 0 ? concepts[0].id : "");
+  const ancestorChain: string[] = activeBisect?.ancestorChain || concepts.map((c) => c.id);
 
   const getNodeStatus = (conceptId: string) => {
     // 1. Direct state from learnerStates
@@ -106,7 +104,6 @@ export default function KnowledgeGraphCanvas({
       return "misconception_detected";
     }
     if (ancestorChain.includes(conceptId)) {
-      if (conceptId === "memory_allocation" || conceptId === "functions_context") return "mastered";
       return "in_causal_path";
     }
 
@@ -166,14 +163,20 @@ export default function KnowledgeGraphCanvas({
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case "Foundations":
+      case "Hardware & Kernel":
         return Cpu;
       case "Architecture":
+      case "OS Foundations":
         return Layers;
       case "Data Structures":
+      case "Storage Engine":
         return GitBranch;
       case "Algorithms":
+      case "Concurrency Safety":
+      case "Transport Layer":
         return Network;
-      case "Advanced Algorithms":
+      case "Optimization":
+      case "Distributed DBs":
         return Sparkles;
       default:
         return Compass;
@@ -223,61 +226,58 @@ export default function KnowledgeGraphCanvas({
     setDraggingNodeId(null);
   };
 
-  // Check if an edge is part of the active cognitive bisect causal path
+  // Dynamically check if an edge is part of the active causal path
   const isCausalTraceEdge = (edge: ConceptEdge) => {
-    const traceEdges = [
-      ["memory_allocation", "functions_context"],
-      ["functions_context", "call_stack"],
-      ["call_stack", "recursion"],
-      ["recursion", "tree_traversal"],
-      ["tree_traversal", "graph_traversal"],
-    ];
-    return traceEdges.some(([from, to]) => edge.from === from && edge.to === to);
+    if (ancestorChain && ancestorChain.length > 1) {
+      const fromIdx = ancestorChain.indexOf(edge.from);
+      const toIdx = ancestorChain.indexOf(edge.to);
+      return fromIdx !== -1 && toIdx !== -1 && fromIdx < toIdx;
+    }
+    return false;
   };
 
-  const isEdgeHighlighted = (edge: ConceptEdge) => {
-    if (viewFilter === "causal_trace") {
-      return isCausalTraceEdge(edge);
-    }
-    return (
-      isCausalTraceEdge(edge) ||
-      (selectedNodeId && (edge.from === selectedNodeId || edge.to === selectedNodeId))
+  // Dynamic connection test for hover halo & focus
+  const isDirectlyConnected = (nodeId: string, targetId: string) => {
+    return edges.some(
+      (e) =>
+        (e.from === nodeId && e.to === targetId) ||
+        (e.from === targetId && e.to === nodeId)
     );
   };
 
   // Node dimensions for crisp card drawing
-  const nodeWidth = 195;
+  const nodeWidth = 200;
   const nodeHeight = 84;
 
   return (
-    <div className="relative w-full rounded-2xl bg-[#0E1117] border border-[#282E3D] overflow-hidden shadow-xl space-y-0">
+    <div className="relative w-full rounded-2xl bg-[#0E1117] border border-[#282E3D] overflow-hidden shadow-2xl space-y-0">
       {/* 1. TOP DIAGNOSTIC ANALYSIS COCKPIT RIBBON */}
       <div className="p-4 sm:p-5 bg-[#141722] border-b border-[#282E3D] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Left: Active Analysis Summary */}
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-rose-500/15 text-rose-300 border border-rose-500/30 flex items-center space-x-1.5">
-              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-              <span>Live Diagnostic Analysis Active</span>
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-blue-600/15 text-blue-300 border border-blue-500/30 flex items-center space-x-1.5">
+              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              <span>Interactive Knowledge Graph</span>
             </span>
-            <span className="text-xs text-blue-400 font-medium">
-              Causal Fault Isolation: <strong className="text-white">DFS Context Replacement</strong>
+            <span className="text-xs text-slate-300 font-medium font-sans">
+              Nodes: <strong className="text-white">{concepts.length} Concepts</strong> • Causal Edges: <strong className="text-white">{edges.length} Invariant Dependencies</strong>
             </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 text-xs font-sans">
-            <span className="text-slate-400 font-medium">Analysis Breakdown:</span>
+            <span className="text-slate-400 font-medium">Active Target:</span>
             <span className="px-2 py-0.5 rounded bg-rose-950/60 border border-rose-800 text-rose-200 text-[11px] font-medium">
-              Observed: Graph Traversal
+              {observedErrorNodeId}
             </span>
             <ArrowRight className="w-3 h-3 text-slate-500" />
             <span className="px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-200 text-[11px] font-medium">
-              Trace: 4 Ancestor Hops
+              {ancestorChain.length} Invariant Hops
             </span>
             <ArrowRight className="w-3 h-3 text-slate-500" />
             <span className="px-2 py-0.5 rounded bg-amber-950/70 border border-amber-600/70 text-amber-200 text-[11px] font-semibold flex items-center space-x-1">
               <Flame className="w-3 h-3 text-amber-400" />
-              <span>Root Gap: Call Stack & LIFO (95% Evidence)</span>
+              <span>Root Gap: {likelyRootGapId}</span>
             </span>
           </div>
         </div>
@@ -288,8 +288,8 @@ export default function KnowledgeGraphCanvas({
             <button
               onClick={onTriggerDemoAnalysis}
               disabled={analyzingDemo}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-medium transition-all shadow-sm"
-              title="Re-run student DFS analysis on graph"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all shadow-sm btn-interactive"
+              title="Re-run diagnostic analysis on graph"
             >
               <Play className="w-3 h-3" />
               <span>{analyzingDemo ? "Analyzing..." : "Re-Run Analysis"}</span>
@@ -298,7 +298,7 @@ export default function KnowledgeGraphCanvas({
 
           <Link
             href="/bisect"
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-amber-300 font-medium transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-amber-300 font-medium transition-colors btn-interactive-subtle"
           >
             <Split className="w-3.5 h-3.5" />
             <span>Open Bisect</span>
@@ -306,7 +306,7 @@ export default function KnowledgeGraphCanvas({
 
           <Link
             href="/recovery"
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-emerald-300 font-medium transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-emerald-300 font-medium transition-colors btn-interactive-subtle"
           >
             <HeartPulse className="w-3.5 h-3.5" />
             <span>Recovery Lab</span>
@@ -320,7 +320,7 @@ export default function KnowledgeGraphCanvas({
         <div className="flex items-center space-x-1">
           <span className="text-slate-400 mr-2 text-[11px] font-medium">View Mode:</span>
           {[
-            { id: "all", label: "Full Graph" },
+            { id: "all", label: "Full DAG" },
             { id: "causal_trace", label: "Causal Analysis Trace" },
             { id: "mastery", label: "Mastery Heatmap" },
           ].map((tab) => (
@@ -362,7 +362,7 @@ export default function KnowledgeGraphCanvas({
         <div className="flex items-center space-x-1.5">
           <button
             onClick={() => setScale((s) => Math.max(0.65, s - 0.1))}
-            className="p-1 rounded bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white"
+            className="p-1 rounded bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white btn-interactive-subtle"
             title="Zoom out"
           >
             <Minimize2 className="w-3.5 h-3.5" />
@@ -370,7 +370,7 @@ export default function KnowledgeGraphCanvas({
           <span className="text-[11px] text-slate-400 px-1 font-medium">{Math.round(scale * 100)}%</span>
           <button
             onClick={() => setScale((s) => Math.min(1.4, s + 0.1))}
-            className="p-1 rounded bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white"
+            className="p-1 rounded bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white btn-interactive-subtle"
             title="Zoom in"
           >
             <Maximize2 className="w-3.5 h-3.5" />
@@ -380,7 +380,7 @@ export default function KnowledgeGraphCanvas({
               setScale(1);
               setNodePositions(initialPositions);
             }}
-            className="p-1 rounded bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white ml-1"
+            className="p-1 rounded bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white ml-1 btn-interactive-subtle"
             title="Reset zoom & layout"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -396,7 +396,7 @@ export default function KnowledgeGraphCanvas({
       >
         {/* Watermark Helper Text */}
         <div className="absolute bottom-3 left-4 pointer-events-none text-[11px] font-sans text-slate-500 z-0">
-          Tip: Click any concept to inspect diagnostic analysis • Drag nodes freely to customize layout
+          Tip: Hover any node to highlight dependencies • Drag nodes to customize DAG layout
         </div>
 
         {/* Hovered Edge Rationale Card */}
@@ -437,6 +437,10 @@ export default function KnowledgeGraphCanvas({
               <marker id="arrowActiveCausal" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
                 <polygon points="0 0.5, 8 3.5, 0 6.5" fill="#3B82F6" />
               </marker>
+
+              <marker id="arrowHovered" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+                <polygon points="0 0.5, 8 3.5, 0 6.5" fill="#60A5FA" />
+              </marker>
             </defs>
 
             {/* EDGES LAYER */}
@@ -446,7 +450,12 @@ export default function KnowledgeGraphCanvas({
               if (!start || !end) return null;
 
               const isCausal = isCausalTraceEdge(edge);
-              const isDimmed = viewFilter === "causal_trace" && !isCausal;
+              const isDirectHoverEdge =
+                hoveredNodeId && (edge.from === hoveredNodeId || edge.to === hoveredNodeId);
+
+              const isDimmed =
+                (viewFilter === "causal_trace" && !isCausal) ||
+                (hoveredNodeId && !isDirectHoverEdge && !isCausal);
 
               // Cubic Bézier calculation
               const dx = end.x - start.x;
@@ -461,7 +470,9 @@ export default function KnowledgeGraphCanvas({
               return (
                 <g
                   key={`${edge.from}->${edge.to}`}
-                  className={`cursor-pointer transition-opacity duration-300 ${isDimmed ? "opacity-15" : "opacity-100"}`}
+                  className={`cursor-pointer transition-opacity duration-300 ${
+                    isDimmed ? "opacity-15" : "opacity-100"
+                  }`}
                   onMouseEnter={() => setHoveredEdge(edge)}
                   onMouseLeave={() => setHoveredEdge(null)}
                 >
@@ -472,13 +483,25 @@ export default function KnowledgeGraphCanvas({
                   <path
                     d={pathData}
                     fill="none"
-                    stroke={isCausal ? "#3B82F6" : "#334155"}
-                    strokeWidth={isCausal ? "2.5" : "1.6"}
+                    stroke={
+                      isDirectHoverEdge
+                        ? "#60A5FA"
+                        : isCausal
+                        ? "#3B82F6"
+                        : "#334155"
+                    }
+                    strokeWidth={isDirectHoverEdge ? "2.8" : isCausal ? "2.5" : "1.6"}
                     strokeDasharray={isCausal ? "6 3" : undefined}
-                    markerEnd={isCausal ? "url(#arrowActiveCausal)" : "url(#arrowStandard)"}
+                    markerEnd={
+                      isDirectHoverEdge
+                        ? "url(#arrowHovered)"
+                        : isCausal
+                        ? "url(#arrowActiveCausal)"
+                        : "url(#arrowStandard)"
+                    }
                   />
 
-                  {/* Smooth particle indicator along causal trace */}
+                  {/* Particle along causal trace */}
                   {isCausal && (
                     <circle r="3.5" fill="#F59E0B">
                       <animateMotion dur="2.8s" repeatCount="indefinite" path={pathData} />
@@ -499,7 +522,15 @@ export default function KnowledgeGraphCanvas({
               const isHovered = hoveredNodeId === concept.id;
               const CategoryIcon = getCategoryIcon(concept.category);
               const mastery = learnerStates[concept.id]?.masteryScore || 0;
-              const isDimmed = viewFilter === "causal_trace" && status === "untested";
+
+              // Hover Halo & Connection Brightening
+              const isConnectedToHover = hoveredNodeId
+                ? hoveredNodeId === concept.id || isDirectlyConnected(hoveredNodeId, concept.id)
+                : true;
+
+              const isDimmed =
+                (!isConnectedToHover && hoveredNodeId) ||
+                (viewFilter === "causal_trace" && status === "untested");
 
               const isRootGap = status === "root_gap_identified";
               const isObservedError = status === "misconception_detected";
@@ -508,7 +539,9 @@ export default function KnowledgeGraphCanvas({
                 <g
                   key={concept.id}
                   transform={`translate(${pos.x - nodeWidth / 2}, ${pos.y - nodeHeight / 2})`}
-                  className={`cursor-pointer transition-opacity duration-300 ${isDimmed ? "opacity-25" : "opacity-100"}`}
+                  className={`cursor-pointer transition-all duration-300 ${
+                    isDimmed ? "opacity-25" : "opacity-100"
+                  }`}
                   onMouseDown={(e) => handleMouseDownNode(e, concept.id)}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -518,6 +551,21 @@ export default function KnowledgeGraphCanvas({
                   onMouseEnter={() => setHoveredNodeId(concept.id)}
                   onMouseLeave={() => setHoveredNodeId(null)}
                 >
+                  {/* Hover Spotlight Halo */}
+                  {isHovered && (
+                    <rect
+                      x="-8"
+                      y="-8"
+                      width={nodeWidth + 16}
+                      height={nodeHeight + 16}
+                      rx="20"
+                      fill="none"
+                      stroke={colorInfo.halo}
+                      strokeWidth="2.5"
+                      opacity="0.8"
+                    />
+                  )}
+
                   {/* Subtle Accent Outline for Key Nodes */}
                   {isObservedError && (
                     <rect
@@ -663,7 +711,7 @@ export default function KnowledgeGraphCanvas({
                     fontFamily="Plus Jakarta Sans, sans-serif"
                     fontWeight="700"
                   >
-                    {concept.name.length > 20 ? concept.name.substring(0, 19) + "…" : concept.name}
+                    {concept.name.length > 21 ? concept.name.substring(0, 20) + "…" : concept.name}
                   </text>
 
                   {/* Category Chip */}
@@ -759,38 +807,19 @@ export default function KnowledgeGraphCanvas({
                 <h2 className="text-xl font-bold text-white tracking-tight">
                   {selectedConcept.name}
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed font-sans">
                   {selectedConcept.description}
                 </p>
+                {selectedConcept.learningMaterialReference && (
+                  <div className="flex items-center space-x-1.5 text-[11px] text-slate-400 mt-1.5 font-sans">
+                    <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Source Material: {selectedConcept.learningMaterialReference}</span>
+                  </div>
+                )}
               </div>
-
-              {/* Diagnostic Invariant Assessment Details */}
-              {selectedConcept.id === observedErrorNodeId && (
-                <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-900/60 text-xs font-sans space-y-1">
-                  <div className="text-rose-300 font-semibold flex items-center space-x-1">
-                    <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-                    <span>Observed Misconception on this Concept:</span>
-                  </div>
-                  <p className="text-rose-200/90 leading-relaxed font-sans">
-                    Learner believed calling recursive child functions destroys or overwrites the current invocation frame in memory.
-                  </p>
-                </div>
-              )}
-
-              {selectedConcept.id === likelyRootGapId && (
-                <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-900/60 text-xs font-sans space-y-1">
-                  <div className="text-amber-300 font-semibold flex items-center space-x-1">
-                    <Flame className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Why this is the Foundational Root Gap:</span>
-                  </div>
-                  <p className="text-amber-200/90 leading-relaxed font-sans">
-                    Cognitive Bisect isolated that the student never internalized that Call Stack frames exist independently in LIFO memory. Without this physical invariant, recursive algorithms appear to overwrite parent scope.
-                  </p>
-                </div>
-              )}
             </div>
 
-            {/* Diagnostic Actions & Prerequisite Inspector */}
+            {/* Diagnostic Actions & Relational Mapping Inspector */}
             <div className="space-y-4 shrink-0 lg:w-80">
               <div className="p-4 rounded-xl bg-[#181C26] border border-[#282E3D] space-y-2.5 text-xs font-sans">
                 <span className="text-slate-400 block font-semibold text-[11px] uppercase tracking-wider">
@@ -799,18 +828,39 @@ export default function KnowledgeGraphCanvas({
                 <div>
                   <span className="text-slate-400 block text-[11px]">Prerequisite Concepts:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {selectedConcept.prerequisites.length > 0 ? (
+                    {selectedConcept.prerequisites && selectedConcept.prerequisites.length > 0 ? (
                       selectedConcept.prerequisites.map((p) => (
                         <button
                           key={p}
                           onClick={() => setSelectedNodeId(p)}
-                          className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-blue-400 text-[11px] border border-slate-700 font-medium"
+                          className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-blue-400 text-[11px] border border-slate-700 font-medium btn-interactive-subtle"
                         >
                           {p}
                         </button>
                       ))
                     ) : (
                       <span className="text-slate-500 text-[11px]">None (Foundational Root)</span>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-slate-400 block text-[11px]">Dependent Concepts:</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {edges.filter((e) => e.from === selectedConcept.id).length > 0 ? (
+                      edges
+                        .filter((e) => e.from === selectedConcept.id)
+                        .map((e) => (
+                          <button
+                            key={e.to}
+                            onClick={() => setSelectedNodeId(e.to)}
+                            className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-indigo-300 text-[11px] border border-slate-700 font-medium btn-interactive-subtle"
+                          >
+                            {e.to}
+                          </button>
+                        ))
+                    ) : (
+                      <span className="text-slate-500 text-[11px]">None (Terminal Leaf)</span>
                     )}
                   </div>
                 </div>
@@ -835,15 +885,15 @@ export default function KnowledgeGraphCanvas({
               <div className="flex flex-col gap-2">
                 <Link
                   href={`/bisect?conceptId=${selectedConcept.id}`}
-                  className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all flex items-center justify-center space-x-1.5 shadow-sm"
+                  className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all flex items-center justify-center space-x-1.5 shadow-sm btn-interactive"
                 >
                   <Split className="w-3.5 h-3.5" />
                   <span>Execute Cognitive Bisect on this Node →</span>
                 </Link>
 
                 <Link
-                  href={`/detector?custom=true&concept=${encodeURIComponent(selectedConcept.name)}`}
-                  className="w-full py-2.5 px-4 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 font-medium text-xs transition-all flex items-center justify-center space-x-1.5"
+                  href={`/detector?concept=${encodeURIComponent(selectedConcept.name)}`}
+                  className="w-full py-2.5 px-4 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 font-medium text-xs transition-all flex items-center justify-center space-x-1.5 btn-interactive-subtle"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                   <span>Diagnose Input for this Concept (Step 1) →</span>
@@ -851,7 +901,7 @@ export default function KnowledgeGraphCanvas({
 
                 <Link
                   href={`/recovery?conceptId=${selectedConcept.id}`}
-                  className="w-full py-2.5 px-4 rounded-xl bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white font-medium text-xs transition-all flex items-center justify-center space-x-1.5"
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white font-medium text-xs transition-all flex items-center justify-center space-x-1.5 btn-interactive-subtle"
                 >
                   <HeartPulse className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Open Targeted Recovery Lab</span>
