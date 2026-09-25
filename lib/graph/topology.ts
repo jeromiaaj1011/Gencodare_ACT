@@ -97,4 +97,14 @@ export const INITIAL_EDGES: ConceptEdge[] = [
     to: "dynamic_programming",
     rationale: "Dynamic programming state transition graphs represent directed acyclic graphs (DAGs) of recursive subproblems.",
   },
+  {
+    from: "memory_allocation",
+    to: "call_stack",
+    rationale: "Physical stack memory layout and pointer references directly govern how call frames are allocated and deallocated in LIFO order.",
+  },
+  {
+    from: "recursion",
+    to: "dynamic_programming",
+    rationale: "Dynamic programming directly memoizes overlapping subproblems within a recursive call tree, converting an exponential recursion DAG into a polynomial evaluation.",
+  },
 ];

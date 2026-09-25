@@ -7,13 +7,44 @@ export interface NodePosition {
   layer: number;
 }
 
+// Tailored baseline 2D coordinates for the core CS Causal DAG to create an organic, beautiful multi-branching network
+const CURATED_2D_POSITIONS: Record<string, { x: number; y: number; layer: number }> = {
+  memory_allocation: { x: 130, y: 170, layer: 0 },
+  functions_context: { x: 180, y: 410, layer: 0 },
+  call_stack: { x: 390, y: 250, layer: 1 },
+  recursion: { x: 590, y: 340, layer: 2 },
+  tree_traversal: { x: 770, y: 170, layer: 3 },
+  graph_traversal: { x: 920, y: 260, layer: 4 },
+  dynamic_programming: { x: 1060, y: 430, layer: 5 },
+};
+
 export function computeHierarchicalLayout(
   concepts: Concept[],
   edges: ConceptEdge[],
-  canvasWidth = 1000,
-  canvasHeight = 550
+  canvasWidth = 1180,
+  canvasHeight = 600
 ): { positions: Map<string, NodePosition>; width: number; height: number } {
-  const nodeMap = new Map(concepts.map((c) => [c.id, c]));
+  const positions = new Map<string, NodePosition>();
+
+  // Check if this matches the core concepts
+  const isCoreGraph =
+    concepts.length === 7 &&
+    concepts.every((c) => CURATED_2D_POSITIONS[c.id] !== undefined);
+
+  if (isCoreGraph) {
+    for (const c of concepts) {
+      const p = CURATED_2D_POSITIONS[c.id];
+      positions.set(c.id, {
+        id: c.id,
+        x: p.x,
+        y: p.y,
+        layer: p.layer,
+      });
+    }
+    return { positions, width: canvasWidth, height: canvasHeight };
+  }
+
+  // Generalized 2D topological layout with barycenter heuristic for custom/extracted concepts
   const inDegree = new Map<string, number>();
   const childrenMap = new Map<string, string[]>();
 
@@ -29,7 +60,7 @@ export function computeHierarchicalLayout(
     childrenMap.get(edge.from)?.push(edge.to);
   }
 
-  // Layer assignment using longest path from root
+  // Layer assignment using longest path
   const layers = new Map<string, number>();
   const roots = concepts.filter((c) => (inDegree.get(c.id) || 0) === 0);
 
@@ -48,14 +79,12 @@ export function computeHierarchicalLayout(
     assignLayer(r.id, 0);
   }
 
-  // Ensure every node has a layer
   for (const c of concepts) {
     if (!layers.has(c.id)) {
       layers.set(c.id, 0);
     }
   }
 
-  // Group nodes by layer
   const layerGroups = new Map<number, string[]>();
   let maxLayer = 0;
   for (const [id, layer] of layers.entries()) {
@@ -66,10 +95,8 @@ export function computeHierarchicalLayout(
     layerGroups.get(layer)!.push(id);
   }
 
-  // Calculate coordinates
-  const positions = new Map<string, NodePosition>();
-  const horizontalPadding = 120;
-  const verticalPadding = 90;
+  const horizontalPadding = 140;
+  const verticalPadding = 110;
   const usableWidth = canvasWidth - horizontalPadding * 2;
   const colWidth = maxLayer > 0 ? usableWidth / maxLayer : usableWidth;
 
@@ -77,14 +104,28 @@ export function computeHierarchicalLayout(
     const nodesInLayer = layerGroups.get(l) || [];
     const count = nodesInLayer.length;
     const usableHeight = canvasHeight - verticalPadding * 2;
-    const rowHeight = count > 1 ? usableHeight / (count - 1) : 0;
 
     nodesInLayer.forEach((nodeId, idx) => {
+      // If curated coordinate exists for this node, use it with responsive scale
+      if (CURATED_2D_POSITIONS[nodeId]) {
+        positions.set(nodeId, {
+          id: nodeId,
+          x: CURATED_2D_POSITIONS[nodeId].x,
+          y: CURATED_2D_POSITIONS[nodeId].y,
+          layer: CURATED_2D_POSITIONS[nodeId].layer,
+        });
+        return;
+      }
+
       const x = horizontalPadding + l * colWidth;
-      const y =
-        count === 1
-          ? canvasHeight / 2
-          : verticalPadding + idx * rowHeight;
+      // Stagger single nodes using alternating wave to avoid flat horizontal lines
+      let y: number;
+      if (count === 1) {
+        y = l % 2 === 0 ? canvasHeight / 2 - 60 : canvasHeight / 2 + 70;
+      } else {
+        const rowHeight = usableHeight / (count - 1);
+        y = verticalPadding + idx * rowHeight;
+      }
 
       positions.set(nodeId, {
         id: nodeId,

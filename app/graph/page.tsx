@@ -11,6 +11,8 @@ export default function GraphPage() {
   const [positions, setPositions] = useState<Record<string, { x: number; y: number; layer: number }>>({});
   const [canvasSize, setCanvasSize] = useState({ width: 1000, height: 550 });
   const [learnerStates, setLearnerStates] = useState<Record<string, LearnerConceptState>>({});
+  const [activeBisect, setActiveBisect] = useState<any>(null);
+  const [analyzingDemo, setAnalyzingDemo] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Concept Extraction Form state
@@ -33,10 +35,40 @@ export default function GraphPage() {
           setPositions(data.positions);
           setCanvasSize(data.canvasSize);
           setLearnerStates(data.learnerStates);
+          if (data.activeBisect) {
+            setActiveBisect(data.activeBisect);
+          }
         }
       })
       .catch((e) => console.error(e))
       .finally(() => setLoading(false));
+  };
+
+  const handleTriggerDemoAnalysis = async () => {
+    setAnalyzingDemo(true);
+    try {
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conceptId: "graph_traversal",
+          questionId: "q_dfs_eval",
+          questionText:
+            "Explain how DFS backtracking restores the execution context when returning from a recursive sub-branch.",
+          responseType: "written",
+          content:
+            "When a recursive DFS function returns, the variables in the previous frame are corrupted because the function stack frame is reused rather than preserved across call boundaries.",
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchGraph();
+      }
+    } catch (e) {
+      console.error("Demo analysis trigger error:", e);
+    } finally {
+      setAnalyzingDemo(false);
+    }
   };
 
   useEffect(() => {
@@ -174,6 +206,9 @@ export default function GraphPage() {
           positions={positions}
           canvasSize={canvasSize}
           learnerStates={learnerStates}
+          activeBisect={activeBisect}
+          onTriggerDemoAnalysis={handleTriggerDemoAnalysis}
+          analyzingDemo={analyzingDemo}
         />
       )}
     </div>
