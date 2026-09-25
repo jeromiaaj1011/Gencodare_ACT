@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   KeyRound,
   User,
+  Sparkles,
 } from "lucide-react";
 import ArchaiaLogo from "@/components/ArchaiaLogo";
 import CyberMeshBackground from "@/components/CyberMeshBackground";
@@ -53,7 +54,7 @@ export default function LoginPage() {
       .catch(() => {});
   }, [router]);
 
-  // Demo Credentials quick-fill for Judges
+  // Quick Fill Sample Accounts
   const fillCredentials = (type: "student" | "instructor" | "researcher") => {
     setIsRegisterMode(false);
     setErrorMessage(null);
@@ -66,6 +67,29 @@ export default function LoginPage() {
     } else {
       setEmail("researcher@mit.edu");
       setPassword("CognitiveSci!2026");
+    }
+  };
+
+  const handleQuickActivate = async () => {
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: "student@college.edu", password: "Archaia2026!" }),
+      });
+      const data = await res.json();
+      if (data.success && data.user) {
+        localStorage.setItem("archaia_user", JSON.stringify(data.user));
+        window.dispatchEvent(new Event("archaia-auth-change"));
+        setSuccessMessage("Workspace Activated! Initializing your cognitive profile...");
+        setTimeout(() => router.push("/dashboard"), 500);
+      }
+    } catch {
+      setErrorMessage("Could not activate workspace.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -121,11 +145,11 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-[calc(100vh-80px)] w-full flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden">
-      {/* Background Cybernetic Mesh & Celestial Wireframe Sphere */}
+      {/* Background Studio Ambient Canvas */}
       <CyberMeshBackground />
 
       <div className="relative z-10 w-full max-w-6xl mx-auto space-y-6 py-4">
-        {/* Top Brand Banner & Demo Quick-Credentials Ribbon */}
+        {/* Top Brand Banner & Sample Accounts Ribbon */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <Link href="/dashboard" className="flex items-center space-x-3.5 group cursor-pointer">
             <ArchaiaLogo size={42} className="w-10 h-10 group-hover:scale-105 transition-transform" />
@@ -139,11 +163,11 @@ export default function LoginPage() {
             </div>
           </Link>
 
-          {/* Quick Demo Credentials Bar for Judges */}
+          {/* Sample Accounts Quick Fill */}
           <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs backdrop-blur-md">
-            <span className="text-slate-400 px-2 flex items-center space-x-1 font-medium">
+            <span className="text-slate-400 px-2 flex items-center space-x-1 font-medium font-sans">
               <KeyRound className="w-3.5 h-3.5 text-amber-400" />
-              <span>Demo Accounts:</span>
+              <span>Sample Profiles:</span>
             </span>
             <button
               type="button"
@@ -179,19 +203,37 @@ export default function LoginPage() {
                 <div className="flex items-center space-x-2.5">
                   <ArchaiaLogo size={24} className="w-6 h-6" />
                   <span className="text-xs text-slate-300 font-sans">
-                    {isRegisterMode ? "Create profile on" : "Welcome to"}
+                    {isRegisterMode ? "Create your profile on" : "Welcome to"}
                   </span>
                 </div>
                 <div>
                   <h2 className="text-xl font-bold tracking-[0.2em] text-white uppercase font-sans">
                     ARCHAIA
                   </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-slate-400 mt-0.5 font-sans">
                     {isRegisterMode
                       ? "Register your student profile for personalized cognitive diagnostics."
-                      : "Sign in to continue your learning investigation."}
+                      : "Sign in to activate your diagnostic learning workspace."}
                   </p>
                 </div>
+              </div>
+
+              {/* 1-Click Instant Activation Banner */}
+              <button
+                type="button"
+                onClick={handleQuickActivate}
+                disabled={isSubmitting}
+                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center justify-center space-x-2 shadow-sm transition-all border border-blue-400/30"
+              >
+                <Sparkles className="w-4 h-4 text-blue-200" />
+                <span>Activate Student Workspace (1-Click)</span>
+              </button>
+
+              <div className="relative flex items-center justify-center">
+                <div className="border-t border-[#282E3D] w-full" />
+                <span className="bg-[#141722] px-2 text-[10px] uppercase text-slate-500 font-semibold font-sans absolute">
+                  or sign in with credentials
+                </span>
               </div>
 
               {/* Error & Success Banners */}
@@ -362,13 +404,13 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Direct Guest Access for Judges / Evaluators */}
+            {/* Direct Guest Access */}
             <div className="text-center pt-3">
               <Link
                 href="/dashboard"
-                className="text-xs text-slate-400 hover:text-blue-400 transition-colors inline-flex items-center space-x-1 group"
+                className="text-xs text-slate-400 hover:text-blue-400 transition-colors inline-flex items-center space-x-1 group font-sans"
               >
-                <span>Explore Platform as Guest Evaluator</span>
+                <span>Continue into Platform as Guest Student</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-blue-400" />
               </Link>
             </div>

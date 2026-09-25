@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Bug,
   FileCode,
@@ -16,6 +17,8 @@ import {
   Plus,
   Trash2,
   FileCheck2,
+  CheckCircle2,
+  CheckCircle,
 } from "lucide-react";
 import { ResponseType, Misconception } from "@/lib/types";
 
@@ -84,28 +87,64 @@ export default function DetectorPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [detectedMisconception, setDetectedMisconception] = useState<Misconception | null>(null);
   const [normalizedReasoning, setNormalizedReasoning] = useState<string | null>(null);
+  const [verifiedResult, setVerifiedResult] = useState<{
+    message: string;
+    masteryScore?: number;
+    conceptId?: string;
+    normalizedReasoning?: string;
+  } | null>(null);
 
-  // Presets
-  const loadPreset = (type: "dfs_replacement" | "reference_aliasing") => {
-    if (type === "dfs_replacement") {
-      setConceptId("graph_traversal");
-      setResponseType("written");
-      setQuestionText(
-        "In recursive Depth-First Search (DFS) on a graph, what happens to the execution state of the current node when dfs() is called on an unvisited neighbor?"
-      );
-      setWrittenInput(
-        "When dfs(neighbor) is invoked, it replaces the current function. Because the child executes, the parent function is overwritten, so after visiting node 2 it forgets where it was and exits without exploring node 3."
-      );
-    } else {
-      setConceptId("memory_allocation");
-      setResponseType("written");
-      setQuestionText(
-        "In Graph BFS/DFS, if you assign `let copy_visited = visited;`, what happens if you mutate `copy_visited`?"
-      );
-      setWrittenInput(
-        "Writing `copy_visited = visited` clones the set into a new memory location. Modifying `copy_visited` will never mutate the original `visited` set."
-      );
-    }
+  // Curated Diagnostic Problem Suite
+  const PRACTICE_PROBLEMS = [
+    {
+      id: "dfs_replacement",
+      conceptId: "graph_traversal",
+      title: "Graph DFS: Loop Resumption & State",
+      question:
+        "In recursive Depth-First Search (DFS) on a graph, what happens to the execution state of the current node when dfs() is called on an unvisited neighbor?",
+      flawed:
+        "When dfs(neighbor) is invoked, it replaces the current function. Because the child executes, the parent function is overwritten, so after visiting node 2 it forgets where it was and exits without exploring node 3.",
+      sound:
+        "Each recursive call pushes an activation record onto the Call Stack. The parent function pauses at its loop index, and when the child completes, the stack unwinds and the parent resumes seamlessly with the next neighbor.",
+    },
+    {
+      id: "reference_aliasing",
+      conceptId: "memory_allocation",
+      title: "Memory Allocation: Reference Aliasing vs Array Cloning",
+      question:
+        "In Graph BFS/DFS, if you assign `let copy_visited = visited;`, what happens if you mutate `copy_visited`?",
+      flawed:
+        "Writing `copy_visited = visited` clones the set into a new memory location. Modifying `copy_visited` will never mutate the original `visited` set.",
+      sound:
+        "Assigning `copy_visited = visited` copies only the memory reference address pointing to the same heap block. Mutating `copy_visited` modifies the exact same underlying object as `visited`.",
+    },
+    {
+      id: "recursion_returns",
+      conceptId: "recursion",
+      title: "Recursion: Return Value Bubbling",
+      question:
+        "In a recursive search, what happens if the base case returns true, but intermediate recursive calls omit the return statement?",
+      flawed:
+        "Once any recursive call hits return true, the entire program automatically terminates and delivers true to the top caller without needing return statements in parent frames.",
+      sound:
+        "Stack unwinding passes returns sequentially up the activation chain. If an intermediate parent frame does not return the result of its child call, the return value is dropped and the parent evaluates to undefined.",
+    },
+  ];
+
+  const loadProblem = (probId: string) => {
+    const prob = PRACTICE_PROBLEMS.find((p) => p.id === probId);
+    if (!prob) return;
+    setConceptId(prob.conceptId);
+    setResponseType("written");
+    setQuestionText(prob.question);
+    setWrittenInput(prob.flawed);
+    setDetectedMisconception(null);
+    setVerifiedResult(null);
+  };
+
+  const fillReasoning = (type: "flawed" | "sound") => {
+    const currentProb = PRACTICE_PROBLEMS.find((p) => p.conceptId === conceptId) || PRACTICE_PROBLEMS[0];
+    setWrittenInput(type === "flawed" ? currentProb.flawed : currentProb.sound);
   };
 
   const getPayloadContent = () => {
@@ -128,6 +167,8 @@ export default function DetectorPage() {
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
     setAnalyzing(true);
+    setDetectedMisconception(null);
+    setVerifiedResult(null);
     try {
       const content = getPayloadContent();
       const res = await fetch("/api/analyze", {
@@ -143,9 +184,18 @@ export default function DetectorPage() {
       });
 
       const data = await res.json();
-      if (data.success && data.misconception) {
-        setDetectedMisconception(data.misconception);
-        setNormalizedReasoning(data.normalizedReasoning);
+      if (data.success) {
+        if (data.misconception) {
+          setDetectedMisconception(data.misconception);
+          setNormalizedReasoning(data.normalizedReasoning);
+        } else {
+          setVerifiedResult({
+            message: data.message,
+            masteryScore: data.masteryScore,
+            conceptId: data.conceptId,
+            normalizedReasoning: data.normalizedReasoning,
+          });
+        }
       }
     } catch (err) {
       console.error(err);
@@ -161,29 +211,26 @@ export default function DetectorPage() {
         <div>
           <div className="flex items-center space-x-2">
             <Bug className="w-5 h-5 text-rose-400" />
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-white tracking-tight">
               Cognitive Bug Detector
             </h1>
           </div>
-          <p className="text-xs text-archaia-muted mt-1">
+          <p className="text-xs text-slate-400 mt-1 font-sans">
             Multi-modal submission analyzer. Deconstructs mental models across written text, code, MCQs, problem steps, and quizzes.
           </p>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => loadPreset("dfs_replacement")}
-            className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-blue-600/15 hover:bg-blue-600/25 border border-blue-500/30 text-blue-300 text-xs font-medium transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-            <span>Preset 1: DFS Replacement</span>
-          </button>
-          <button
-            onClick={() => loadPreset("reference_aliasing")}
-            className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-300 text-xs font-medium transition-colors"
-          >
-            <span>Preset 2: Reference Aliasing</span>
-          </button>
+        {/* Practice Challenge Switcher */}
+        <div className="flex flex-wrap items-center gap-2">
+          {PRACTICE_PROBLEMS.map((prob) => (
+            <button
+              key={prob.id}
+              onClick={() => loadProblem(prob.id)}
+              className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-300 text-xs font-medium transition-colors"
+            >
+              <span>{prob.title.split(":")[0]}</span>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -265,10 +312,29 @@ export default function DetectorPage() {
 
           {/* 1. Written Explanation */}
           {responseType === "written" && (
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Student Written Reasoning:
-              </label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-medium text-slate-300">
+                  Student Written Reasoning:
+                </label>
+                <div className="flex items-center space-x-1.5">
+                  <span className="text-[10px] text-slate-400 font-sans hidden sm:inline">Quick Test:</span>
+                  <button
+                    type="button"
+                    onClick={() => fillReasoning("flawed")}
+                    className="px-2 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-[10px] font-medium transition-colors"
+                  >
+                    Sample Flawed Model
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fillReasoning("sound")}
+                    className="px-2 py-0.5 rounded bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-medium transition-colors"
+                  >
+                    Sample Sound Model
+                  </button>
+                </div>
+              </div>
               <textarea
                 rows={4}
                 value={writtenInput}
@@ -495,6 +561,64 @@ export default function DetectorPage() {
 
             <div className="text-blue-400 font-medium text-[11px]">
               Ready for Cognitive Bisect Backtracking
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Verified Sound Model Output Card */}
+      {verifiedResult && (
+        <div className="p-6 rounded-2xl bg-archaia-dark border border-emerald-500/40 shadow-sm space-y-5 animate-in slide-in-from-bottom-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-archaia-border pb-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase font-sans">
+                    Mental Model Invariant Verified
+                  </span>
+                  <span className="text-xs font-semibold text-emerald-400 font-sans">
+                    Mastery: {verifiedResult.masteryScore}%
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-white mt-0.5 font-sans">
+                  No Cognitive Misconception Detected
+                </h3>
+              </div>
+            </div>
+
+            <Link
+              href="/graph"
+              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-transform hover:scale-105"
+            >
+              <span>View Verified Node on DAG →</span>
+            </Link>
+          </div>
+
+          <p className="text-xs text-slate-300 leading-relaxed font-sans">
+            {verifiedResult.message}
+          </p>
+
+          <div className="p-4 rounded-xl bg-emerald-950/20 border border-emerald-900/40 space-y-2">
+            <div className="flex items-center space-x-2 text-emerald-400 text-xs font-semibold">
+              <CheckCircle className="w-4 h-4" />
+              <span>Diagnostic Assessment Feedback:</span>
+            </div>
+            <p className="text-xs text-emerald-200 leading-relaxed font-sans">
+              "{verifiedResult.normalizedReasoning}"
+            </p>
+          </div>
+
+          <div className="pt-2 border-t border-archaia-border flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="text-slate-400 font-sans">
+              Concept <strong className="text-white">{verifiedResult.conceptId || conceptId}</strong> status upgraded to <span className="text-emerald-400 font-medium">Mastered 🟢</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Link href="/progress" className="text-blue-400 hover:underline font-medium">
+                View Adaptive Path →
+              </Link>
             </div>
           </div>
         </div>

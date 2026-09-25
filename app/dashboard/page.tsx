@@ -100,6 +100,104 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Interactive Diagnostic Workbench (Action Arena) */}
+      <div className="p-6 rounded-2xl bg-archaia-dark border border-archaia-border shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-archaia-border pb-3">
+          <div>
+            <h2 className="text-base font-bold text-white flex items-center space-x-2">
+              <Sparkles className="w-4 h-4 text-blue-400" />
+              <span>Diagnostic Learning Workbench</span>
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5 font-sans">
+              Select an active cognitive workflow to assess, isolate, or repair mental models.
+            </p>
+          </div>
+          <span className="text-xs text-blue-400 font-medium font-sans">4 Core Interactive Engines</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <Link
+            href="/detector"
+            className="p-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border hover:border-blue-500/50 transition-all group flex flex-col justify-between space-y-3"
+          >
+            <div className="space-y-1.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Bug className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm font-semibold text-white group-hover:text-blue-400 transition-colors font-sans">
+                1. Test Mental Model
+              </h3>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                Submit explanations or code on Graph DFS, Aliasing, or Recursion.
+              </p>
+            </div>
+            <span className="text-xs font-medium text-blue-400 flex items-center space-x-1 font-sans">
+              <span>Open Detector →</span>
+            </span>
+          </Link>
+
+          <Link
+            href="/graph"
+            className="p-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border hover:border-blue-500/50 transition-all group flex flex-col justify-between space-y-3"
+          >
+            <div className="space-y-1.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Network className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm font-semibold text-white group-hover:text-blue-400 transition-colors font-sans">
+                2. Explore Causal DAG
+              </h3>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                Interact with the 2D prerequisite dependency topology and node drawer.
+              </p>
+            </div>
+            <span className="text-xs font-medium text-blue-400 flex items-center space-x-1 font-sans">
+              <span>Inspect Graph →</span>
+            </span>
+          </Link>
+
+          <Link
+            href="/bisect"
+            className="p-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border hover:border-amber-500/50 transition-all group flex flex-col justify-between space-y-3"
+          >
+            <div className="space-y-1.5">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Split className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm font-semibold text-white group-hover:text-amber-400 transition-colors font-sans">
+                3. Cognitive Bisect
+              </h3>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                Issue micro-probes on ancestor concepts to pinpoint the true root gap.
+              </p>
+            </div>
+            <span className="text-xs font-medium text-amber-400 flex items-center space-x-1 font-sans">
+              <span>Run Bisect →</span>
+            </span>
+          </Link>
+
+          <Link
+            href="/recovery"
+            className="p-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border hover:border-emerald-500/50 transition-all group flex flex-col justify-between space-y-3"
+          >
+            <div className="space-y-1.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <HeartPulse className="w-4 h-4" />
+              </div>
+              <h3 className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors font-sans">
+                4. Recovery Lab
+              </h3>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
+                Step through visual stack frames, counterexamples, and re-test mastery.
+              </p>
+            </div>
+            <span className="text-xs font-medium text-emerald-400 flex items-center space-x-1 font-sans">
+              <span>Enter Lab →</span>
+            </span>
+          </Link>
+        </div>
+      </div>
+
       {/* Metrics Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2">

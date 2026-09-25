@@ -279,6 +279,163 @@ export const SEED_INTERVENTIONS: Record<string, InterventionContent> = {
         "Illustrative Consequence: Demonstrates why understanding physical Call Stack memory frames is critical in production engineering.",
     },
   },
+  memory_allocation: {
+    id: "intervention_memory_allocation",
+    rootConceptId: "memory_allocation",
+    targetConceptId: "graph_traversal",
+    title: "Heap References vs Deep Value Cloning",
+    explanation:
+      "In modern programming languages, complex objects, sets, and arrays do not fit into single CPU registers. Instead, they reside on the Heap, while variables only hold a 64-bit Memory Address Pointer (e.g., 0x7FFF). When you write `let copy = original;`, you do NOT duplicate the data—you only duplicate the pointer! Mutating data through `copy` mutates the exact same physical heap block that `original` points to.",
+    visualMemoryModel: {
+      type: "heap_pointers",
+      title: "Interactive Heap Reference vs Clone Inspector",
+      description: "Observe how reference assignment points two variables to the same physical memory address in the heap.",
+      frames: [
+        {
+          step: 1,
+          label: "Heap Allocation: visited = new Set([0])",
+          stackFrames: ["Stack: visited -> 0x7FFA (Heap: Set{0})"],
+          activeLine: 1,
+          explanation: "Memory is allocated in the heap at address 0x7FFA. Variable `visited` stores this memory pointer.",
+        },
+        {
+          step: 2,
+          label: "Reference Copy: copy = visited",
+          stackFrames: [
+            "Stack: copy -> 0x7FFA (Points to SAME Heap Block)",
+            "Stack: visited -> 0x7FFA (Original Pointer)",
+          ],
+          activeLine: 2,
+          explanation: "No new set was cloned! Variable `copy` simply receives a copy of the 0x7FFA address pointer.",
+        },
+        {
+          step: 3,
+          label: "Mutation: copy.add(1)",
+          stackFrames: ["Heap 0x7FFA mutated! Both variables now see Set{0, 1}."],
+          activeLine: 3,
+          explanation: "Mutating `copy` alters the memory block at 0x7FFA. Inspecting `visited` now also reveals Set{0, 1}!",
+        },
+      ],
+    },
+    counterexample: {
+      title: "The Counterexample: Modifying an Aliased Array",
+      code: `let original = [1, 2];\nlet alias = original; // Only copies the memory reference\nalias.push(99);\nconsole.log(original); // Prints [1, 2, 99]!\n// To clone properly: let actualClone = [...original];`,
+      expectedOutput: "[1, 2, 99]",
+      actualOutput: "[1, 2, 99]",
+      mentalModelExplanation:
+        "Notice that modifying `alias` directly mutated `original`! If `alias = original` had cloned the array, `original` would still be [1, 2]. To clone an independent instance, you must explicitly copy the contents via spread syntax or structuredClone().",
+    },
+    microPuzzle: {
+      question: "Look at the snippet below. What does `visited.has(2)` evaluate to?",
+      codeSnippet: `let visited = new Set([1]);\nlet shadow = visited;\nshadow.add(2);\nconsole.log(visited.has(2));`,
+      options: [
+        "true — because shadow and visited reference the same heap Set.",
+        "false — because shadow is a separate clone.",
+        "undefined — sets cannot be modified through aliases.",
+        "TypeError — sets cannot be assigned to multiple variables.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Correct! Because `shadow` and `visited` share the identical memory reference address, mutating `shadow` modifies `visited` directly.",
+    },
+    codeExercise: {
+      instructions:
+        "Fix the snapshot generator to create an isolated, cloned Set instead of sharing the reference with the caller.",
+      initialCode: `function snapshotVisited(visitedSet) {\n  // BUG: Reference assignment causes external mutations to leak!\n  let copy = visitedSet;\n  return copy;\n}`,
+      expectedPattern: "new Set(visitedSet)",
+      solutionCode: `function snapshotVisited(visitedSet) {\n  let copy = new Set(visitedSet);\n  return copy;\n}`,
+      hints: [
+        "Use `new Set(visitedSet)` or spread `[...visitedSet]` to allocate an isolated memory instance on the heap.",
+      ],
+    },
+    industryBlastRadius: {
+      incidentTitle: "State Mutation & Race Condition in Real-Time Trading Engine",
+      organizationType: "FinTech Exchange & Matching Engine",
+      outageDescription:
+        "A distributed order matching platform suffered state corruption when an internal risk-check service modified an aliased trade payload before submission to the settlement ledger.",
+      howMisconceptionCausesIt:
+        "Developers assumed that passing an order object into an analytics function operated on an immutable copy. The analytics function modified order flags in place, causing the order to settle at corrupted clearing prices across client accounts.",
+      illustrativeNote:
+        "Illustrative Consequence: Demonstrates why reference aliasing versus deep value copying is critical in high-reliability software architecture.",
+    },
+  },
+  recursion: {
+    id: "intervention_recursion",
+    rootConceptId: "recursion",
+    targetConceptId: "graph_traversal",
+    title: "Recursive Unwinding & Return Value Bubbling",
+    explanation:
+      "A recursive function achieves results by dividing work into smaller identical subproblems until hitting a base case. A common misconception is believing that when the base case returns, the answer magically appears at the top level. In reality, the return value must be received, processed, and passed upward by EVERY activation frame as the stack unwinds!",
+    visualMemoryModel: {
+      type: "tree_recursion",
+      title: "Interactive Recursive Bubbling Inspector",
+      description: "Observe how return values bubble step-by-step upward through returning activation records.",
+      frames: [
+        {
+          step: 1,
+          label: "Base Case Reached: solve(0) = 1",
+          stackFrames: ["Frame 3: solve(0) returns 1", "Frame 2: solve(1) waiting", "Frame 1: solve(2) waiting"],
+          activeLine: 2,
+          explanation: "solve(0) hits the base case. It pops from the stack and hands 1 back to Frame 2.",
+        },
+        {
+          step: 2,
+          label: "Frame 2 Multiplies: 1 * 1 = 1",
+          stackFrames: ["Frame 2: solve(1) returns 1", "Frame 1: solve(2) waiting"],
+          activeLine: 4,
+          explanation: "Frame 2 receives 1, multiplies by 1, and hands 1 back to Frame 1.",
+        },
+        {
+          step: 3,
+          label: "Frame 1 Computes Final Result: 2 * 1 = 2",
+          stackFrames: ["Frame 1: solve(2) returns 2 to caller"],
+          activeLine: 4,
+          explanation: "Frame 1 receives 1, multiplies by 2, and returns the final value 2 to the caller!",
+        },
+      ],
+    },
+    counterexample: {
+      title: "The Counterexample: Why Forgetting 'return' Yields undefined",
+      code: `function findNode(node, target) {\n  if (!node) return null;\n  if (node.val === target) return node;\n  // BUG: Calling findNode without returning its result:\n  findNode(node.left, target);\n}\nconsole.log(findNode(root, 5)); // Prints undefined even when 5 exists!`,
+      expectedOutput: "undefined",
+      actualOutput: "undefined",
+      mentalModelExplanation:
+        "The child frame successfully found the node and returned it, but because the parent frame didn't say `return findNode(...)`, the returned value was dropped on the floor and the parent fell through to undefined!",
+    },
+    microPuzzle: {
+      question: "A student writes `function sum(n) { if (n<=1) return 1; sum(n-1) + n; }`. What does `sum(3)` return?",
+      codeSnippet: `function sum(n) {\n  if (n <= 1) return 1;\n  sum(n - 1) + n; // Notice missing return keyword!\n}\nconsole.log(sum(3));`,
+      options: [
+        "undefined — because the recursive branch calculated the sum but forgot to return it.",
+        "6 — because JavaScript automatically returns the last evaluated expression.",
+        "1 — because only the base case has a return keyword.",
+        "NaN — mathematical expressions cannot execute recursively.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Correct! Without the `return` keyword in the recursive step, the calculated sum is discarded and the function implicitly returns `undefined`.",
+    },
+    codeExercise: {
+      instructions:
+        "Add the missing `return` statement so the recursive search result bubbles up to the caller.",
+      initialCode: `function containsValue(node, target) {\n  if (!node) return false;\n  if (node.value === target) return true;\n  // Fix: return the recursive exploration of left or right\n  containsValue(node.left, target) || containsValue(node.right, target);\n}`,
+      expectedPattern: "return containsValue(node.left, target)",
+      solutionCode: `function containsValue(node, target) {\n  if (!node) return false;\n  if (node.value === target) return true;\n  return containsValue(node.left, target) || containsValue(node.right, target);\n}`,
+      hints: [
+        "Ensure you prefix the recursive calls with `return` so the boolean result reaches the top-level caller.",
+      ],
+    },
+    industryBlastRadius: {
+      incidentTitle: "Silent Cache Eviction Failure in Content Delivery Network",
+      organizationType: "Global Cloud CDN & Edge Router",
+      outageDescription:
+        "An edge invalidation service failed to clear cached media across hierarchically partitioned cache nodes, delivering stale content globally.",
+      howMisconceptionCausesIt:
+        "A developer implemented a recursive cache-tree purge but omitted the return value bubbling from child shards. The master coordinator assumed all purges succeeded because no error was thrown, even though branch invalidations returned undefined.",
+      illustrativeNote:
+        "Illustrative Consequence: Highlights the importance of strict recursive return bubbling in distributed system control planes.",
+    },
+  },
 };
 
 export const SEED_RETEST_ASSESSMENTS: Record<string, ReTestAssessment> = {
@@ -306,6 +463,60 @@ export const SEED_RETEST_ASSESSMENTS: Record<string, ReTestAssessment> = {
         text: "0 frames, because recursion executes purely in heap registers.",
         isCorrect: false,
         feedback: "Incorrect. Function invocations always allocate on the hardware runtime stack.",
+      },
+    ],
+  },
+  memory_allocation: {
+    id: "retest_memory_allocation_1",
+    conceptId: "memory_allocation",
+    question:
+      "You have an array `let a = [10, 20];`. You write `let b = a; b[0] = 99;`. What will `console.log(a[0])` output?",
+    codeSnippet: `let a = [10, 20];\nlet b = a;\nb[0] = 99;\nconsole.log(a[0]);`,
+    options: [
+      {
+        id: "ma_1",
+        text: "99 — because both 'a' and 'b' store pointers referencing the identical array in heap memory.",
+        isCorrect: true,
+        feedback: "Correct! Variable assignment copies the memory reference, not the underlying array.",
+      },
+      {
+        id: "ma_2",
+        text: "10 — because 'let b = a' creates an independent duplicate copy.",
+        isCorrect: false,
+        feedback: "Incorrect. In JavaScript/Python, assigning non-primitives copies only the reference.",
+      },
+      {
+        id: "ma_3",
+        text: "undefined — arrays cannot be mutated through assigned variables.",
+        isCorrect: false,
+        feedback: "Incorrect. Aliased variables can freely mutate the shared heap instance.",
+      },
+    ],
+  },
+  recursion: {
+    id: "retest_recursion_1",
+    conceptId: "recursion",
+    question:
+      "When a recursive function reaches its base case and returns a value, how does that value reach the initial caller function at the top level?",
+    codeSnippet: `function factorial(n) {\n  if (n <= 1) return 1;\n  return n * factorial(n - 1);\n}`,
+    options: [
+      {
+        id: "rec_1",
+        text: "It returns step-by-step upward through each paused parent stack frame until reaching the initial caller.",
+        isCorrect: true,
+        feedback: "Correct! Stack unwinding passes returns sequentially up the activation chain.",
+      },
+      {
+        id: "rec_2",
+        text: "It bypasses all intermediate functions and jumps directly into the global execution register.",
+        isCorrect: false,
+        feedback: "Incorrect. Execution must adhere to strict call-stack unwinding order.",
+      },
+      {
+        id: "rec_3",
+        text: "It overwrites all previous local variables with the base case return value.",
+        isCorrect: false,
+        feedback: "Incorrect. Each stack frame retains its own private local variables.",
       },
     ],
   },

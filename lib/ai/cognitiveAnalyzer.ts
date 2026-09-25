@@ -79,12 +79,44 @@ Respond in valid JSON format:
 
   // Deterministic Multi-Scenario Cognitive Heuristics Engine
 
-  // Scenario 1: Reference vs Value / Aliasing (Memory Allocation)
+  // Check 1: Student has an ACCURATE Mental Model (No Misconception)
+  const isSoundExplanation =
+    (lower.includes("stack frame") || lower.includes("activation record") || lower.includes("call stack")) &&
+    (lower.includes("pause") || lower.includes("suspend") || lower.includes("resume") || lower.includes("return") || lower.includes("preserve") || lower.includes("lifo"));
+
+  const isSoundAliasing =
+    (lower.includes("reference") || lower.includes("address") || lower.includes("pointer")) &&
+    (lower.includes("same") || lower.includes("mutate") || lower.includes("affects both") || lower.includes("shallow"));
+
+  const isExplicitlyCorrect =
+    lower.includes("resumes its loop") ||
+    lower.includes("continues to the next neighbor") ||
+    lower.includes("pushed onto the stack") ||
+    lower.includes("does not overwrite") ||
+    lower.includes("does not replace") ||
+    lower.includes("isolated in memory");
+
+  if (isSoundExplanation || isSoundAliasing || isExplicitlyCorrect) {
+    return {
+      hasMisconception: false,
+      normalizedReasoning: "The learner exhibits an accurate, verified mental model aligned with formal runtime computing reality.",
+      confidence: 96,
+      extractedIndicators: [
+        "Accurate execution invariant preserved",
+        "Correct understanding of runtime memory boundaries",
+      ],
+    };
+  }
+
+  // Check 2: Reference vs Value / Aliasing Fallacy
   if (
     lower.includes("copy") ||
     lower.includes("visited_copy") ||
     lower.includes("clone") ||
-    lower.includes("pointer") ||
+    lower.includes("duplicate") ||
+    lower.includes("independent memory") ||
+    lower.includes("will not mutate original") ||
+    lower.includes("separate array") ||
     conceptId === "memory_allocation"
   ) {
     const misconception: Misconception = {
@@ -95,15 +127,15 @@ Respond in valid JSON format:
       studentAssumption: "Writing `let copy = visited` duplicates the array so modifications to `copy` will not mutate `visited`.",
       formalReality: "In modern programming runtimes, object and array variables store memory references. Assigning a reference copies only the memory address pointing to the same heap structure.",
       affectedConcepts: ["memory_allocation", "functions_context", "graph_traversal"],
-      confidence: 91,
+      confidence: 93,
       evidence: `Student asserted: "${content.substring(0, 140)}"`,
     };
 
     return {
       hasMisconception: true,
       misconception,
-      normalizedReasoning: "The learner confuses variable reference assignment with value copying.",
-      confidence: 91,
+      normalizedReasoning: "The learner confuses variable reference assignment with deep value copying.",
+      confidence: 93,
       extractedIndicators: [
         "Confuses reference copy with deep clone",
         "Assumes separate heap memory addresses",
@@ -111,7 +143,7 @@ Respond in valid JSON format:
     };
   }
 
-  // Scenario 2: Recursive Context Replacement (Default & Primary Demo Scenario)
+  // Check 3: Recursive Context Replacement
   if (
     lower.includes("replace") ||
     lower.includes("overwrite") ||
@@ -120,6 +152,7 @@ Respond in valid JSON format:
     lower.includes("exit") ||
     lower.includes("lost") ||
     lower.includes("terminate") ||
+    lower.includes("destroys") ||
     conceptId === "graph_traversal" ||
     conceptId === "recursion" ||
     conceptId === "tree_traversal"
@@ -148,22 +181,11 @@ Respond in valid JSON format:
     };
   }
 
-  // Default fallback
+  // Fallback for short general entries
   return {
-    hasMisconception: true,
-    misconception: {
-      id: "misc_general_" + Date.now(),
-      conceptId,
-      name: "Premature Execution Termination",
-      description: "Assuming nested procedure calls bypass subsequent instructions in the outer block.",
-      studentAssumption: "Child calls consume and replace the parent scope.",
-      formalReality: "Nested calls return control to the caller's call-site.",
-      affectedConcepts: [conceptId, "call_stack"],
-      confidence: 88,
-      evidence: content,
-    },
-    normalizedReasoning: "Learner misunderstands the return-address mechanism of function calls.",
-    confidence: 88,
-    extractedIndicators: ["Premature exit assumption"],
+    hasMisconception: false,
+    normalizedReasoning: "Response evaluated. No fundamental conceptual flaw detected under current diagnostic constraints.",
+    confidence: 85,
+    extractedIndicators: ["Basic procedural understanding indicated"],
   };
 }

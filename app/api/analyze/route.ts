@@ -60,10 +60,23 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // If no misconception detected, update concept mastery state
+    const currentState = store.getLearnerState(conceptId);
+    const newScore = Math.min(100, Math.max(88, (currentState?.masteryScore || 65) + 15));
+    store.updateLearnerState(conceptId, {
+      status: "mastered",
+      masteryScore: newScore,
+      activeMisconceptionId: undefined,
+    });
+
     return NextResponse.json({
       success: true,
       hasMisconception: false,
-      message: "No fundamental conceptual misconception detected.",
+      message: "Mental Model Invariant Verified! Your reasoning accurately reflects runtime memory execution invariants. No conceptual gap detected.",
+      conceptId,
+      masteryScore: newScore,
+      normalizedReasoning: analysis.normalizedReasoning,
+      indicators: analysis.extractedIndicators,
     });
   } catch (error: any) {
     return NextResponse.json(

@@ -99,7 +99,7 @@ export default function HomePage() {
             href="/detector"
             className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-sm transition-all"
           >
-            <span>Start Live Demo Scenario</span>
+            <span>Start Diagnostic Session</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
@@ -166,11 +166,11 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Primary End-to-End Demo Walkthrough Banner */}
+      {/* Primary End-to-End Learning Walkthrough Banner */}
       <div className="p-6 sm:p-8 rounded-2xl bg-archaia-card border border-archaia-border space-y-4 shadow-sm">
         <div className="flex items-center space-x-2 text-blue-400 font-sans text-xs font-semibold">
           <ShieldCheck className="w-4 h-4" />
-          <span>Recommended Live Evaluation Sequence for Judges</span>
+          <span>Recommended Diagnostic & Mastery Progression</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 pt-2 text-xs font-sans">

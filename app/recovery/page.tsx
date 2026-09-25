@@ -53,9 +53,19 @@ export default function RecoveryPage() {
   const [selectedReTestOpt, setSelectedReTestOpt] = useState<string | null>(null);
   const [reTestResult, setReTestResult] = useState<any>(null);
   const [reTesting, setReTesting] = useState(false);
+  const [activeConceptId, setActiveConceptId] = useState("call_stack");
 
-  useEffect(() => {
-    fetch("/api/recovery?conceptId=call_stack")
+  const loadConceptRecovery = (cId: string) => {
+    setActiveConceptId(cId);
+    setVisualStep(0);
+    setSelectedPuzzleIdx(null);
+    setPuzzleSubmitted(false);
+    setCodeTested(false);
+    setCodeSuccess(false);
+    setSelectedReTestOpt(null);
+    setReTestResult(null);
+
+    fetch(`/api/recovery?conceptId=${cId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
@@ -66,6 +76,14 @@ export default function RecoveryPage() {
         }
       })
       .catch((e) => console.error(e));
+  };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const initialConcept = params.get("conceptId") || "call_stack";
+      loadConceptRecovery(initialConcept);
+    }
   }, []);
 
   const handleLanguageChange = async (lang: string) => {
@@ -75,7 +93,7 @@ export default function RecoveryPage() {
       const res = await fetch("/api/multilingual", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conceptId: "call_stack", language: lang }),
+        body: JSON.stringify({ conceptId: activeConceptId, language: lang }),
       });
       const data = await res.json();
       if (data.success) {
@@ -91,10 +109,20 @@ export default function RecoveryPage() {
   const handleCodeCheck = () => {
     setCodeTested(true);
     if (intervention) {
-      const isCorrect =
-        userCode.includes("dfs(neighbor, visited, path);") &&
-        !userCode.includes("return dfs(neighbor");
-      setCodeSuccess(isCorrect);
+      if (activeConceptId === "call_stack") {
+        const isCorrect =
+          userCode.includes("dfs(neighbor, visited, path);") &&
+          !userCode.includes("return dfs(neighbor");
+        setCodeSuccess(isCorrect);
+      } else if (activeConceptId === "memory_allocation") {
+        const isCorrect =
+          userCode.includes("new Set") || userCode.includes("[...");
+        setCodeSuccess(isCorrect);
+      } else {
+        const isCorrect =
+          userCode.includes("return containsValue") || userCode.includes("return ");
+        setCodeSuccess(isCorrect);
+      }
     }
   };
 
@@ -106,7 +134,7 @@ export default function RecoveryPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          conceptId: "call_stack",
+          conceptId: activeConceptId,
           selectedOptionId: selectedReTestOpt,
         }),
       });
@@ -135,6 +163,32 @@ export default function RecoveryPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
+      {/* Concept Remediation Lab Selector Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-2 rounded-2xl bg-archaia-dark border border-archaia-border">
+        <span className="text-xs text-slate-400 font-sans px-2 font-medium">
+          Select Remediation Concept Lab:
+        </span>
+        <div className="flex flex-wrap gap-1.5">
+          {[
+            { id: "call_stack", label: "Call Stack & LIFO Frames (Root Gap)" },
+            { id: "memory_allocation", label: "Memory Allocation & Aliasing" },
+            { id: "recursion", label: "Recursion & Return Bubbling" },
+          ].map((c) => (
+            <button
+              key={c.id}
+              onClick={() => loadConceptRecovery(c.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all ${
+                activeConceptId === c.id
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "bg-archaia-card hover:bg-archaia-cardHover text-slate-400"
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -145,7 +199,7 @@ export default function RecoveryPage() {
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Targeting Isolated Root Gap: <strong className="text-amber-300">Call Stack & LIFO Frames</strong>. Repair the foundational mental model before returning to Graph Traversal.
+            Targeting Invariant Gap: <strong className="text-amber-300">{concept?.name || intervention.title}</strong>. Repair the foundational mental model before returning to downstream topics.
           </p>
         </div>
 
