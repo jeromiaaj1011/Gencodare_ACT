@@ -22,6 +22,41 @@ import {
   SEED_RETEST_ASSESSMENTS,
 } from "./initialData";
 import { DAGEngine } from "../graph/dagEngine";
+import fs from "fs";
+import path from "path";
+import os from "os";
+
+const SESSIONS_DIR = path.join(os.tmpdir(), "archaia_sessions");
+
+function ensureSessionsDir() {
+  try {
+    if (!fs.existsSync(SESSIONS_DIR)) {
+      fs.mkdirSync(SESSIONS_DIR, { recursive: true });
+    }
+  } catch (e) {}
+}
+
+function saveSessionToDisk(session: DiagnosticSession) {
+  try {
+    ensureSessionsDir();
+    fs.writeFileSync(
+      path.join(SESSIONS_DIR, `${session.id}.json`),
+      JSON.stringify(session),
+      "utf-8"
+    );
+  } catch (e) {}
+}
+
+function loadSessionFromDisk(sessionId: string): DiagnosticSession | undefined {
+  try {
+    const filePath = path.join(SESSIONS_DIR, `${sessionId}.json`);
+    if (fs.existsSync(filePath)) {
+      const data = fs.readFileSync(filePath, "utf-8");
+      return JSON.parse(data) as DiagnosticSession;
+    }
+  } catch (e) {}
+  return undefined;
+}
 
 class DataStore {
   // Session Registry: Isolated per diagnostic session
@@ -87,6 +122,7 @@ class DataStore {
 
   public createDiagnosticSession(session: DiagnosticSession): void {
     this.diagnosticSessions.set(session.id, session);
+    saveSessionToDisk(session);
   }
 
   public getDiagnosticSession(sessionId?: string): DiagnosticSession | undefined {
@@ -94,7 +130,14 @@ class DataStore {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
       return this.getDemoSession();
     }
-    return this.diagnosticSessions.get(sessionId);
+    let session = this.diagnosticSessions.get(sessionId);
+    if (!session) {
+      session = loadSessionFromDisk(sessionId);
+      if (session) {
+        this.diagnosticSessions.set(sessionId, session);
+      }
+    }
+    return session;
   }
 
   public updateDiagnosticSession(
@@ -104,17 +147,33 @@ class DataStore {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
       return this.getDemoSession();
     }
-    const session = this.diagnosticSessions.get(sessionId);
+    const session = this.getDiagnosticSession(sessionId);
     if (!session) return undefined;
     const updated = { ...session, ...updates };
     this.diagnosticSessions.set(sessionId, updated);
+    saveSessionToDisk(updated);
     return updated;
   }
 
   public getLatestSession(userId?: string): DiagnosticSession | undefined {
-    const list = Array.from(this.diagnosticSessions.values()).filter(
+    let list = Array.from(this.diagnosticSessions.values()).filter(
       (s) => !s.isDemo && (!userId || s.userId === userId)
     );
+    if (list.length === 0) {
+      try {
+        ensureSessionsDir();
+        const files = fs.readdirSync(SESSIONS_DIR).filter((f) => f.endsWith(".json"));
+        for (const file of files) {
+          const s = loadSessionFromDisk(file.replace(".json", ""));
+          if (s && !s.isDemo && (!userId || s.userId === userId)) {
+            this.diagnosticSessions.set(s.id, s);
+          }
+        }
+        list = Array.from(this.diagnosticSessions.values()).filter(
+          (s) => !s.isDemo && (!userId || s.userId === userId)
+        );
+      } catch (e) {}
+    }
     return list.length > 0 ? list[list.length - 1] : undefined;
   }
 
@@ -179,7 +238,7 @@ class DataStore {
       return this.demoConcepts;
     }
     if (sessionId) {
-      const session = this.diagnosticSessions.get(sessionId);
+      const session = this.getDiagnosticSession(sessionId);
       if (session) return session.graph.concepts;
       return [];
     }
@@ -195,7 +254,7 @@ class DataStore {
       return this.demoEdges;
     }
     if (sessionId) {
-      const session = this.diagnosticSessions.get(sessionId);
+      const session = this.getDiagnosticSession(sessionId);
       if (session) return session.graph.edges;
       return [];
     }
@@ -211,7 +270,7 @@ class DataStore {
       return Array.from(this.demoLearnerStates.values());
     }
     if (sessionId) {
-      const session = this.diagnosticSessions.get(sessionId);
+      const session = this.getDiagnosticSession(sessionId);
       if (session) return Object.values(session.graph.learnerStates);
       return [];
     }
@@ -227,7 +286,7 @@ class DataStore {
       return this.demoLearnerStates.get(conceptId);
     }
     if (sessionId) {
-      const session = this.diagnosticSessions.get(sessionId);
+      const session = this.getDiagnosticSession(sessionId);
       if (session) return session.graph.learnerStates[conceptId];
       return undefined;
     }
@@ -256,7 +315,7 @@ class DataStore {
       return updated;
     }
 
-    const session = sessionId ? this.diagnosticSessions.get(sessionId) : this.getLatestSession();
+    const session = sessionId ? this.getDiagnosticSession(sessionId) : this.getLatestSession();
     if (session) {
       const existing = session.graph.learnerStates[conceptId] || {
         conceptId,
@@ -267,6 +326,7 @@ class DataStore {
       };
       const updated = { ...existing, ...updates };
       session.graph.learnerStates[conceptId] = updated;
+      saveSessionToDisk(session);
       return updated;
     }
 
@@ -294,7 +354,7 @@ class DataStore {
       return this.demoActiveBisect;
     }
     if (sessionId) {
-      return this.diagnosticSessions.get(sessionId)?.bisectSession;
+      return this.getDiagnosticSession(sessionId)?.bisectSession;
     }
     if (userId) {
       return this.getLatestSession(userId)?.bisectSession;
@@ -307,9 +367,10 @@ class DataStore {
       this.demoActiveBisect = session;
       return;
     }
-    const diagSession = sessionId ? this.diagnosticSessions.get(sessionId) : this.getLatestSession();
+    const diagSession = sessionId ? this.getDiagnosticSession(sessionId) : this.getLatestSession();
     if (diagSession) {
       diagSession.bisectSession = session;
+      saveSessionToDisk(diagSession);
     }
   }
 
@@ -317,7 +378,7 @@ class DataStore {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
       return Array.from(this.demoProbes.values()).filter((p) => p.conceptId === conceptId);
     }
-    const diagSession = sessionId ? this.diagnosticSessions.get(sessionId) : this.getLatestSession();
+    const diagSession = sessionId ? this.getDiagnosticSession(sessionId) : this.getLatestSession();
     if (diagSession) {
       return diagSession.bisectProbes.filter((p) => p.conceptId === conceptId);
     }
@@ -328,7 +389,7 @@ class DataStore {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
       return this.demoProbes.get(probeId);
     }
-    const diagSession = sessionId ? this.diagnosticSessions.get(sessionId) : this.getLatestSession();
+    const diagSession = sessionId ? this.getDiagnosticSession(sessionId) : this.getLatestSession();
     if (diagSession) {
       return diagSession.bisectProbes.find((p) => p.id === probeId);
     }
@@ -341,7 +402,7 @@ class DataStore {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
       return this.demoInterventions.get(conceptId) || this.demoInterventions.get("call_stack");
     }
-    const diagSession = sessionId ? this.diagnosticSessions.get(sessionId) : (userId ? this.getLatestSession(userId) : undefined);
+    const diagSession = sessionId ? this.getDiagnosticSession(sessionId) : (userId ? this.getLatestSession(userId) : undefined);
     if (diagSession && diagSession.recoveryIntervention) {
       return diagSession.recoveryIntervention;
     }
@@ -352,7 +413,7 @@ class DataStore {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
       return this.demoReTests.get(conceptId) || this.demoReTests.get("call_stack");
     }
-    const diagSession = sessionId ? this.diagnosticSessions.get(sessionId) : (userId ? this.getLatestSession(userId) : undefined);
+    const diagSession = sessionId ? this.getDiagnosticSession(sessionId) : (userId ? this.getLatestSession(userId) : undefined);
     if (diagSession && diagSession.retestAssessment) {
       return diagSession.retestAssessment;
     }
@@ -371,7 +432,7 @@ class DataStore {
     }
 
     const targetSession = sessionId
-      ? this.diagnosticSessions.get(sessionId)
+      ? this.getDiagnosticSession(sessionId)
       : userId
       ? this.getLatestSession(userId)
       : undefined;
@@ -457,6 +518,5 @@ const globalForStore = globalThis as unknown as { archaiaStore?: DataStore };
 
 export const store = globalForStore.archaiaStore ?? new DataStore();
 
-if (process.env.NODE_ENV !== "production") {
-  globalForStore.archaiaStore = store;
-}
+globalForStore.archaiaStore = store;
+
