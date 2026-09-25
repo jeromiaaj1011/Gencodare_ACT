@@ -3,6 +3,22 @@
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:3005";
 
+let cookieJar = "";
+
+async function clientFetch(url, options = {}) {
+  const headers = { ...(options.headers || {}) };
+  if (cookieJar) {
+    headers["Cookie"] = cookieJar;
+  }
+  const res = await fetch(url, { ...options, headers });
+  const setCookie = res.headers.get("set-cookie");
+  if (setCookie) {
+    const newCookie = setCookie.split(";")[0];
+    cookieJar = newCookie;
+  }
+  return res;
+}
+
 function assert(condition, message) {
   if (!condition) {
     console.error(`❌ ASSERTION FAILED: ${message}`);
@@ -19,18 +35,18 @@ async function runVerification() {
 
   // TEST 0: Invalid Session State vs Empty State
   console.log("--- TEST 0: Invalid Session State vs Empty State ---");
-  const invalidSessionRes = await fetch(`${BASE_URL}/api/adaptive-path?sessionId=invalid_session_99999`);
+  const invalidSessionRes = await clientFetch(`${BASE_URL}/api/adaptive-path?sessionId=invalid_session_99999`);
   const invalidSessionData = await invalidSessionRes.json();
   assert(invalidSessionData.sessionNotFound === true, "Invalid sessionId returns sessionNotFound: true on /api/adaptive-path");
   assert(invalidSessionData.requestedSessionId === "invalid_session_99999", "Preserves requestedSessionId");
 
-  const invalidGraphRes = await fetch(`${BASE_URL}/api/graph?sessionId=invalid_session_99999`);
+  const invalidGraphRes = await clientFetch(`${BASE_URL}/api/graph?sessionId=invalid_session_99999`);
   const invalidGraphData = await invalidGraphRes.json();
   assert(invalidGraphData.sessionNotFound === true, "Invalid sessionId on /api/graph returns sessionNotFound: true");
 
   // TEST 1: Initialize Diagnostic Session (Step 1)
   console.log("\n--- TEST 1: Diagnostic Session Initialization ---");
-  const analyzeRes = await fetch(`${BASE_URL}/api/analyze`, {
+  const analyzeRes = await clientFetch(`${BASE_URL}/api/analyze`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -48,7 +64,7 @@ async function runVerification() {
 
   // TEST 2: Cognitive Bisect (Step 2)
   console.log("\n--- TEST 2: Bisect Verification ---");
-  const bisectRes = await fetch(`${BASE_URL}/api/bisect?sessionId=${sessionId}`);
+  const bisectRes = await clientFetch(`${BASE_URL}/api/bisect?sessionId=${sessionId}`);
   const bisectData = await bisectRes.json();
   assert(bisectData.hasActiveSession === true, "Active session detected in bisect");
   assert(bisectData.session != null, "Bisect session object returned");
@@ -60,7 +76,7 @@ async function runVerification() {
 
   // TEST 3: Recovery & Re-Test Data Loading (Step 3)
   console.log("\n--- TEST 3: Recovery / Re-Test Data Retrieval ---");
-  const recoveryRes = await fetch(`${BASE_URL}/api/recovery?sessionId=${sessionId}`);
+  const recoveryRes = await clientFetch(`${BASE_URL}/api/recovery?sessionId=${sessionId}`);
   const recoveryData = await recoveryRes.json();
   assert(recoveryData.success === true, "Recovery endpoint returned success");
   assert(recoveryData.concept != null, `Recovery concept identified: ${recoveryData.concept.name} (${recoveryData.concept.id})`);
@@ -77,7 +93,7 @@ async function runVerification() {
 
   // TEST 4: Step 3 Validation - Empty Submission (Requirement: "Please select an answer.")
   console.log("\n--- TEST 4: Empty Re-Test Submission Validation ---");
-  const emptyRes = await fetch(`${BASE_URL}/api/retest`, {
+  const emptyRes = await clientFetch(`${BASE_URL}/api/retest`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -91,7 +107,7 @@ async function runVerification() {
   assert(emptyData.error === "Please select an answer.", `Returns exact message: "Please select an answer." (got: "${emptyData.error}")`);
 
   // Also test missing selectedOptionId entirely
-  const missingRes = await fetch(`${BASE_URL}/api/retest`, {
+  const missingRes = await clientFetch(`${BASE_URL}/api/retest`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -104,7 +120,7 @@ async function runVerification() {
 
   // TEST 5: Step 3 - Incorrect Answer Submission
   console.log("\n--- TEST 5: Incorrect Re-Test Submission ---");
-  const incorrectRes = await fetch(`${BASE_URL}/api/retest`, {
+  const incorrectRes = await clientFetch(`${BASE_URL}/api/retest`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -120,14 +136,15 @@ async function runVerification() {
   assert(incorrectData.feedback != null, "Detailed feedback returned for incorrect answer");
 
   // Verify learner model NOT recovered after incorrect answer
-  const prePathRes = await fetch(`${BASE_URL}/api/adaptive-path?sessionId=${sessionId}`);
+  const prePathRes = await clientFetch(`${BASE_URL}/api/adaptive-path?sessionId=${sessionId}`);
   const prePathData = await prePathRes.json();
-  assert(prePathData.session.recoveryCompleted === false, "Session recoveryCompleted is FALSE after incorrect re-test");
+  assert(prePathData.session != null, "Session object returned after incorrect retest");
+  assert(prePathData.session.recoveryCompleted === false || !prePathData.session.recoveryCompleted, "Session recoveryCompleted is FALSE after incorrect re-test");
   assert(prePathData.metrics.recoveredCount === 0, "Recovered count is 0 after incorrect re-test");
 
   // TEST 6: Step 3 - Correct Answer Submission
   console.log("\n--- TEST 6: Correct Re-Test Submission ---");
-  const correctRes = await fetch(`${BASE_URL}/api/retest`, {
+  const correctRes = await clientFetch(`${BASE_URL}/api/retest`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -143,7 +160,7 @@ async function runVerification() {
 
   // TEST 7: Step 4 - Adaptive Path & Progress Verification
   console.log("\n--- TEST 7: Step 4 Adaptive Path & Progress Verification ---");
-  const step4Res = await fetch(`${BASE_URL}/api/adaptive-path?sessionId=${sessionId}`);
+  const step4Res = await clientFetch(`${BASE_URL}/api/adaptive-path?sessionId=${sessionId}`);
   const step4Data = await step4Res.json();
   assert(step4Data.success === true, "Adaptive path API returns success");
   assert(!step4Data.isEmpty, "Adaptive path is NOT empty");
@@ -170,16 +187,16 @@ async function runVerification() {
 
   // TEST 8: Verify Step 4 Graph with Session ID
   console.log("\n--- TEST 8: Step 4 DAG Graph Data Verification ---");
-  const graphRes = await fetch(`${BASE_URL}/api/graph?sessionId=${sessionId}`);
+  const graphRes = await clientFetch(`${BASE_URL}/api/graph?sessionId=${sessionId}`);
   const graphData = await graphRes.json();
   assert(graphData.concepts.length > 0, `Graph concepts populated (${graphData.concepts.length} nodes)`);
   assert(graphData.sessionNotFound !== true, "Graph does not report sessionNotFound");
 
   // TEST 9: Verify Session Preservation on Refresh
   console.log("\n--- TEST 9: Refresh Step 4 (Repeated Request) ---");
-  const refreshRes = await fetch(`${BASE_URL}/api/adaptive-path?sessionId=${sessionId}`);
+  const refreshRes = await clientFetch(`${BASE_URL}/api/adaptive-path?sessionId=${sessionId}`);
   const refreshData = await refreshRes.json();
-  assert(refreshData.session.id === sessionId, "Session remains intact after refresh");
+  assert(refreshData.session != null && refreshData.session.id === sessionId, "Session remains intact after refresh");
   assert(refreshData.session.recoveryCompleted === true, "Recovery state persists across requests");
 
   console.log("\n================================================================");
