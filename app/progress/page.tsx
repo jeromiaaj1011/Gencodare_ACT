@@ -10,11 +10,13 @@ import {
   AlertTriangle,
   RotateCcw,
   Sparkles,
-  TrendingUp,
-  Activity,
   ArrowRight,
   ShieldCheck,
   Milestone,
+  HelpCircle,
+  Clock,
+  BookOpen,
+  SearchX,
 } from "lucide-react";
 import { Concept, LearnerConceptState, LearningProgressMetrics } from "@/lib/types";
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
@@ -24,20 +26,35 @@ export default function ProgressPage() {
   const [learnerStates, setLearnerStates] = useState<Record<string, LearnerConceptState>>({});
   const [adaptivePath, setAdaptivePath] = useState<any[]>([]);
   const [metrics, setMetrics] = useState<LearningProgressMetrics | null>(null);
+  const [sessionData, setSessionData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionNotFound, setSessionNotFound] = useState(false);
   const [recoveredConcept, setRecoveredConcept] = useState<string | null>(null);
   const [fromTarget, setFromTarget] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
 
+  const resolveSessionId = (explicitSessionId?: string): string | null => {
+    if (explicitSessionId && explicitSessionId.trim().length > 0) return explicitSessionId.trim();
+    if (sessionId && sessionId.trim().length > 0) return sessionId.trim();
+    if (typeof window !== "undefined") {
+      const urlSession = new URLSearchParams(window.location.search).get("sessionId");
+      if (urlSession && urlSession.trim().length > 0) return urlSession.trim();
+      const stored = sessionStorage.getItem("archaia_session_id");
+      if (stored && stored.trim().length > 0) return stored.trim();
+    }
+    return null;
+  };
+
   const fetchProgress = (explicitSessionId?: string) => {
     setLoading(true);
-    const targetSessionId =
-      explicitSessionId ||
-      sessionId ||
-      (typeof window !== "undefined"
-        ? new URLSearchParams(window.location.search).get("sessionId") ||
-          sessionStorage.getItem("archaia_session_id")
-        : null);
+    const targetSessionId = resolveSessionId(explicitSessionId);
+
+    if (targetSessionId) {
+      setSessionId(targetSessionId);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("archaia_session_id", targetSessionId);
+      }
+    }
 
     const graphUrl = targetSessionId
       ? `/api/graph?sessionId=${encodeURIComponent(targetSessionId)}`
@@ -51,7 +68,25 @@ export default function ProgressPage() {
       fetch(pathUrl).then((r) => r.json()),
     ])
       .then(([graphData, pathData]) => {
-        if (graphData.success && !graphData.isEmpty) {
+        const isNotFound =
+          Boolean(targetSessionId) &&
+          targetSessionId !== "demo" &&
+          targetSessionId !== "demo_dfs" &&
+          (graphData.sessionNotFound || pathData.sessionNotFound || (graphData.isEmpty && !graphData.concepts?.length));
+
+        if (isNotFound) {
+          setSessionNotFound(true);
+          setConcepts([]);
+          setLearnerStates({});
+          setMetrics(null);
+          setAdaptivePath([]);
+          setSessionData(null);
+          return;
+        }
+
+        setSessionNotFound(false);
+
+        if (graphData.success && !graphData.isEmpty && graphData.concepts?.length > 0) {
           setConcepts(graphData.concepts || []);
           setLearnerStates(graphData.learnerStates || {});
           setMetrics(graphData.metrics || null);
@@ -60,8 +95,18 @@ export default function ProgressPage() {
           setLearnerStates({});
           setMetrics(null);
         }
+
         if (pathData.success && pathData.hasSessions) {
           setAdaptivePath(pathData.adaptivePath || []);
+          if (pathData.session) {
+            setSessionData(pathData.session);
+            if (!recoveredConcept && pathData.session.rootGap) {
+              setRecoveredConcept(pathData.session.rootGap);
+            }
+            if (!fromTarget && pathData.session.topic) {
+              setFromTarget(pathData.session.topic);
+            }
+          }
         } else {
           setAdaptivePath([]);
         }
@@ -76,28 +121,54 @@ export default function ProgressPage() {
       const rec = params.get("recoveredConcept");
       const target = params.get("fromTarget");
       const urlSession = params.get("sessionId");
+      const storedSession = sessionStorage.getItem("archaia_session_id");
+      const resolved = (urlSession && urlSession.trim().length > 0 ? urlSession.trim() : null) || (storedSession && storedSession.trim().length > 0 ? storedSession.trim() : null);
+
       if (rec) setRecoveredConcept(rec);
       if (target) setFromTarget(target);
-      if (urlSession) setSessionId(urlSession);
-      fetchProgress(urlSession || undefined);
+      if (resolved) {
+        setSessionId(resolved);
+        sessionStorage.setItem("archaia_session_id", resolved);
+      }
+      fetchProgress(resolved || undefined);
       return;
     }
     fetchProgress();
   }, []);
 
   const hasData = metrics !== null && concepts.length > 0;
+  const effectiveTopic =
+    fromTarget ||
+    sessionData?.topic ||
+    sessionData?.submission?.conceptName ||
+    (concepts.length > 0 ? concepts[concepts.length - 1]?.name : null);
+
+  const effectiveRootGap =
+    recoveredConcept ||
+    sessionData?.rootGap ||
+    (metrics?.recoveredCount && metrics.recoveredCount > 0
+      ? Object.keys(learnerStates).find((k) => learnerStates[k]?.status === "recovered")
+      : null);
+
+  const isRecovered = Boolean(
+    sessionData?.recoveryCompleted ||
+    recoveredConcept ||
+    (effectiveRootGap && learnerStates[effectiveRootGap]?.status === "recovered") ||
+    (metrics && metrics.recoveredCount > 0)
+  );
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
       {/* 4-Step Cognitive Diagnostic Pipeline Stepper */}
       <CognitivePipelineStepper
         currentStep={4}
-        activeConceptName={fromTarget || recoveredConcept || undefined}
-        rootConceptName={recoveredConcept || undefined}
+        sessionId={sessionId || undefined}
+        activeConceptName={effectiveTopic || undefined}
+        rootConceptName={effectiveRootGap || undefined}
       />
 
       {/* Recovered Concept Completion Celebration */}
-      {recoveredConcept && (
+      {effectiveRootGap && isRecovered && (
         <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-950/50 via-[#131b1e] to-slate-900 border border-emerald-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl animate-in zoom-in-95">
           <div className="flex items-center space-x-3">
             <div className="p-3 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
@@ -108,17 +179,21 @@ export default function ProgressPage() {
                 STEP 4 OF 4: PIPELINE CONCLUDED • INVARIANT RESTORED
               </span>
               <h2 className="text-xl font-bold text-white mt-1">
-                Root Gap "{recoveredConcept}" Successfully Mastered
+                Root Gap "{effectiveRootGap}" Successfully Mastered
               </h2>
               <p className="text-xs text-slate-300 font-sans mt-0.5">
-                Downstream concepts are now unblocked. The personalized adaptive sequence has recalibrated based on your restored mental model.
+                Prerequisite invariant restored. Downstream dependencies are unblocked in the Causal Knowledge Graph. The personalized adaptive roadmap has recalculated based on your restored mental model.
               </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-2 shrink-0">
             <Link
-              href={`/graph?sessionId=${sessionId || ""}&highlight=${recoveredConcept}`}
+              href={
+                sessionId
+                  ? `/graph?sessionId=${encodeURIComponent(sessionId)}&highlight=${encodeURIComponent(effectiveRootGap)}`
+                  : `/graph?highlight=${encodeURIComponent(effectiveRootGap)}`
+              }
               className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-transform hover:scale-105 shadow-md flex items-center space-x-1.5"
             >
               <span>Inspect on Causal DAG →</span>
@@ -148,7 +223,7 @@ export default function ProgressPage() {
             </span>
           )}
           <Link
-            href={`/graph?sessionId=${sessionId || ""}`}
+            href={sessionId ? `/graph?sessionId=${encodeURIComponent(sessionId)}` : "/graph"}
             className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white text-xs font-medium transition-colors"
           >
             <span>View Updated DAG Map →</span>
@@ -163,8 +238,41 @@ export default function ProgressPage() {
             <span>Loading Adaptive Roadmap & Learner Metrics...</span>
           </div>
         </div>
+      ) : sessionNotFound ? (
+        /* Explicit "Session Not Found" State */
+        <div className="p-8 rounded-2xl bg-archaia-dark border border-rose-500/30 flex flex-col items-center justify-center text-center space-y-4">
+          <div className="p-3.5 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+            <SearchX className="w-8 h-8" />
+          </div>
+          <div className="space-y-1.5 max-w-md">
+            <h3 className="text-base font-bold text-white">Diagnostic Session Not Found</h3>
+            <p className="text-xs text-slate-400 font-sans leading-relaxed">
+              The requested diagnostic session {sessionId ? `("${sessionId}")` : ""} could not be found or has expired. Please start a new diagnostic to begin tracking your progress.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link
+              href="/detector"
+              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-sm flex items-center space-x-1.5"
+            >
+              <span>Start New Diagnostic</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <button
+              onClick={() => {
+                setSessionNotFound(false);
+                setSessionId("demo_dfs");
+                fetchProgress("demo_dfs");
+              }}
+              className="px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-700 text-slate-300 text-xs font-semibold transition-colors flex items-center space-x-1.5"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+              <span>Try Demo Investigation</span>
+            </button>
+          </div>
+        </div>
       ) : !hasData ? (
-        /* Explicit Empty State for New Users */
+        /* Explicit "No Diagnostic Sessions Yet" Empty State */
         <div className="p-8 rounded-2xl bg-archaia-dark border border-archaia-border flex flex-col items-center justify-center text-center space-y-4">
           <div className="p-3.5 rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
             <LineChart className="w-8 h-8" />
@@ -197,6 +305,56 @@ export default function ProgressPage() {
         </div>
       ) : (
         <div className="space-y-6">
+          {/* Completed Diagnostic Session Card */}
+          <div className="p-5 rounded-2xl bg-archaia-card border border-blue-500/30 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-archaia-border pb-3">
+              <div className="flex items-center space-x-2">
+                <Sparkles className="w-4 h-4 text-blue-400" />
+                <span className="text-xs font-semibold text-white tracking-wide uppercase">
+                  Completed Diagnostic Session:
+                </span>
+                <span className="text-xs font-bold text-blue-300">
+                  {effectiveTopic || "Computer Science Diagnostic"}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-slate-900 border border-slate-700 text-slate-300">
+                  ID: {sessionId || sessionData?.id || "Active Session"}
+                </span>
+                {isRecovered ? (
+                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    Recovery Status: Restructured & Mastered 🟢
+                  </span>
+                ) : (
+                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Recovery Status: In Progress 🟡
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {sessionData?.submission && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-sans">
+                <div className="p-3 rounded-xl bg-archaia-dark/80 border border-slate-800 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 flex items-center space-x-1">
+                    <BookOpen className="w-3 h-3 text-blue-400" />
+                    <span>Diagnosed Question</span>
+                  </span>
+                  <p className="text-slate-200 line-clamp-2">{sessionData.submission.questionText}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-archaia-dark/80 border border-slate-800 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 flex items-center space-x-1">
+                    <Clock className="w-3 h-3 text-emerald-400" />
+                    <span>Analyzed Student Reasoning</span>
+                  </span>
+                  <p className="text-slate-300 line-clamp-2 font-mono text-[11px]">
+                    {sessionData.submission.content || sessionData.submission.code || "Written Reasoning"}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Analytics Metric Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1">
@@ -224,7 +382,7 @@ export default function ProgressPage() {
             <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1">
               <div className="text-slate-400 text-xs font-sans">Recovery Success Rate</div>
               <div className="text-2xl font-bold font-sans text-amber-400">
-                {metrics?.recoveredCount ? `${metrics.recoverySuccessRate}%` : "--"}
+                {metrics?.recoveredCount ? `${metrics.recoverySuccessRate}%` : (isRecovered ? "100%" : "--")}
               </div>
               <div className="text-[10px] text-slate-500 font-sans">Post-Intervention Re-Tests</div>
             </div>
@@ -352,7 +510,11 @@ export default function ProgressPage() {
                         )}
                         {needsRecovery && (
                           <Link
-                            href={`/recovery?sessionId=${sessionId || ""}&conceptId=${item.conceptId}`}
+                            href={
+                              sessionId
+                                ? `/recovery?sessionId=${encodeURIComponent(sessionId)}&conceptId=${encodeURIComponent(item.conceptId)}`
+                                : `/recovery?conceptId=${encodeURIComponent(item.conceptId)}`
+                            }
                             className="flex items-center space-x-1 text-amber-400 hover:text-amber-300 font-semibold"
                           >
                             <AlertTriangle className="w-4 h-4" />

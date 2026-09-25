@@ -8,9 +8,16 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { conceptId, selectedOptionId, sessionId } = body;
 
-    if (!conceptId || !selectedOptionId) {
+    if (!selectedOptionId) {
       return NextResponse.json(
-        { success: false, error: "conceptId and selectedOptionId are required." },
+        { success: false, error: "Please select an answer." },
+        { status: 400 }
+      );
+    }
+
+    if (!conceptId) {
+      return NextResponse.json(
+        { success: false, error: "conceptId is required." },
         { status: 400 }
       );
     }

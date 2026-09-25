@@ -104,11 +104,37 @@ export default function BisectPage() {
     fetchSession("demo_dfs");
   };
 
+  const getEffectiveSessionId = (): string | undefined => {
+    if (sessionId && sessionId.trim().length > 0) return sessionId.trim();
+    if (session?.id && session.id.trim().length > 0) return session.id.trim();
+    if (typeof window !== "undefined") {
+      const urlSession = new URLSearchParams(window.location.search).get("sessionId");
+      if (urlSession && urlSession.trim().length > 0) return urlSession.trim();
+      const stored = sessionStorage.getItem("archaia_session_id");
+      if (stored && stored.trim().length > 0) return stored.trim();
+    }
+    return undefined;
+  };
+
+  const getRecoveryHref = () => {
+    const sId = getEffectiveSessionId();
+    const params = new URLSearchParams();
+    if (sId) params.set("sessionId", sId);
+    if (session?.likelyRootGapId || session?.targetConceptId) {
+      params.set("conceptId", session.likelyRootGapId || session.targetConceptId);
+    }
+    if (session?.targetConceptId) {
+      params.set("fromTarget", session.targetConceptId);
+    }
+    return `/recovery${params.toString() ? `?${params.toString()}` : ""}`;
+  };
+
   return (
     <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
       {/* 4-Step Cognitive Diagnostic Pipeline Stepper */}
       <CognitivePipelineStepper
         currentStep={2}
+        sessionId={getEffectiveSessionId()}
         activeConceptName={session?.targetConceptId}
         rootConceptName={session?.likelyRootGapId}
         targetConceptId={session?.targetConceptId}
@@ -301,7 +327,7 @@ export default function BisectPage() {
                 </div>
 
                 <Link
-                  href={`/recovery?sessionId=${sessionId || session.id || ""}&conceptId=${session.likelyRootGapId || session.targetConceptId}&fromTarget=${session.targetConceptId}`}
+                  href={getRecoveryHref()}
                   className="flex items-center space-x-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition-transform hover:scale-105 shrink-0"
                 >
                   <span>Proceed to Step 3: Targeted Recovery Lab →</span>

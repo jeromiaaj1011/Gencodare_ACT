@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   Globe,
   CheckCircle,
+  XCircle,
   Play,
   RotateCcw,
   Sparkles,
@@ -54,11 +55,22 @@ export default function RecoveryPage() {
   const [selectedReTestOpt, setSelectedReTestOpt] = useState<string | null>(null);
   const [reTestResult, setReTestResult] = useState<any>(null);
   const [reTesting, setReTesting] = useState(false);
+  const [reTestError, setReTestError] = useState<string | null>(null);
   const [activeConceptId, setActiveConceptId] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [fromTarget, setFromTarget] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const getEffectiveSessionId = (): string | null => {
+    if (sessionId && sessionId.trim().length > 0) return sessionId.trim();
+    if (typeof window !== "undefined") {
+      const urlSession = new URLSearchParams(window.location.search).get("sessionId");
+      if (urlSession && urlSession.trim().length > 0) return urlSession.trim();
+      const stored = sessionStorage.getItem("archaia_session_id");
+      if (stored && stored.trim().length > 0) return stored.trim();
+    }
+    return null;
+  };
 
   const loadConceptRecovery = (cId?: string, explicitSessionId?: string) => {
     setLoading(true);
@@ -69,13 +81,14 @@ export default function RecoveryPage() {
     setCodeSuccess(false);
     setSelectedReTestOpt(null);
     setReTestResult(null);
+    setReTestError(null);
 
     const targetSessionId =
       explicitSessionId ||
       sessionId ||
       (typeof window !== "undefined"
-        ? new URLSearchParams(window.location.search).get("sessionId") ||
-          sessionStorage.getItem("archaia_session_id")
+        ? new URLSearchParams(window.location.search).get("sessionId")?.trim() ||
+          sessionStorage.getItem("archaia_session_id")?.trim()
         : null);
 
     const queryParams = new URLSearchParams();
@@ -111,9 +124,17 @@ export default function RecoveryPage() {
       const initialConcept = params.get("conceptId") || undefined;
       const targetParam = params.get("fromTarget");
       const urlSession = params.get("sessionId");
+      const storedSession = sessionStorage.getItem("archaia_session_id");
+      const resolvedSession =
+        (urlSession && urlSession.trim().length > 0 ? urlSession.trim() : null) ||
+        (storedSession && storedSession.trim().length > 0 ? storedSession.trim() : null);
+
       if (targetParam) setFromTarget(targetParam);
-      if (urlSession) setSessionId(urlSession);
-      loadConceptRecovery(initialConcept, urlSession || undefined);
+      if (resolvedSession) {
+        setSessionId(resolvedSession);
+        sessionStorage.setItem("archaia_session_id", resolvedSession);
+      }
+      loadConceptRecovery(initialConcept, resolvedSession || undefined);
     }
   }, []);
 
@@ -153,21 +174,20 @@ export default function RecoveryPage() {
   };
 
   const handleReTestSubmit = async () => {
-    if (!selectedReTestOpt) return;
+    if (!selectedReTestOpt) {
+      setReTestError("Please select an answer.");
+      return;
+    }
+    setReTestError(null);
     setReTesting(true);
     try {
-      const targetSessionId =
-        sessionId ||
-        (typeof window !== "undefined"
-          ? new URLSearchParams(window.location.search).get("sessionId") ||
-            sessionStorage.getItem("archaia_session_id")
-          : undefined);
+      const targetSessionId = getEffectiveSessionId();
 
       const res = await fetch("/api/retest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sessionId: targetSessionId,
+          sessionId: targetSessionId || undefined,
           conceptId: activeConceptId,
           selectedOptionId: selectedReTestOpt,
         }),
@@ -175,9 +195,15 @@ export default function RecoveryPage() {
       const data = await res.json();
       if (data.success) {
         setReTestResult(data);
+        if (targetSessionId && typeof window !== "undefined") {
+          sessionStorage.setItem("archaia_session_id", targetSessionId);
+        }
+      } else {
+        setReTestError(data.error || "Failed to evaluate re-test assessment.");
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      setReTestError(e?.message || "An unexpected error occurred during re-test submission.");
     } finally {
       setReTesting(false);
     }
@@ -240,6 +266,7 @@ export default function RecoveryPage() {
       {/* 4-Step Cognitive Diagnostic Pipeline Stepper */}
       <CognitivePipelineStepper
         currentStep={3}
+        sessionId={getEffectiveSessionId() || undefined}
         activeConceptName={fromTarget || activeConceptId}
         rootConceptName={activeConceptId}
       />
@@ -752,7 +779,10 @@ export default function RecoveryPage() {
             {retest.options.map((opt) => (
               <label
                 key={opt.id}
-                onClick={() => setSelectedReTestOpt(opt.id)}
+                onClick={() => {
+                  setSelectedReTestOpt(opt.id);
+                  setReTestError(null);
+                }}
                 className={`block p-4 rounded-xl border text-xs font-sans cursor-pointer transition-all ${
                   selectedReTestOpt === opt.id
                     ? "bg-slate-800/90 border-blue-500 text-white shadow-sm"
@@ -764,7 +794,10 @@ export default function RecoveryPage() {
                     type="radio"
                     name="retest_choice"
                     checked={selectedReTestOpt === opt.id}
-                    onChange={() => setSelectedReTestOpt(opt.id)}
+                    onChange={() => {
+                      setSelectedReTestOpt(opt.id);
+                      setReTestError(null);
+                    }}
                     className="accent-blue-600"
                   />
                   <span>{opt.text}</span>
@@ -773,15 +806,22 @@ export default function RecoveryPage() {
             ))}
           </div>
 
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
             <button
               onClick={handleReTestSubmit}
-              disabled={!selectedReTestOpt || reTesting}
+              disabled={reTesting}
               className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-all disabled:opacity-50"
             >
               <CheckCircle className="w-4 h-4" />
               <span>{reTesting ? "Evaluating Re-Assessment..." : "Submit Re-Test & Update Model"}</span>
             </button>
+
+            {reTestError && (
+              <div className="flex items-center space-x-1.5 text-xs font-semibold text-rose-400 bg-rose-950/40 border border-rose-800/50 px-3 py-1.5 rounded-lg animate-in fade-in">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <span>{reTestError}</span>
+              </div>
+            )}
           </div>
 
           {reTestResult && (
@@ -793,8 +833,12 @@ export default function RecoveryPage() {
               }`}
             >
               <div className="flex items-center space-x-2 font-bold text-sm">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                <span>
+                {reTestResult.isCorrect ? (
+                  <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
+                ) : (
+                  <XCircle className="w-5 h-5 text-rose-400 shrink-0" />
+                )}
+                <span className={reTestResult.isCorrect ? "text-emerald-300" : "text-rose-300"}>
                   {reTestResult.isCorrect
                     ? "Concept Invariant Restructured — Mastery Verified!"
                     : "Cognitive Gap Unresolved — Remediation Logged."}
@@ -802,9 +846,16 @@ export default function RecoveryPage() {
               </div>
               <p className="text-xs text-slate-200 leading-relaxed font-sans">{reTestResult.feedback}</p>
 
-              {reTestResult.furtherDiagnosisNotes && (
-                <div className="p-3 rounded-xl bg-slate-950/80 border border-rose-900/60 text-xs font-sans text-rose-300">
-                  <strong>Diagnostic Guidance:</strong> {reTestResult.furtherDiagnosisNotes}
+              {!reTestResult.isCorrect && (
+                <div className="p-3 rounded-xl bg-slate-950/80 border border-rose-900/60 text-xs font-sans text-rose-300 space-y-1">
+                  <div className="font-semibold flex items-center space-x-1.5 text-rose-400">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    <span>Evaluation Result: Concept Invariant Fault Persists</span>
+                  </div>
+                  <p className="text-[11px] text-slate-300">
+                    {reTestResult.furtherDiagnosisNotes ||
+                      "The mental model gap persists. Additional remediation is required before concept can be verified."}
+                  </p>
                 </div>
               )}
 
@@ -815,13 +866,21 @@ export default function RecoveryPage() {
                   </span>
                   <div className="flex items-center space-x-2">
                     <Link
-                      href={`/progress?sessionId=${sessionId || ""}&recoveredConcept=${activeConceptId}&fromTarget=${fromTarget || ""}`}
+                      href={
+                        getEffectiveSessionId()
+                          ? `/progress?sessionId=${encodeURIComponent(getEffectiveSessionId()!)}&recoveredConcept=${encodeURIComponent(activeConceptId)}&fromTarget=${encodeURIComponent(fromTarget || "")}`
+                          : `/progress?recoveredConcept=${encodeURIComponent(activeConceptId)}&fromTarget=${encodeURIComponent(fromTarget || "")}`
+                      }
                       className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors shadow-sm"
                     >
                       <span>Proceed to Step 4: Adaptive Roadmap →</span>
                     </Link>
                     <Link
-                      href={`/graph?sessionId=${sessionId || ""}&highlight=${activeConceptId}`}
+                      href={
+                        getEffectiveSessionId()
+                          ? `/graph?sessionId=${encodeURIComponent(getEffectiveSessionId()!)}&highlight=${encodeURIComponent(activeConceptId)}`
+                          : `/graph?highlight=${encodeURIComponent(activeConceptId)}`
+                      }
                       className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors"
                     >
                       Inspect in DAG

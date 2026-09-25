@@ -31,10 +31,12 @@ export class ReTestService {
 
     const dagEngine = store.getDagEngine(sessionId);
 
+    const targetConcept = retest.conceptId || conceptId;
+
     if (isCorrect) {
       // 1. Mark concept as recovered
       store.updateLearnerState(
-        conceptId,
+        targetConcept,
         {
           status: "recovered",
           masteryScore: 92,
@@ -44,6 +46,20 @@ export class ReTestService {
         },
         sessionId
       );
+
+      if (conceptId && conceptId !== targetConcept) {
+        store.updateLearnerState(
+          conceptId,
+          {
+            status: "recovered",
+            masteryScore: 92,
+            confidence: 95,
+            activeMisconceptionId: undefined,
+            lastTestedAt: new Date().toISOString(),
+          },
+          sessionId
+        );
+      }
 
       // 2. Cascade recovery: Dynamically unblock downstream dependent concepts in the session's DAG
       const edges = dagEngine.getAllEdges();
@@ -92,7 +108,7 @@ export class ReTestService {
     } else {
       // Mark as unresolved
       store.updateLearnerState(
-        conceptId,
+        targetConcept,
         {
           status: "unresolved",
           masteryScore: 40,
@@ -101,6 +117,19 @@ export class ReTestService {
         },
         sessionId
       );
+
+      if (conceptId && conceptId !== targetConcept) {
+        store.updateLearnerState(
+          conceptId,
+          {
+            status: "unresolved",
+            masteryScore: 40,
+            confidence: 50,
+            lastTestedAt: new Date().toISOString(),
+          },
+          sessionId
+        );
+      }
 
       if (sessionId) {
         store.updateDiagnosticSession(sessionId, {

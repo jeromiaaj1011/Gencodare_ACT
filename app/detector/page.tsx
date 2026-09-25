@@ -250,6 +250,7 @@ export default function DetectorPage() {
       {/* 4-Step Cognitive Diagnostic Pipeline Stepper */}
       <CognitivePipelineStepper
         currentStep={1}
+        sessionId={activeSessionId || undefined}
         activeConceptName={customConceptName || conceptId || undefined}
         targetConceptId={detectedMisconception?.conceptId}
         misconceptionId={detectedMisconception?.id}
@@ -682,10 +683,12 @@ export default function DetectorPage() {
 
             <button
               onClick={() => {
-                const sId = activeSessionId || (typeof window !== "undefined" ? sessionStorage.getItem("archaia_session_id") : null);
-                router.push(
-                  `/bisect?sessionId=${sId || ""}&conceptId=${detectedMisconception.conceptId}&misconceptionId=${detectedMisconception.id}`
-                );
+                const sId = (activeSessionId && activeSessionId.trim()) || (typeof window !== "undefined" ? sessionStorage.getItem("archaia_session_id")?.trim() : null);
+                const query = new URLSearchParams();
+                if (sId) query.set("sessionId", sId);
+                query.set("conceptId", detectedMisconception.conceptId);
+                query.set("misconceptionId", detectedMisconception.id);
+                router.push(`/bisect?${query.toString()}`);
               }}
               className="text-amber-400 hover:text-amber-300 font-semibold text-xs flex items-center space-x-1"
             >

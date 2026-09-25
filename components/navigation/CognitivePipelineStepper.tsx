@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, ChevronRight, Sparkles, Split, HeartPulse, LineChart } from "lucide-react";
 
@@ -9,6 +10,7 @@ interface StepperProps {
   rootConceptName?: string;
   targetConceptId?: string;
   misconceptionId?: string;
+  sessionId?: string;
 }
 
 export default function CognitivePipelineStepper({
@@ -17,7 +19,44 @@ export default function CognitivePipelineStepper({
   rootConceptName,
   targetConceptId,
   misconceptionId,
+  sessionId,
 }: StepperProps) {
+  const [resolvedSessionId, setResolvedSessionId] = useState<string | undefined>(sessionId);
+
+  useEffect(() => {
+    if (sessionId && sessionId.trim().length > 0) {
+      setResolvedSessionId(sessionId.trim());
+    } else if (typeof window !== "undefined") {
+      const urlSession = new URLSearchParams(window.location.search).get("sessionId");
+      const stored = sessionStorage.getItem("archaia_session_id");
+      const effective =
+        urlSession && urlSession.trim().length > 0
+          ? urlSession.trim()
+          : stored && stored.trim().length > 0
+          ? stored.trim()
+          : undefined;
+      if (effective) setResolvedSessionId(effective);
+    }
+  }, [sessionId]);
+
+  const bisectParams = new URLSearchParams();
+  if (resolvedSessionId) bisectParams.set("sessionId", resolvedSessionId);
+  if (targetConceptId) bisectParams.set("conceptId", targetConceptId);
+  if (misconceptionId) bisectParams.set("misconceptionId", misconceptionId);
+  const bisectHref = `/bisect${bisectParams.toString() ? `?${bisectParams.toString()}` : ""}`;
+
+  const recoveryParams = new URLSearchParams();
+  if (resolvedSessionId) recoveryParams.set("sessionId", resolvedSessionId);
+  if (rootConceptName) recoveryParams.set("conceptId", rootConceptName);
+  if (targetConceptId) recoveryParams.set("fromTarget", targetConceptId);
+  const recoveryHref = `/recovery${recoveryParams.toString() ? `?${recoveryParams.toString()}` : ""}`;
+
+  const progressParams = new URLSearchParams();
+  if (resolvedSessionId) progressParams.set("sessionId", resolvedSessionId);
+  if (rootConceptName) progressParams.set("recoveredConcept", rootConceptName);
+  if (targetConceptId) progressParams.set("fromTarget", targetConceptId);
+  const progressHref = `/progress${progressParams.toString() ? `?${progressParams.toString()}` : ""}`;
+
   const steps = [
     {
       step: 1,
@@ -33,9 +72,7 @@ export default function CognitivePipelineStepper({
       shortName: "Bisect",
       description: "Isolate root learning gap",
       icon: Split,
-      href: targetConceptId
-        ? `/bisect?conceptId=${targetConceptId}${misconceptionId ? `&misconceptionId=${misconceptionId}` : ""}`
-        : "/bisect",
+      href: bisectHref,
     },
     {
       step: 3,
@@ -43,9 +80,7 @@ export default function CognitivePipelineStepper({
       shortName: "Recovery",
       description: "Restructure mental model",
       icon: HeartPulse,
-      href: rootConceptName
-        ? `/recovery?conceptId=${rootConceptName}`
-        : "/recovery",
+      href: recoveryHref,
     },
     {
       step: 4,
@@ -53,7 +88,7 @@ export default function CognitivePipelineStepper({
       shortName: "Roadmap",
       description: "Recalibrate path & DAG",
       icon: LineChart,
-      href: "/progress",
+      href: progressHref,
     },
   ];
 

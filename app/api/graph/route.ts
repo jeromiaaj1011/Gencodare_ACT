@@ -6,8 +6,29 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
-    const searchParams = req.nextUrl.searchParams;
-    const sessionId = searchParams.get("sessionId") || undefined;
+    const { searchParams } = req.nextUrl;
+    const rawSessionId = searchParams.get("sessionId");
+    const sessionId = rawSessionId && rawSessionId.trim().length > 0 ? rawSessionId.trim() : undefined;
+
+    // Check if an explicit non-demo session was requested but does not exist
+    if (sessionId && sessionId !== "demo" && sessionId !== "demo_dfs") {
+      const existingSession = store.getDiagnosticSession(sessionId);
+      if (!existingSession) {
+        return NextResponse.json({
+          success: true,
+          isEmpty: true,
+          sessionNotFound: true,
+          requestedSessionId: sessionId,
+          concepts: [],
+          edges: [],
+          positions: {},
+          canvasSize: { width: 1000, height: 500 },
+          learnerStates: {},
+          metrics: null,
+          activeBisect: null,
+        });
+      }
+    }
 
     const concepts = store.getConcepts(sessionId);
     const edges = store.getEdges(sessionId);
@@ -17,6 +38,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         success: true,
         isEmpty: true,
+        sessionNotFound: false,
         concepts: [],
         edges: [],
         positions: {},
