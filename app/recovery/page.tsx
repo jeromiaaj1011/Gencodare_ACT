@@ -213,9 +213,12 @@ export default function RecoveryPage() {
 
   if (loading) {
     return (
-      <div className="h-64 flex items-center justify-center text-blue-400 font-sans text-xs space-x-2">
-        <RotateCcw className="w-4 h-4 animate-spin" />
-        <span>Loading Recovery Lab Modules...</span>
+      <div className="space-y-6 max-w-5xl mx-auto py-12">
+        <h1 className="sr-only">Targeted Recovery Lab Studio</h1>
+        <div className="h-64 flex items-center justify-center text-blue-400 font-sans text-xs space-x-2">
+          <RotateCcw className="w-4 h-4 animate-spin" />
+          <span>Loading Recovery Lab Modules...</span>
+        </div>
       </div>
     );
   }
@@ -229,7 +232,12 @@ export default function RecoveryPage() {
             <HeartPulse className="w-8 h-8" />
           </div>
           <div className="space-y-1.5 max-w-md">
-            <h3 className="text-base font-bold text-white">No Active Recovery Lab</h3>
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Targeted Recovery Lab Studio
+            </h1>
+            <p className="text-xs text-slate-300 font-medium font-sans">
+              No Active Recovery Session Found
+            </p>
             <p className="text-xs text-slate-400 font-sans leading-relaxed">
               Targeted Recovery Labs remediate prerequisite conceptual gaps identified during Cognitive Bisect. Start a diagnostic in Step 1 or explore the benchmark demo investigation.
             </p>
@@ -243,6 +251,7 @@ export default function RecoveryPage() {
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
             <button
+              type="button"
               onClick={() => {
                 setSessionId("demo_dfs");
                 loadConceptRecovery("call_stack", "demo_dfs");
@@ -294,6 +303,7 @@ export default function RecoveryPage() {
           </div>
 
           <button
+            type="button"
             onClick={() => setActiveTab("retest")}
             className="shrink-0 flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-all"
           >
@@ -324,6 +334,7 @@ export default function RecoveryPage() {
             return defaultLabs.map((c) => (
               <button
                 key={c.id}
+                type="button"
                 onClick={() => loadConceptRecovery(c.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all ${
                   activeConceptId === c.id
@@ -353,6 +364,7 @@ export default function RecoveryPage() {
         </div>
 
         <button
+          type="button"
           onClick={() => setActiveTab("retest")}
           className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-all btn-interactive"
         >
@@ -425,6 +437,9 @@ export default function RecoveryPage() {
           return (
             <button
               key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={isSelected}
               onClick={() => setActiveTab(tab.id as any)}
               className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                 isSelected
@@ -460,6 +475,7 @@ export default function RecoveryPage() {
             {/* Stepper Controls */}
             <div className="flex items-center space-x-2 text-xs">
               <button
+                type="button"
                 onClick={() => setVisualStep((s) => Math.max(0, s - 1))}
                 disabled={visualStep === 0}
                 className="px-3 py-1.5 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white disabled:opacity-40"
@@ -470,6 +486,7 @@ export default function RecoveryPage() {
                 Step {visualStep + 1} / {intervention.visualMemoryModel.frames.length}
               </span>
               <button
+                type="button"
                 onClick={() =>
                   setVisualStep((s) =>
                     Math.min(intervention.visualMemoryModel.frames.length - 1, s + 1)
@@ -616,6 +633,7 @@ export default function RecoveryPage() {
             {intervention.microPuzzle.options.map((opt, idx) => (
               <button
                 key={idx}
+                type="button"
                 onClick={() => {
                   setSelectedPuzzleIdx(idx);
                   setPuzzleSubmitted(true);
@@ -672,6 +690,7 @@ export default function RecoveryPage() {
 
           <div className="flex items-center justify-between">
             <button
+              type="button"
               onClick={handleCodeCheck}
               className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-all"
             >
@@ -749,6 +768,7 @@ export default function RecoveryPage() {
               ].map((lang) => (
                 <button
                   key={lang.code}
+                  type="button"
                   onClick={() => handleLanguageChange(lang.code)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-sans font-medium transition-all ${
                     selectedLanguage === lang.code
@@ -890,6 +910,7 @@ export default function RecoveryPage() {
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
             <button
+              type="button"
               onClick={handleReTestSubmit}
               disabled={reTesting}
               className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-all disabled:opacity-50"

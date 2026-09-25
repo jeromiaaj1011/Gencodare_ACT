@@ -40,6 +40,35 @@ Binary tree traversals apply recursive descent over left and right subtrees. Gra
   },
 ];
 
+export interface DemoInvestigationSeed {
+  sessionId: string;
+  conceptId: string;
+  conceptName: string;
+  questionText: string;
+  writtenInput: string;
+  codeInput: string;
+  responseType: "written" | "code" | "mcq" | "steps" | "quiz";
+}
+
+export const SEED_DEMO_INVESTIGATION: DemoInvestigationSeed = {
+  sessionId: "demo_dfs",
+  conceptId: "graph_traversal",
+  conceptName: "Graph Traversal (DFS)",
+  questionText:
+    "In recursive Depth-First Search (DFS) on a graph, what happens to the execution state of the current node when dfs() is called on an unvisited neighbor?",
+  writtenInput:
+    "When dfs(neighbor) is invoked, it replaces the current function. Because the child executes, the parent function is overwritten, so after visiting node 2 it forgets where it was and exits without exploring node 3.",
+  codeInput: `function dfs(node, visited) {
+  visited.add(node);
+  for (let neighbor of node.neighbors) {
+    if (!visited.has(neighbor)) {
+      return dfs(neighbor, visited);
+    }
+  }
+}`,
+  responseType: "written",
+};
+
 export const SEED_LEARNER_STATES: LearnerConceptState[] = [
   {
     conceptId: "memory_allocation",

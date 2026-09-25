@@ -85,9 +85,14 @@ export default function Navbar() {
     }
 
     fetch("/api/auth/session")
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401 || !res.ok) {
+          return { authenticated: false };
+        }
+        return res.json();
+      })
       .then((data) => {
-        if (data.authenticated && data.user) {
+        if (data?.authenticated && data?.user) {
           setCurrentUser(data.user);
           localStorage.setItem("archaia_user", JSON.stringify(data.user));
         } else {
@@ -186,7 +191,7 @@ export default function Navbar() {
           </div>
 
           {/* Module Navigation (Desktop) */}
-          <nav className="hidden lg:flex items-center space-x-1">
+          <nav className="hidden lg:flex items-center space-x-1" aria-label="Main Navigation">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -194,6 +199,7 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={isActive ? "page" : undefined}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium nav-item-interactive ${
                     isActive
                       ? "bg-rose-500/15 text-rose-200 border border-rose-500/40 font-semibold shadow-[0_0_16px_rgba(244,63,94,0.22)]"
@@ -214,7 +220,9 @@ export default function Navbar() {
           <div className="flex items-center space-x-2">
             {/* Mode Switcher Pill */}
             <button
+              type="button"
               onClick={handleToggleMode}
+              aria-pressed={currentMode === "course"}
               className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider border transition-all btn-interactive-subtle ${
                 currentMode === "demo"
                   ? "bg-rose-500/15 text-rose-300 border-rose-500/35 hover:bg-rose-500/25"
@@ -231,6 +239,7 @@ export default function Navbar() {
             </button>
 
             <button
+              type="button"
               onClick={handleReset}
               disabled={resetting}
               className="flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs font-medium bg-[#10131c] hover:bg-[#181c28] border border-white/[0.08] text-slate-400 hover:text-white transition-colors btn-interactive-subtle"
@@ -260,6 +269,7 @@ export default function Navbar() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={handleLogout}
                   disabled={loggingOut}
                   className="flex items-center space-x-1 px-2 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-rose-300 hover:bg-rose-950/30 border border-transparent hover:border-rose-900/50 transition-colors"
@@ -290,7 +300,10 @@ export default function Navbar() {
 
             {/* Mobile Menu Hamburger Button */}
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-nav-dropdown"
               className="lg:hidden p-2 rounded-lg bg-[#10131c] border border-white/[0.08] text-slate-300 hover:text-white"
               aria-label="Toggle navigation menu"
             >
@@ -302,7 +315,7 @@ export default function Navbar() {
 
       {/* Mobile Navigation Dropdown */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-archaia-border bg-[#0C0E12]/98 backdrop-blur-xl px-4 py-3 space-y-2 animate-in slide-in-from-top-2">
+        <div id="mobile-nav-dropdown" className="lg:hidden border-b border-archaia-border bg-[#0C0E12]/98 backdrop-blur-xl px-4 py-3 space-y-2 animate-in slide-in-from-top-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -310,6 +323,7 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? "page" : undefined}
                 className={`flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                   isActive
                     ? "bg-blue-600/15 text-blue-400 border border-blue-500/30 font-semibold"

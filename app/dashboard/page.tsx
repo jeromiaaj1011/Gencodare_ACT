@@ -71,9 +71,14 @@ export default function DashboardPage() {
     } catch {}
 
     fetch("/api/auth/session")
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401 || !res.ok) {
+          return { authenticated: false };
+        }
+        return res.json();
+      })
       .then((data) => {
-        if (data.authenticated && data.user) {
+        if (data?.authenticated && data?.user) {
           setCurrentUser(data.user);
           localStorage.setItem("archaia_user", JSON.stringify(data.user));
         }
@@ -379,11 +384,17 @@ export default function DashboardPage() {
             }}
             className="flex flex-col sm:flex-row gap-2"
           >
+            <label htmlFor="dashboard-custom-topic" className="sr-only">
+              Topic or concept for dynamic diagnosis
+            </label>
             <input
+              id="dashboard-custom-topic"
+              name="topic"
               type="text"
               value={customTopic}
               onChange={(e) => setCustomTopic(e.target.value)}
               placeholder="e.g. Asynchronous Event Loop, Binary Search Trees, Dynamic Programming, Memory Pointers..."
+              aria-label="Diagnostic topic or code problem"
               className="flex-1 px-4 py-2.5 rounded-xl bg-[#06070a] border border-white/[0.1] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-rose-500 font-sans input-focus-glow"
             />
             <button

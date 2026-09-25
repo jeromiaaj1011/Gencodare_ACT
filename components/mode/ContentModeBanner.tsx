@@ -200,6 +200,7 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
               <>
                 {courses.length > 0 && (
                   <button
+                    type="button"
                     onClick={() => handleSwitchMode("course")}
                     className="px-3 py-1.5 rounded-lg bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-blue-300 hover:text-white text-xs font-medium transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
                   >
@@ -208,6 +209,7 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                   </button>
                 )}
                 <button
+                  type="button"
                   onClick={() => setShowUploadModal(true)}
                   className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-all flex items-center space-x-1.5 btn-interactive"
                 >
@@ -218,6 +220,7 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
             ) : (
               <>
                 <button
+                  type="button"
                   onClick={() => handleSwitchMode("demo")}
                   className="px-3 py-1.5 rounded-lg bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-amber-300 hover:text-white text-xs font-medium transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
                 >
@@ -225,6 +228,7 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                   <span>Switch to Demo Mode</span>
                 </button>
                 <button
+                  type="button"
                   onClick={() => setShowUploadModal(true)}
                   className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-all flex items-center space-x-1.5 btn-interactive"
                 >
@@ -247,7 +251,9 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                 <span>Ingest Course Material into Knowledge Graph</span>
               </div>
               <button
+                type="button"
                 onClick={() => setShowUploadModal(false)}
+                aria-label="Close upload dialog"
                 className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
               >
                 <X className="w-4 h-4" />
@@ -261,10 +267,12 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
             <form onSubmit={handleUploadSubmit} className="space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label htmlFor="course-upload-title" className="block text-xs font-medium text-slate-300 mb-1">
                     Course / Topic Title: <span className="text-rose-400">*</span>
                   </label>
                   <input
+                    id="course-upload-title"
+                    name="courseTitle"
                     type="text"
                     value={uploadTitle}
                     onChange={(e) => setUploadTitle(e.target.value)}
@@ -274,8 +282,10 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">Subject Area:</label>
+                  <label htmlFor="course-upload-subject" className="block text-xs font-medium text-slate-300 mb-1">Subject Area:</label>
                   <input
+                    id="course-upload-subject"
+                    name="subject"
                     type="text"
                     value={uploadSubject}
                     onChange={(e) => setUploadSubject(e.target.value)}
@@ -286,10 +296,12 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label htmlFor="course-upload-content" className="block text-xs font-medium text-slate-300 mb-1">
                   Course Material Content (Text, Markdown, or Notes): <span className="text-rose-400">*</span>
                 </label>
                 <textarea
+                  id="course-upload-content"
+                  name="content"
                   rows={6}
                   value={uploadContent}
                   onChange={(e) => setUploadContent(e.target.value)}

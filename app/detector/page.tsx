@@ -32,6 +32,7 @@ import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineS
 import ContentModeBanner from "@/components/mode/ContentModeBanner";
 import StagedScanSequence from "@/components/detector/StagedScanSequence";
 import ShadesFluidBlob from "@/components/decorations/ShadesFluidBlob";
+import { SEED_DEMO_INVESTIGATION } from "@/lib/storage/initialData";
 
 export default function DetectorPage() {
   const router = useRouter();
@@ -47,7 +48,7 @@ export default function DetectorPage() {
   const [showStagedScan, setShowStagedScan] = useState(false);
   const [pendingAnalysisData, setPendingAnalysisData] = useState<any>(null);
 
-  // Default fields start completely empty for real users
+  // Default fields start completely empty for real users, but hydrated with canonical seed in demo mode
   const [customConceptName, setCustomConceptName] = useState("");
   const [conceptId, setConceptId] = useState("");
   const [questionText, setQuestionText] = useState("");
@@ -56,6 +57,16 @@ export default function DetectorPage() {
   const [mcqSelected, setMcqSelected] = useState<string>("");
   const [steps, setSteps] = useState<string[]>([]);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
+
+  // Form field refs for accessibility and focus management
+  const topicInputRef = useRef<HTMLInputElement | null>(null);
+  const questionInputRef = useRef<HTMLInputElement | null>(null);
+  const reasoningInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const codeInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const mcqInputRef = useRef<HTMLInputElement | null>(null);
+  const stepsInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const quizInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const errorSummaryRef = useRef<HTMLDivElement | null>(null);
 
   // Validation & Error states
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -126,6 +137,7 @@ export default function DetectorPage() {
       if (urlDemo === "true") {
         handleLoadDfsDemo();
       } else if (urlConcept || urlPrompt || urlCode) {
+        setIsDemo(false);
         if (urlConcept) setCustomConceptName(urlConcept);
         if (urlPrompt) setQuestionText(urlPrompt);
         if (urlCode) {
@@ -134,6 +146,9 @@ export default function DetectorPage() {
         } else if (urlPrompt) {
           setWrittenInput(urlPrompt);
         }
+      } else {
+        // P0 FIX: Fresh page in demo mode - immediately hydrate with canonical demo seed!
+        handleLoadDfsDemo();
       }
     }
   }, []);
@@ -202,31 +217,23 @@ export default function DetectorPage() {
       sessionStorage.removeItem("archaia_session_id");
       window.history.replaceState({}, "", "/detector");
     }
+    setTimeout(() => {
+      topicInputRef.current?.focus();
+    }, 50);
   };
 
-  // Action 2: Load Isolated DFS Demo Investigation
+  // Action 2: Load Isolated DFS Demo Investigation from Canonical Seed
   const handleLoadDfsDemo = () => {
     setIsDemo(true);
-    setConceptId("graph_traversal");
-    setCustomConceptName("Graph Traversal (DFS)");
-    setQuestionText(
-      "In recursive Depth-First Search (DFS) on a graph, what happens to the execution state of the current node when dfs() is called on an unvisited neighbor?"
-    );
-    setWrittenInput(
-      "When dfs(neighbor) is invoked, it replaces the current function. Because the child executes, the parent function is overwritten, so after visiting node 2 it forgets where it was and exits without exploring node 3."
-    );
-    setCodeInput(`function dfs(node, visited) {
-  visited.add(node);
-  for (let neighbor of node.neighbors) {
-    if (!visited.has(neighbor)) {
-      return dfs(neighbor, visited);
-    }
-  }
-}`);
-    setResponseType("written");
+    setConceptId(SEED_DEMO_INVESTIGATION.conceptId);
+    setCustomConceptName(SEED_DEMO_INVESTIGATION.conceptName);
+    setQuestionText(SEED_DEMO_INVESTIGATION.questionText);
+    setWrittenInput(SEED_DEMO_INVESTIGATION.writtenInput);
+    setCodeInput(SEED_DEMO_INVESTIGATION.codeInput);
+    setResponseType(SEED_DEMO_INVESTIGATION.responseType);
     setValidationError(null);
     setApiError(null);
-    setActiveSessionId("demo_dfs");
+    setActiveSessionId(SEED_DEMO_INVESTIGATION.sessionId);
   };
 
   const getPayloadContent = () => {
@@ -254,17 +261,24 @@ export default function DetectorPage() {
     const activeTopic = (customConceptName || conceptId || "").trim();
     if (!activeTopic) {
       setValidationError("Enter a topic or concept.");
+      topicInputRef.current?.focus();
       return;
     }
 
     if (!questionText.trim()) {
       setValidationError("Enter the question or problem.");
+      questionInputRef.current?.focus();
       return;
     }
 
     const content = getPayloadContent();
     if (!content || !content.trim()) {
       setValidationError("Add your reasoning, answer, or code before analyzing.");
+      if (responseType === "written") reasoningInputRef.current?.focus();
+      else if (responseType === "code") codeInputRef.current?.focus();
+      else if (responseType === "mcq") mcqInputRef.current?.focus();
+      else if (responseType === "steps") stepsInputRef.current?.focus();
+      else if (responseType === "quiz") quizInputRef.current?.focus();
       return;
     }
 
@@ -374,7 +388,7 @@ export default function DetectorPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <span className="shades-subtitle text-rose-300/80">01. STAGE ONE • INVARIANT SCAN</span>
-          <h1 className="font-editorial text-2xl sm:text-3xl font-medium text-white flex items-center space-x-2.5">
+          <h1 className="font-editorial text-2xl sm:text-3xl lg:text-4xl font-medium text-white flex items-center space-x-2.5">
             <Bug className="w-6 h-6 text-rose-400" />
             <span>Misconception Detector</span>
           </h1>
@@ -388,10 +402,13 @@ export default function DetectorPage() {
           {/* Hidden File Input for File Manager Import */}
           <input
             ref={fileInputRef}
+            id="detector-file-input"
+            name="file"
             type="file"
             className="hidden"
             onChange={handleFileImport}
             accept=".sql,.py,.java,.cpp,.c,.js,.ts,.txt,.md,.json,.rs,.go"
+            aria-label="Import code or notes from file manager"
           />
 
           <button
@@ -440,6 +457,7 @@ export default function DetectorPage() {
             <span>{importMessage}</span>
           </div>
           <button
+            type="button"
             onClick={() => setImportMessage(null)}
             className="text-[11px] text-slate-400 hover:text-white"
           >
@@ -450,14 +468,15 @@ export default function DetectorPage() {
 
       {/* Demo Mode Indicator Banner */}
       {isDemo && (
-        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between text-xs text-amber-300">
+        <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between text-xs text-rose-300">
           <div className="flex items-center space-x-2">
-            <span className="font-semibold uppercase tracking-wider text-[10px] px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40">
+            <span className="font-semibold uppercase tracking-wider text-[10px] px-2 py-0.5 rounded bg-rose-500/20 border border-rose-500/40">
               Curated Demo Mode
             </span>
             <span>Graph DFS Loop Resumption benchmark loaded. This session is completely isolated from real user data.</span>
           </div>
           <button
+            type="button"
             onClick={handleStartNewDiagnostic}
             className="text-[11px] underline hover:text-white font-medium"
           >
@@ -466,12 +485,12 @@ export default function DetectorPage() {
         </div>
       )}
 
-      {/* Input Modality Form */}
-      <div className="p-6 rounded-2xl bg-archaia-dark border border-archaia-border space-y-4 shadow-xl">
+      {/* Input Modality Form Card */}
+      <div className="card-shades p-6 sm:p-7 rounded-2xl space-y-5">
         {/* Modality Selector Tabs */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-archaia-border pb-3">
-          <span className="text-xs font-medium text-slate-400">Response Modality:</span>
-          <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
+          <span className="text-xs font-medium text-slate-300">Response Modality:</span>
+          <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Response Modalities">
             {[
               { id: "written", label: "Written Text", icon: HelpCircle },
               { id: "code", label: "Code Snippet", icon: FileCode },
@@ -484,14 +503,18 @@ export default function DetectorPage() {
               return (
                 <button
                   key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isSelected}
+                  aria-pressed={isSelected}
                   onClick={() => setResponseType(tab.id as ResponseType)}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     isSelected
-                      ? "bg-blue-600 text-white shadow-sm"
-                      : "bg-archaia-card hover:bg-archaia-cardHover text-slate-400"
+                      ? "bg-rose-500 text-white shadow-[0_0_14px_rgba(244,63,94,0.35)]"
+                      : "bg-[#11141e] hover:bg-[#181c28] border border-white/[0.08] text-slate-400 hover:text-white"
                   }`}
                 >
-                  <Icon className="w-3 h-3" />
+                  <Icon className="w-3.5 h-3.5" />
                   <span>{tab.label}</span>
                 </button>
               );
@@ -499,13 +522,13 @@ export default function DetectorPage() {
           </div>
         </div>
 
-        <form onSubmit={handleAnalyze} className="space-y-4">
+        <form id="detector-form" onSubmit={handleAnalyze} className="space-y-4">
           {/* Active Course Concepts Quick Selector */}
           {currentMode === "course" && activeCourse?.concepts && activeCourse.concepts.length > 0 && (
-            <div className="p-3.5 rounded-xl bg-blue-950/30 border border-blue-500/30 space-y-2">
+            <div className="p-3.5 rounded-xl bg-purple-950/30 border border-purple-500/30 space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-blue-300 flex items-center space-x-1.5">
-                  <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+                <span className="font-semibold text-purple-300 flex items-center space-x-1.5">
+                  <BookOpen className="w-3.5 h-3.5 text-purple-400" />
                   <span>Active Course Concepts ({activeCourse.title}):</span>
                 </span>
                 <span className="text-[11px] text-slate-400 font-sans">Click to test concept invariant</span>
@@ -522,10 +545,10 @@ export default function DetectorPage() {
                       setWrittenInput("");
                       setValidationError(null);
                     }}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-sans border transition-all btn-interactive-subtle ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-sans border transition-all ${
                       customConceptName === c.name
-                        ? "bg-blue-600 text-white border-blue-500 font-semibold shadow-sm"
-                        : "bg-archaia-card hover:bg-archaia-cardHover border-archaia-border text-slate-300 hover:text-white"
+                        ? "bg-rose-500 text-white border-rose-400 font-semibold shadow-sm"
+                        : "bg-[#11141e] hover:bg-[#181c28] border-white/[0.08] text-slate-300 hover:text-white"
                     }`}
                   >
                     {c.name}
@@ -537,135 +560,185 @@ export default function DetectorPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label htmlFor="detector-concept" className="block text-xs font-medium text-slate-300 mb-1">
                 Topic / Concept Name: <span className="text-rose-400">*</span>
               </label>
               <input
+                id="detector-concept"
+                name="concept"
+                ref={topicInputRef}
                 type="text"
                 value={customConceptName}
+                aria-required="true"
+                aria-invalid={validationError?.includes("topic") || validationError?.includes("concept") ? "true" : "false"}
+                aria-describedby="detector-concept-desc"
                 onChange={(e) => {
                   setCustomConceptName(e.target.value);
                   setValidationError(null);
                 }}
-                placeholder="e.g. SQL Transaction Isolation, TCP Congestion Control, Java Inheritance..."
-                className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans"
+                placeholder="e.g. Graph Traversal (DFS), Memory Pointer Aliasing..."
+                className="w-full px-3 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none input-focus-glow font-sans"
               />
+              <span id="detector-concept-desc" className="sr-only">
+                Enter the name of the concept or topic under diagnostic investigation.
+              </span>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label htmlFor="detector-session-id" className="block text-xs font-medium text-slate-300 mb-1">
                 Pipeline Session:
               </label>
-              <div className="px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-blue-400 font-mono truncate">
-                {activeSessionId || "New Diagnostic Session"}
-              </div>
+              <input
+                id="detector-session-id"
+                name="sessionId"
+                type="text"
+                readOnly
+                value={activeSessionId || "New Diagnostic Session"}
+                className="w-full px-3 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-rose-300 font-mono truncate focus:outline-none"
+              />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1">
+            <label htmlFor="detector-question" className="block text-xs font-medium text-slate-300 mb-1">
               Assessment Prompt / Question: <span className="text-rose-400">*</span>
             </label>
             <input
+              id="detector-question"
+              name="questionText"
+              ref={questionInputRef}
               type="text"
               value={questionText}
+              aria-required="true"
+              aria-invalid={validationError?.includes("question") ? "true" : "false"}
+              aria-describedby="detector-question-desc"
               onChange={(e) => {
                 setQuestionText(e.target.value);
                 setValidationError(null);
               }}
-              placeholder="e.g. Why can READ COMMITTED return different values between two reads?"
-              className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans"
+              placeholder="e.g. In recursive DFS, what happens to the execution state when a child returns?"
+              className="w-full px-3 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none input-focus-glow font-sans"
             />
+            <span id="detector-question-desc" className="sr-only">
+              The specific question prompt or algorithmic problem scenario.
+            </span>
           </div>
 
           {/* DYNAMIC MODALITY INPUT FIELDS */}
 
           {/* 1. Written Explanation */}
           {responseType === "written" && (
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-slate-300">
+            <div className="space-y-1.5">
+              <label htmlFor="detector-written" className="block text-xs font-medium text-slate-300">
                 Your Answer / Reasoning to Diagnose: <span className="text-rose-400">*</span>
               </label>
               <textarea
+                id="detector-written"
+                name="writtenResponse"
+                ref={reasoningInputRef}
                 value={writtenInput}
+                aria-required="true"
+                aria-invalid={validationError?.includes("reasoning") || validationError?.includes("answer") ? "true" : "false"}
+                aria-describedby="detector-written-desc"
                 onChange={(e) => {
                   setWrittenInput(e.target.value);
                   setValidationError(null);
                 }}
                 rows={4}
                 placeholder="Explain your understanding or reasoning..."
-                className="w-full p-3 rounded-xl bg-archaia-card border border-archaia-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-sans leading-relaxed resize-none"
+                className="w-full p-3 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none input-focus-glow font-sans leading-relaxed resize-none"
               />
+              <span id="detector-written-desc" className="sr-only">
+                Explain your mental model and reasoning for automated misconception analysis.
+              </span>
             </div>
           )}
 
           {/* 2. Code Snippet */}
           {responseType === "code" && (
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-slate-300">
+            <div className="space-y-1.5">
+              <label htmlFor="detector-code" className="block text-xs font-medium text-slate-300">
                 Code Snippet / Implementation: <span className="text-rose-400">*</span>
               </label>
               <textarea
+                id="detector-code"
+                name="codeResponse"
+                ref={codeInputRef}
                 value={codeInput}
+                aria-required="true"
+                aria-invalid={validationError?.includes("code") ? "true" : "false"}
                 onChange={(e) => {
                   setCodeInput(e.target.value);
                   setValidationError(null);
                 }}
                 rows={6}
                 placeholder="Paste code snippet here..."
-                className="w-full p-3 rounded-xl bg-[#0d1117] border border-archaia-border text-xs text-emerald-400 font-mono leading-relaxed resize-none focus:outline-none focus:border-blue-500"
+                className="w-full p-3 rounded-xl bg-[#06070a] border border-white/[0.08] text-xs text-emerald-400 font-mono leading-relaxed resize-none focus:outline-none input-focus-glow"
               />
             </div>
           )}
 
           {/* 3. Multiple Choice */}
           {responseType === "mcq" && (
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-slate-300">
+            <div className="space-y-1.5">
+              <label htmlFor="detector-mcq" className="block text-xs font-medium text-slate-300">
                 Your Selected Choice: <span className="text-rose-400">*</span>
               </label>
               <input
+                id="detector-mcq"
+                name="mcqSelected"
+                ref={mcqInputRef}
                 type="text"
                 value={mcqSelected}
+                aria-required="true"
+                aria-invalid={validationError?.includes("choice") || validationError?.includes("selected") ? "true" : "false"}
                 onChange={(e) => {
                   setMcqSelected(e.target.value);
                   setValidationError(null);
                 }}
                 placeholder="Enter choice or reasoning text..."
-                className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans"
+                className="w-full px-3 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white focus:outline-none input-focus-glow font-sans"
               />
             </div>
           )}
 
           {/* 4. Problem Steps */}
           {responseType === "steps" && (
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-slate-300">
+            <div className="space-y-1.5">
+              <label htmlFor="detector-steps" className="block text-xs font-medium text-slate-300">
                 Execution Steps (one per line): <span className="text-rose-400">*</span>
               </label>
               <textarea
+                id="detector-steps"
+                name="steps"
+                ref={stepsInputRef}
                 value={steps.join("\n")}
+                aria-required="true"
                 onChange={(e) => {
                   setSteps(e.target.value.split("\n"));
                   setValidationError(null);
                 }}
                 rows={4}
                 placeholder="1. Step one&#10;2. Step two&#10;3. Step three"
-                className="w-full p-3 rounded-xl bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans resize-none"
+                className="w-full p-3 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white focus:outline-none input-focus-glow font-sans resize-none"
               />
             </div>
           )}
 
           {/* 5. Structured Quiz */}
           {responseType === "quiz" && (
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-slate-300">
+            <div className="space-y-1.5">
+              <label htmlFor="detector-quiz" className="block text-xs font-medium text-slate-300">
                 Quiz Answers / Invariant Assertions: <span className="text-rose-400">*</span>
               </label>
               <textarea
+                id="detector-quiz"
+                name="quizAnswers"
+                ref={quizInputRef}
                 value={Object.entries(quizAnswers)
                   .map(([k, v]) => `${k}: ${v}`)
                   .join("\n")}
+                aria-required="true"
                 onChange={(e) => {
                   const lines = e.target.value.split("\n");
                   const obj: Record<string, string> = {};
@@ -678,14 +751,21 @@ export default function DetectorPage() {
                 }}
                 rows={3}
                 placeholder="Q1: assertion 1&#10;Q2: assertion 2"
-                className="w-full p-3 rounded-xl bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans resize-none"
+                className="w-full p-3 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white focus:outline-none input-focus-glow font-sans resize-none"
               />
             </div>
           )}
 
           {/* Validation Error Message */}
           {validationError && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center space-x-2 text-rose-300 text-xs">
+            <div
+              role="alert"
+              aria-live="assertive"
+              id="detector-validation-error"
+              ref={errorSummaryRef}
+              tabIndex={-1}
+              className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center space-x-2 text-rose-300 text-xs focus:outline-none"
+            >
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{validationError}</span>
             </div>
@@ -693,7 +773,12 @@ export default function DetectorPage() {
 
           {/* API Error Message with Retry */}
           {apiError && (
-            <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-rose-200">
+            <div
+              role="alert"
+              aria-live="assertive"
+              id="detector-api-error"
+              className="p-4 rounded-xl bg-rose-950/40 border border-rose-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-rose-200"
+            >
               <div className="flex items-center space-x-2">
                 <XCircle className="w-5 h-5 text-rose-400 shrink-0" />
                 <span>{apiError}</span>
@@ -701,21 +786,21 @@ export default function DetectorPage() {
               <button
                 type="button"
                 onClick={handleAnalyze}
-                className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-medium text-xs shrink-0 self-start sm:self-auto"
+                className="px-3 py-1.5 rounded-lg btn-shades-primary text-white font-medium text-xs shrink-0 self-start sm:self-auto"
               >
                 Retry Analysis
               </button>
             </div>
           )}
 
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
             <span className="text-[11px] text-slate-400 font-sans">
               ARCHAIA analyzes submitted reasoning against formal domain specifications.
             </span>
             <button
               type="submit"
               disabled={analyzing}
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold text-xs shadow-sm transition-all"
+              className="flex items-center justify-center space-x-2 px-6 py-2.5 rounded-xl btn-shades-primary disabled:opacity-50 text-white font-semibold text-xs shadow-sm transition-all"
             >
               <Sparkles className="w-4 h-4" />
               <span>
@@ -783,6 +868,7 @@ export default function DetectorPage() {
             </div>
 
             <button
+              type="button"
               onClick={() => {
                 const sId = activeSessionId || (typeof window !== "undefined" ? sessionStorage.getItem("archaia_session_id") : null);
                 router.push(
@@ -878,6 +964,7 @@ export default function DetectorPage() {
             </div>
 
             <button
+              type="button"
               onClick={() => {
                 const sId = (activeSessionId && activeSessionId.trim()) || (typeof window !== "undefined" ? sessionStorage.getItem("archaia_session_id")?.trim() : null);
                 const query = new URLSearchParams();

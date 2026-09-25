@@ -21,6 +21,7 @@ import {
   SEED_DIAGNOSTIC_PROBES,
   SEED_INTERVENTIONS,
   SEED_RETEST_ASSESSMENTS,
+  SEED_DEMO_INVESTIGATION,
 } from "./initialData";
 import { DAGEngine } from "../graph/dagEngine";
 import fs from "fs";
@@ -305,17 +306,15 @@ class DataStore {
     });
 
     return {
-      id: "demo_dfs",
+      id: SEED_DEMO_INVESTIGATION.sessionId,
       isDemo: true,
       createdAt: new Date().toISOString(),
       submission: {
-        conceptId: "graph_traversal",
-        conceptName: "Graph Traversal (DFS)",
-        questionText:
-          "In recursive Depth-First Search (DFS) on a graph, what happens to the execution state of the current node when dfs() is called on an unvisited neighbor?",
-        responseType: "written",
-        content:
-          "When dfs(neighbor) is invoked, it replaces the current function. Because the child executes, the parent function is overwritten, so after visiting node 2 it forgets where it was and exits without exploring node 3.",
+        conceptId: SEED_DEMO_INVESTIGATION.conceptId,
+        conceptName: SEED_DEMO_INVESTIGATION.conceptName,
+        questionText: SEED_DEMO_INVESTIGATION.questionText,
+        responseType: SEED_DEMO_INVESTIGATION.responseType,
+        content: SEED_DEMO_INVESTIGATION.writtenInput,
       },
       analysis: {
         hasMisconception: true,
