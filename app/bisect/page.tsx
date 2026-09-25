@@ -167,12 +167,12 @@ export default function BisectPage() {
             </div>
           </div>
 
-          {/* Real-Time Evidence Accumulation Radar (Feature 16 & 18) */}
+          {/* Real-Time Evidence Accumulation Radar */}
           <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-3">
             <div className="flex items-center justify-between text-xs font-mono">
               <span className="text-white font-semibold flex items-center space-x-1.5">
                 <BarChart3 className="w-4 h-4 text-cyan-400" />
-                <span>Bayesian Evidence Weight Distribution (Feature 16 & 18)</span>
+                <span>Bayesian Evidence Weight Distribution</span>
               </span>
               <span className="text-archaia-muted text-[11px]">
                 Higher weight indicates higher likelihood of root learning gap
@@ -213,7 +213,7 @@ export default function BisectPage() {
               <div className="flex items-center justify-between border-b border-archaia-border pb-3">
                 <div className="flex items-center space-x-2">
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                    DIAGNOSTIC MICRO-PROBE (FEATURE 15)
+                    DIAGNOSTIC MICRO-PROBE
                   </span>
                   <span className="text-xs font-mono text-white">
                     Testing Candidate Invariant: <strong className="text-cyan-400">{session.currentProbe.conceptId}</strong>
@@ -260,7 +260,7 @@ export default function BisectPage() {
             </div>
           ) : null}
 
-          {/* Likely Root Gap Announcement Banner (Feature 17) */}
+          {/* Likely Root Gap Announcement Banner */}
           {session.status === "concluded" && (
             <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-amber-950/70 via-archaia-dark to-slate-900 border border-amber-500/50 shadow-glowWarning space-y-5 animate-in zoom-in-95">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-archaia-border pb-4">
@@ -270,7 +270,7 @@ export default function BisectPage() {
                   </div>
                   <div>
                     <span className="text-[10px] font-mono tracking-widest uppercase px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                      DIAGNOSTIC CONVERGENCE REACHED (FEATURE 17)
+                      ROOT-GAP CONVERGENCE ISOLATED
                     </span>
                     <h2 className="text-xl sm:text-2xl font-black text-white mt-1">
                       Likely Root Learning Gap: {rootConcept?.name || session.likelyRootGapId}

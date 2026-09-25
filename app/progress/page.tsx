@@ -101,11 +101,11 @@ export default function ProgressPage() {
         </div>
       </div>
 
-      {/* Feature 33: Personalized Recovery Path Milestone Banner */}
+      {/* Personalized Recovery Path Milestone Banner */}
       <div className="p-6 rounded-3xl bg-gradient-to-r from-indigo-950/60 via-archaia-dark to-slate-900 border border-indigo-500/40 shadow-glow space-y-4">
         <div className="flex items-center space-x-2 text-cyan-400 font-mono text-xs font-semibold">
           <Milestone className="w-4 h-4" />
-          <span>Feature 33: Personalized Recovery Progression Journey</span>
+          <span>Personalized Prerequisite Remediation Journey</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs font-mono">
@@ -135,13 +135,13 @@ export default function ProgressPage() {
         </div>
       </div>
 
-      {/* Dynamic Adaptive Learning Path Timeline (Feature 32) */}
+      {/* Dynamic Adaptive Learning Path Timeline */}
       <div className="p-6 rounded-3xl bg-archaia-dark border border-archaia-border space-y-4 shadow-xl">
         <div className="flex items-center justify-between border-b border-archaia-border pb-3">
           <div className="flex items-center space-x-2">
             <Sparkles className="w-4 h-4 text-cyan-400" />
             <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
-              Adaptive Progression Sequence (Feature 32)
+              Dynamic Adaptive Curriculum Roadmap
             </h3>
           </div>
           <span className="text-xs font-mono text-archaia-muted">

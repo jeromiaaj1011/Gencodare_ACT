@@ -10,11 +10,12 @@ import {
   HeartPulse,
   LineChart,
   RotateCcw,
-  Sparkles,
   LogOut,
   LogIn,
-  User,
   BookOpen,
+  Menu,
+  X,
+  Sparkles,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -35,6 +36,12 @@ export default function Navbar() {
   const [resetMessage, setResetMessage] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   // Sync user state from localStorage and verify with session API
   const syncSession = () => {
@@ -121,7 +128,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-archaia-dark/85 backdrop-blur-md border-b border-archaia-border">
+    <header className="sticky top-0 z-50 bg-[#070D1C]/90 backdrop-blur-md border-b border-archaia-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Tagline */}
@@ -142,8 +149,8 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Module Navigation */}
-          <nav className="hidden xl:flex items-center space-x-1">
+          {/* Module Navigation (Desktop) */}
+          <nav className="hidden lg:flex items-center space-x-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -165,7 +172,7 @@ export default function Navbar() {
           </nav>
 
           {/* Quick Actions & Auth Profile */}
-          <div className="flex items-center space-x-2.5">
+          <div className="flex items-center space-x-2">
             <button
               onClick={handleReset}
               disabled={resetting}
@@ -180,7 +187,7 @@ export default function Navbar() {
 
             {currentUser ? (
               /* Logged In User Pill */
-              <div className="flex items-center space-x-2 pl-1">
+              <div className="flex items-center space-x-1.5 pl-1">
                 <div className="flex items-center space-x-2 px-2.5 py-1 rounded-xl bg-slate-900/80 border border-slate-700/70 text-xs">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-slate-950 font-bold flex items-center justify-center text-[10px]">
                     {getInitials(currentUser.fullName)}
@@ -198,7 +205,7 @@ export default function Navbar() {
                 <button
                   onClick={handleLogout}
                   disabled={loggingOut}
-                  className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-rose-300 hover:bg-rose-950/30 border border-transparent hover:border-rose-900/50 transition-colors"
+                  className="flex items-center space-x-1 px-2 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-rose-300 hover:bg-rose-950/30 border border-transparent hover:border-rose-900/50 transition-colors"
                   title="Sign out of ARCHAIA"
                 >
                   <LogOut className="w-3.5 h-3.5" />
@@ -220,11 +227,45 @@ export default function Navbar() {
               href="/detector"
               className="hidden sm:flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white shadow-glow transition-all"
             >
+              <Sparkles className="w-3.5 h-3.5" />
               <span>Diagnostic</span>
             </Link>
+
+            {/* Mobile Menu Hamburger Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 rounded-lg bg-archaia-card border border-archaia-border text-slate-300 hover:text-white"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Navigation Dropdown */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden border-b border-archaia-border bg-[#070D1C]/95 backdrop-blur-xl px-4 py-3 space-y-2 animate-in slide-in-from-top-2">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                  isActive
+                    ? "bg-archaia-primary/20 text-cyan-400 border border-archaia-primary/40 font-semibold"
+                    : "text-slate-300 hover:text-white hover:bg-archaia-card"
+                }`}
+              >
+                <Icon className="w-4 h-4 text-cyan-400" />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </header>
   );
 }

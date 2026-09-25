@@ -195,7 +195,7 @@ export default function RecoveryPage() {
             <div>
               <div className="flex items-center space-x-2">
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase">
-                  Feature 20 & 23
+                  Interactive Memory Trace
                 </span>
                 <h3 className="text-base font-bold text-white">
                   {intervention.visualMemoryModel.title}
@@ -324,7 +324,7 @@ export default function RecoveryPage() {
         <div className="p-6 rounded-3xl bg-archaia-dark border border-archaia-border space-y-4 animate-in fade-in">
           <div className="flex items-center space-x-2">
             <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase">
-              Feature 19
+              Pedagogical Deconstruction
             </span>
             <h3 className="text-lg font-bold text-white">{intervention.title}</h3>
           </div>
@@ -348,7 +348,7 @@ export default function RecoveryPage() {
         <div className="p-6 rounded-3xl bg-archaia-dark border border-archaia-border space-y-4 animate-in fade-in">
           <div>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">
-              Feature 21 & 24: Cognitive Disconfirmation Micro-Puzzle
+              Cognitive Disconfirmation Micro-Puzzle
             </span>
             <h3 className="text-base font-bold text-white mt-1">
               {intervention.microPuzzle.question}
@@ -401,7 +401,7 @@ export default function RecoveryPage() {
           <div>
             <div className="flex items-center space-x-2">
               <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">
-                Feature 25
+                Code Invariant Repair
               </span>
               <h3 className="text-base font-bold text-white">Interactive Recursive Code Fix</h3>
             </div>
@@ -448,7 +448,7 @@ export default function RecoveryPage() {
         <div className="p-6 rounded-3xl bg-archaia-dark border border-amber-500/40 shadow-glowWarning space-y-4 animate-in fade-in">
           <div className="flex items-center space-x-2 text-amber-400 text-xs font-mono font-semibold">
             <Flame className="w-4 h-4" />
-            <span>Feature 22, 36 & 37: Real-World Industry Blast Radius</span>
+            <span>Production Architecture & Blast Radius Case Study</span>
           </div>
 
           <h3 className="text-lg font-bold text-white">
@@ -477,13 +477,13 @@ export default function RecoveryPage() {
         </div>
       )}
 
-      {/* TAB 6: MULTILINGUAL BRIDGE (Feature 34 & 35) */}
+      {/* TAB 6: MULTILINGUAL BRIDGE */}
       {activeTab === "multilingual" && (
         <div className="p-6 rounded-3xl bg-archaia-dark border border-archaia-border space-y-5 animate-in fade-in">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-archaia-border pb-3">
             <div>
               <h3 className="text-base font-bold text-white">
-                Multilingual Cognitive Bridge (Feature 34 & 35)
+                Multilingual Conceptual Bridge
               </h3>
               <p className="text-xs text-archaia-muted mt-0.5">
                 Preserves technical English terms (`Call Stack`, `LIFO`, `Stack Frame`) while adapting conceptual intuition into regional languages.
@@ -566,7 +566,7 @@ export default function RecoveryPage() {
         <div className="p-6 rounded-3xl bg-archaia-dark border border-emerald-500/40 shadow-glowSuccess space-y-5 animate-in fade-in">
           <div className="border-b border-archaia-border pb-3">
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">
-              Mandatory Re-Test Assessment (Feature 27, 28, 29 & 30)
+              Prerequisite Mastery Verification Assessment
             </span>
             <h3 className="text-base font-bold text-white mt-1">{retest.question}</h3>
           </div>
@@ -625,15 +625,15 @@ export default function RecoveryPage() {
                 <CheckCircle className="w-5 h-5 text-emerald-400" />
                 <span>
                   {reTestResult.isCorrect
-                    ? "CONCEPT RECOVERED (Feature 28)! Mental Model Verified."
-                    : "UNRESOLVED GAP (Feature 29): Further diagnosis logged."}
+                    ? "Concept Invariant Restructured — Mastery Verified!"
+                    : "Cognitive Gap Unresolved — Remediation Logged."}
                 </span>
               </div>
               <p className="text-xs font-mono leading-relaxed">{reTestResult.feedback}</p>
 
               {reTestResult.furtherDiagnosisNotes && (
                 <div className="p-3 rounded-xl bg-black/60 border border-rose-900 text-xs font-mono text-rose-300">
-                  <strong>Further Diagnosis (Feature 30):</strong> {reTestResult.furtherDiagnosisNotes}
+                  <strong>Diagnostic Guidance:</strong> {reTestResult.furtherDiagnosisNotes}
                 </div>
               )}
 

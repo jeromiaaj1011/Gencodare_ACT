@@ -108,7 +108,7 @@ export default function GraphPage() {
         <div className="p-5 rounded-2xl bg-archaia-card border border-indigo-500/40 shadow-glow space-y-4 animate-in fade-in">
           <div className="flex items-center space-x-2 text-indigo-400 text-xs font-mono font-semibold">
             <FileText className="w-4 h-4" />
-            <span>Course Material & Concept Extraction Pipeline (Feature 1 & 9)</span>
+            <span>Course Material & Prerequisite Extraction Engine</span>
           </div>
           <p className="text-xs text-archaia-muted">
             Paste lecture notes, syllabus modules, or textbook excerpts. ARCHAIA extracts key computing concepts, creates prerequisite relationships, and binds them to the DAG.

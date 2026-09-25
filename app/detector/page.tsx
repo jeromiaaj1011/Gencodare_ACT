@@ -191,7 +191,7 @@ export default function DetectorPage() {
       <div className="p-6 rounded-2xl bg-archaia-dark border border-archaia-border space-y-4 shadow-xl">
         {/* Modality Selector Tabs */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-archaia-border pb-3">
-          <span className="text-xs font-mono text-archaia-muted">Input Modality (Feature 4-9):</span>
+          <span className="text-xs font-mono text-archaia-muted">Input Modality:</span>
           <div className="flex flex-wrap gap-1.5">
             {[
               { id: "written", label: "Written Text", icon: HelpCircle },
@@ -429,7 +429,7 @@ export default function DetectorPage() {
               <div>
                 <div className="flex items-center space-x-2">
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase">
-                    Misconception Isolated (Feature 10)
+                    Misconception Isolated
                   </span>
                   <span className="text-xs font-mono text-cyan-400">
                     Confidence: {detectedMisconception.confidence}%
