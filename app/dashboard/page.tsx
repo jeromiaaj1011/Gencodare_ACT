@@ -20,8 +20,28 @@ import { LearningProgressMetrics, Misconception } from "@/lib/types";
 export default function DashboardPage() {
   const [metrics, setMetrics] = useState<LearningProgressMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<{
+    fullName: string;
+    role: string;
+    institution?: string;
+  } | null>(null);
 
   useEffect(() => {
+    try {
+      const stored = localStorage.getItem("archaia_user");
+      if (stored) setCurrentUser(JSON.parse(stored));
+    } catch {}
+
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated && data.user) {
+          setCurrentUser(data.user);
+          localStorage.setItem("archaia_user", JSON.stringify(data.user));
+        }
+      })
+      .catch(() => {});
+
     fetch("/api/graph")
       .then((res) => res.json())
       .then((data) => {
@@ -42,12 +62,21 @@ export default function DashboardPage() {
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-mono">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Cognitive Diagnostic Engine Active</span>
+              <span>
+                {currentUser
+                  ? `Active Diagnostic Session • ${currentUser.fullName} (${currentUser.role})`
+                  : "Cognitive Diagnostic Engine Active"}
+              </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Learner Cognitive Diagnostic Hub
+              {currentUser
+                ? `Welcome back, ${currentUser.fullName}`
+                : "Learner Cognitive Diagnostic Hub"}
             </h1>
             <p className="text-archaia-muted text-sm leading-relaxed">
+              {currentUser?.institution ? (
+                <span className="text-cyan-400 font-medium">{currentUser.institution} • </span>
+              ) : null}
               ARCHAIA continuously models your conceptual invariants across the Causal Knowledge Graph. When advanced errors occur, we trace and isolate the foundational root gap rather than simply re-showing answers.
             </p>
           </div>

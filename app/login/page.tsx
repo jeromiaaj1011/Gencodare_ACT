@@ -40,6 +40,19 @@ export default function LoginPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [attemptsLeft, setAttemptsLeft] = useState<number | null>(null);
 
+  // Check if user is already authenticated
+  React.useEffect(() => {
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated && data.user) {
+          localStorage.setItem("archaia_user", JSON.stringify(data.user));
+          router.replace("/dashboard");
+        }
+      })
+      .catch(() => {});
+  }, [router]);
+
   // Demo Credentials quick-fill for Judges
   const fillCredentials = (type: "student" | "instructor" | "researcher") => {
     setIsRegisterMode(false);
@@ -85,6 +98,11 @@ export default function LoginPage() {
       }
 
       // Success
+      if (data.user) {
+        localStorage.setItem("archaia_user", JSON.stringify(data.user));
+        window.dispatchEvent(new Event("archaia-auth-change"));
+      }
+
       setSuccessMessage(
         isRegisterMode
           ? `Profile created for ${data.user.fullName}! Initializing learner model...`
@@ -109,8 +127,8 @@ export default function LoginPage() {
       <div className="relative z-10 w-full max-w-6xl mx-auto space-y-6 py-4">
         {/* Top Brand Banner & Demo Quick-Credentials Ribbon */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center space-x-3.5">
-            <ArchaiaLogo size={42} className="w-10 h-10 drop-shadow-[0_0_12px_rgba(245,158,11,0.4)]" />
+          <Link href="/dashboard" className="flex items-center space-x-3.5 group cursor-pointer">
+            <ArchaiaLogo size={42} className="w-10 h-10 group-hover:scale-105 transition-transform drop-shadow-[0_0_12px_rgba(245,158,11,0.4)]" />
             <div className="flex flex-col">
               <span className="text-2xl font-bold tracking-[0.2em] text-white uppercase font-sans">
                 ARCHAIA
@@ -119,7 +137,7 @@ export default function LoginPage() {
                 Cognitive Learning Diagnostics
               </span>
             </div>
-          </div>
+          </Link>
 
           {/* Quick Demo Credentials Bar for Judges */}
           <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-xl bg-slate-900/60 border border-slate-700/60 text-xs font-mono backdrop-blur-md">
@@ -342,6 +360,17 @@ export default function LoginPage() {
                 <Shield className="w-3.5 h-3.5 text-cyan-400" />
                 <span>PBKDF2 Salting • Rate Limited • Built for Learners</span>
               </div>
+            </div>
+
+            {/* Direct Guest Access for Judges / Evaluators */}
+            <div className="text-center pt-3">
+              <Link
+                href="/dashboard"
+                className="text-xs text-slate-400 hover:text-cyan-300 transition-colors inline-flex items-center space-x-1 group"
+              >
+                <span>Explore Platform as Guest Evaluator</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-cyan-400" />
+              </Link>
             </div>
           </div>
 

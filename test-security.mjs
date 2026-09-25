@@ -73,7 +73,7 @@ async function runSecurityTests() {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      email: "jane_doe@mit.edu",
+      email: `jane_${Date.now()}@mit.edu`,
       password: "SuperSecret2026!Password",
       fullName: "Jane Doe",
     }),

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
+import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
   title: "ARCHAIA — Cognitive Learning Diagnostics",
@@ -23,14 +23,8 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="bg-archaia-darker text-archaia-text min-h-screen flex flex-col font-sans">
-        <Navbar />
-        <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-          {children}
-        </main>
-        <footer className="border-t border-archaia-border py-4 text-center text-xs text-archaia-muted font-mono">
-          ARCHAIA • AI-Based Learning Misconception Detection (Problem Statement #5) • Cognitive Bisect Engine
-        </footer>
+      <body className="bg-archaia-darker text-archaia-text min-h-screen font-sans antialiased">
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );
