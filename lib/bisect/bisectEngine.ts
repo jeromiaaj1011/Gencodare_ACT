@@ -3,7 +3,7 @@ import {
   DiagnosticProbe,
   ProbeAnswerRecord,
   Misconception,
-} from "../types";
+} from "../types/index";
 import { store } from "../storage/store";
 
 export class BisectEngine {
@@ -12,17 +12,18 @@ export class BisectEngine {
    */
   public static startSession(
     targetConceptId: string,
-    misconceptionId: string
+    misconceptionId: string,
+    sessionId?: string
   ): BisectSession {
-    const dagEngine = store.getDagEngine();
+    const dagEngine = store.getDagEngine(sessionId);
     // Topological list of ancestors from foundational to direct prerequisite
     const ancestors = dagEngine.getAncestorsTopological(targetConceptId);
     let ancestorIds = ancestors.map((a) => a.id);
 
     if (ancestorIds.length === 0) {
-      // Ensure foundational execution ancestors exist for diagnostic bisection
-      const fallbackAncestors = ["memory_allocation", "call_stack"].filter(id => id !== targetConceptId);
-      ancestorIds = fallbackAncestors;
+      // Use the session concepts as ancestors
+      const allConcepts = store.getConcepts(sessionId);
+      ancestorIds = allConcepts.map((c) => c.id).filter((id) => id !== targetConceptId);
     }
 
     // Initial candidate scores: evenly distributed prior
@@ -43,33 +44,33 @@ export class BisectEngine {
     };
 
     // Pick the first probe using the bisect pivot
-    this.advanceSession(session);
-    store.setActiveBisectSession(session);
+    this.advanceSession(session, sessionId);
+    store.setActiveBisectSession(session, sessionId);
     return session;
   }
 
   /**
    * Advances the session: selects the next micro-probe or concludes the session.
    */
-  public static advanceSession(session: BisectSession): void {
+  public static advanceSession(session: BisectSession, sessionId?: string): void {
     const testedSet = new Set(session.investigatedConcepts);
-    const dagEngine = store.getDagEngine();
+    const dagEngine = store.getDagEngine(sessionId);
 
     // Pivot selection over ancestor chain
     const pivotId = dagEngine.selectBisectPivot(session.ancestorChain, testedSet);
 
     if (!pivotId) {
       // All ancestors investigated or chain exhausted -> conclude session
-      this.concludeSession(session);
+      this.concludeSession(session, sessionId);
       return;
     }
 
     // Retrieve probes for the selected pivot concept
-    const probes = store.getProbesForConcept(pivotId);
+    const probes = store.getProbesForConcept(pivotId, sessionId);
     if (probes.length === 0) {
-      // If no probe found for this concept, mark as investigated and recurse
+      // If no probe found for this concept, mark as investigated and advance
       session.investigatedConcepts.push(pivotId);
-      this.advanceSession(session);
+      this.advanceSession(session, sessionId);
       return;
     }
 
@@ -87,14 +88,15 @@ export class BisectEngine {
   public static recordProbeAnswer(
     session: BisectSession,
     probeId: string,
-    selectedOptionId: string
+    selectedOptionId: string,
+    sessionId?: string
   ): {
     session: BisectSession;
     isCorrect: boolean;
     evidenceFeedback: string;
     concluded: boolean;
   } {
-    const probe = store.getProbe(probeId);
+    const probe = store.getProbe(probeId, sessionId);
     if (!probe) {
       throw new Error(`Diagnostic probe ${probeId} not found.`);
     }
@@ -102,7 +104,7 @@ export class BisectEngine {
     const selectedOption = probe.options.find((o) => o.id === selectedOptionId);
     const isCorrect = selectedOption?.isCorrect ?? false;
 
-    // Weight: if incorrect, strong evidence for gap (+40%); if correct, evidence against gap (-35%)
+    // Weight: if incorrect, strong evidence for gap (+45%); if correct, evidence against gap (-35%)
     const evidenceDelta = isCorrect ? -35 : 45;
     const currentScore = session.candidateScores[probe.conceptId] ?? 50;
     const newScore = Math.min(100, Math.max(5, currentScore + evidenceDelta));
@@ -123,27 +125,26 @@ export class BisectEngine {
 
     session.probesAnswered.push(record);
 
-    // If student failed the call_stack probe (or reached sufficient diagnostic depth),
-    // or if we have probed key nodes, check if we have isolated the root gap
+    // Check if we have isolated the root gap
     const highestCandidate = Object.entries(session.candidateScores).sort(
       (a, b) => b[1] - a[1]
     )[0];
 
-    // Conclude condition: If we found a candidate with >= 80% evidence support
-    // or if we answered at least 2 diagnostic probes
+    // Conclude condition: candidate >= 80% evidence support or at least 2 probes answered
     if (highestCandidate && highestCandidate[1] >= 80) {
       session.likelyRootGapId = highestCandidate[0];
-      this.concludeSession(session);
+      this.concludeSession(session, sessionId);
       return {
         session,
         isCorrect,
-        evidenceFeedback: selectedOption?.indicator || (isCorrect ? "Correct invariant" : "Flawed invariant"),
+        evidenceFeedback:
+          selectedOption?.indicator || (isCorrect ? "Correct invariant" : "Flawed invariant"),
         concluded: true,
       };
     }
 
-    if (session.probesAnswered.length >= 2) {
-      this.concludeSession(session);
+    if (session.probesAnswered.length >= 2 || session.investigatedConcepts.length >= session.ancestorChain.length) {
+      this.concludeSession(session, sessionId);
       return {
         session,
         isCorrect,
@@ -153,8 +154,8 @@ export class BisectEngine {
     }
 
     // Otherwise, pick next probe
-    this.advanceSession(session);
-    store.setActiveBisectSession(session);
+    this.advanceSession(session, sessionId);
+    store.setActiveBisectSession(session, sessionId);
 
     return {
       session,
@@ -167,27 +168,35 @@ export class BisectEngine {
   /**
    * Concludes the session by isolating the highest-supported root learning gap.
    */
-  private static concludeSession(session: BisectSession): void {
+  private static concludeSession(session: BisectSession, sessionId?: string): void {
     session.status = "concluded";
     session.currentProbe = undefined;
 
     // Sort candidate scores descending
     const sorted = Object.entries(session.candidateScores).sort((a, b) => b[1] - a[1]);
-    const rootGapId = sorted.length > 0 ? sorted[0][0] : "call_stack";
+    const rootGapId =
+      sorted.length > 0 && sorted[0][0]
+        ? sorted[0][0]
+        : (session.ancestorChain.length > 0 ? session.ancestorChain[0] : session.targetConceptId);
     session.likelyRootGapId = rootGapId;
 
-    const rootConcept = store.getDagEngine().getConcept(rootGapId);
+    const dagEngine = store.getDagEngine(sessionId);
+    const rootConcept = dagEngine.getConcept(rootGapId);
     session.conclusionReason = `Diagnostic micro-probes accumulated highest evidence weight on prerequisite concept "${rootConcept?.name || rootGapId}".`;
 
     // Update the learner concept state for the root gap in the store
-    store.updateLearnerState(rootGapId, {
-      status: "root_gap_identified",
-      confidence: sorted.length > 0 ? sorted[0][1] : 90,
-      diagnosticEvidence: session.probesAnswered.map(
-        (p) => `${p.conceptId}: ${p.isCorrect ? "Passed" : "Failed"} (${p.evidenceWeight > 0 ? "+" : ""}${p.evidenceWeight}%)`
-      ),
-    });
+    store.updateLearnerState(
+      rootGapId,
+      {
+        status: "root_gap_identified",
+        confidence: sorted.length > 0 ? sorted[0][1] : 90,
+        diagnosticEvidence: session.probesAnswered.map(
+          (p) => `${p.conceptId}: ${p.isCorrect ? "Passed" : "Failed"} (${p.evidenceWeight > 0 ? "+" : ""}${p.evidenceWeight}%)`
+        ),
+      },
+      sessionId
+    );
 
-    store.setActiveBisectSession(session);
+    store.setActiveBisectSession(session, sessionId);
   }
 }

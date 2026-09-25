@@ -1,16 +1,35 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/storage/store";
 import { computeHierarchicalLayout } from "@/lib/graph/layoutEngine";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const concepts = store.getConcepts();
-    const edges = store.getEdges();
-    const learnerStates = store.getAllLearnerStates();
-    const metrics = store.calculateMetrics();
-    const activeBisect = store.getActiveBisectSession();
+    const searchParams = req.nextUrl.searchParams;
+    const sessionId = searchParams.get("sessionId") || undefined;
+
+    const concepts = store.getConcepts(sessionId);
+    const edges = store.getEdges(sessionId);
+
+    // If graph is empty (no active diagnostic session and not demo), return clean empty graph
+    if (!concepts || concepts.length === 0) {
+      return NextResponse.json({
+        success: true,
+        isEmpty: true,
+        concepts: [],
+        edges: [],
+        positions: {},
+        canvasSize: { width: 1000, height: 500 },
+        learnerStates: {},
+        metrics: null,
+        activeBisect: null,
+      });
+    }
+
+    const learnerStates = store.getAllLearnerStates(sessionId);
+    const metrics = store.calculateMetrics(sessionId);
+    const activeBisect = store.getActiveBisectSession(sessionId);
 
     const { positions, width, height } = computeHierarchicalLayout(concepts, edges);
 
@@ -26,6 +45,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
+      isEmpty: false,
       concepts,
       edges,
       positions: positionsRecord,

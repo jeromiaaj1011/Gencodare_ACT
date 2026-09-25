@@ -15,8 +15,12 @@ export interface ReTestResult {
 }
 
 export class ReTestService {
-  public static evaluateReTest(conceptId: string, selectedOptionId: string): ReTestResult {
-    const retest = store.getReTest(conceptId);
+  public static evaluateReTest(
+    conceptId: string,
+    selectedOptionId: string,
+    sessionId?: string
+  ): ReTestResult {
+    const retest = store.getReTest(conceptId, sessionId);
     if (!retest) {
       throw new Error(`Re-test assessment for concept "${conceptId}" not found.`);
     }
@@ -25,86 +29,102 @@ export class ReTestService {
     const isCorrect = selectedOption?.isCorrect ?? false;
     const feedback = selectedOption?.feedback || (isCorrect ? "Correct answer!" : "Incorrect answer.");
 
-    const dagEngine = store.getDagEngine();
-    const existingState = store.getLearnerState(conceptId);
+    const dagEngine = store.getDagEngine(sessionId);
 
     if (isCorrect) {
-      // 1. Mark root concept as recovered (Feature 28)
-      store.updateLearnerState(conceptId, {
-        status: "recovered",
-        masteryScore: 92,
-        confidence: 95,
-        activeMisconceptionId: undefined,
-        lastTestedAt: new Date().toISOString(),
-      });
+      // 1. Mark concept as recovered
+      store.updateLearnerState(
+        conceptId,
+        {
+          status: "recovered",
+          masteryScore: 92,
+          confidence: 95,
+          activeMisconceptionId: undefined,
+          lastTestedAt: new Date().toISOString(),
+        },
+        sessionId
+      );
 
-      // 2. Cascade recovery: Dynamically unblock downstream dependent concepts in the DAG
+      // 2. Cascade recovery: Dynamically unblock downstream dependent concepts in the session's DAG
       const edges = dagEngine.getAllEdges();
       const dependentIds = edges.filter((e) => e.from === conceptId).map((e) => e.to);
 
       for (const depId of dependentIds) {
-        const depState = store.getLearnerState(depId);
+        const depState = store.getLearnerState(depId, sessionId);
         if (!depState || depState.status === "untested" || depState.status === "misconception_detected") {
-          store.updateLearnerState(depId, {
-            status: "untested",
-            confidence: Math.max(70, depState?.confidence || 60),
-            activeMisconceptionId: undefined,
-          });
+          store.updateLearnerState(
+            depId,
+            {
+              status: "untested",
+              confidence: Math.max(70, depState?.confidence || 60),
+              activeMisconceptionId: undefined,
+            },
+            sessionId
+          );
         }
       }
 
-      if (conceptId === "call_stack") {
-        store.updateLearnerState("recursion", {
-          status: "mastered",
-          masteryScore: 88,
-          confidence: 90,
-        });
-
-        store.updateLearnerState("tree_traversal", {
-          status: "untested",
-          masteryScore: 75,
-          confidence: 70,
-        });
-
-        store.updateLearnerState("graph_traversal", {
-          status: "untested",
-          masteryScore: 65,
-          confidence: 60,
-          activeMisconceptionId: undefined,
+      // Record in session
+      if (sessionId) {
+        store.updateDiagnosticSession(sessionId, {
+          recoveryCompleted: true,
+          retestResult: {
+            isCorrect: true,
+            updatedMastery: 92,
+            unlockedConcepts: dependentIds,
+            feedback,
+          },
         });
       }
 
-      const unlocked = dependentIds.length > 0 ? dependentIds : ["recursion", "tree_traversal", "graph_traversal"];
-      const allStates = new Map(store.getAllLearnerStates().map((s) => [s.conceptId, s]));
-      const adaptivePath = dagEngine.computeAdaptivePath(allStates);
+      const allStates = store.getAllLearnerStates(sessionId);
+      const statesMap = new Map(allStates.map((s) => [s.conceptId, s]));
+      const adaptivePath = dagEngine.computeAdaptivePath(statesMap);
 
       return {
         isCorrect: true,
         status: "recovered",
         feedback,
         updatedMastery: 92,
-        unlockedConcepts: unlocked,
+        unlockedConcepts: dependentIds,
         adaptivePath,
       };
     } else {
-      // Unresolved state handling (Feature 29 & 30: Further Diagnosis)
-      const attempts = (existingState?.recoveryAttempts || 0) + 1;
-      store.updateLearnerState(conceptId, {
-        status: "unresolved",
-        recoveryAttempts: attempts,
-        lastTestedAt: new Date().toISOString(),
-      });
+      // Mark as unresolved
+      store.updateLearnerState(
+        conceptId,
+        {
+          status: "unresolved",
+          masteryScore: 40,
+          confidence: 50,
+          lastTestedAt: new Date().toISOString(),
+        },
+        sessionId
+      );
 
-      const allStates = new Map(store.getAllLearnerStates().map((s) => [s.conceptId, s]));
-      const adaptivePath = dagEngine.computeAdaptivePath(allStates);
+      if (sessionId) {
+        store.updateDiagnosticSession(sessionId, {
+          recoveryCompleted: false,
+          retestResult: {
+            isCorrect: false,
+            updatedMastery: 40,
+            unlockedConcepts: [],
+            feedback,
+          },
+        });
+      }
+
+      const allStates = store.getAllLearnerStates(sessionId);
+      const statesMap = new Map(allStates.map((s) => [s.conceptId, s]));
+      const adaptivePath = dagEngine.computeAdaptivePath(statesMap);
 
       return {
         isCorrect: false,
         status: "unresolved",
         feedback,
-        updatedMastery: Math.max(30, (existingState?.masteryScore || 50) - 10),
+        updatedMastery: 40,
         unlockedConcepts: [],
-        furtherDiagnosisNotes: "Learner still conflates execution context with static procedure code. Recommended action: step through stack frame assembly instructions in low-level sandbox.",
+        furtherDiagnosisNotes: "The mental model gap persists. Additional cognitive bisection is recommended.",
         adaptivePath,
       };
     }

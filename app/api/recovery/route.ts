@@ -2,14 +2,49 @@ import { NextRequest, NextResponse } from "next/server";
 import { RecoveryService } from "@/lib/recovery/recoveryService";
 import { store } from "@/lib/storage/store";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const conceptId = searchParams.get("conceptId") || "call_stack";
+    const sessionId = searchParams.get("sessionId") || undefined;
+    let conceptId = searchParams.get("conceptId") || undefined;
 
-    const intervention = RecoveryService.getIntervention(conceptId);
-    const retest = RecoveryService.getReTest(conceptId);
-    const concept = store.getDagEngine().getConcept(conceptId);
+    const session = store.getDiagnosticSession(sessionId);
+
+    // If no conceptId provided, check session's identified root gap
+    if (!conceptId && session) {
+      conceptId =
+        session.bisectSession?.likelyRootGapId ||
+        session.recoveryIntervention?.rootConceptId ||
+        session.submission.conceptId;
+    }
+
+    if (!conceptId) {
+      if (sessionId === "demo" || sessionId === "demo_dfs") {
+        conceptId = "call_stack";
+      } else {
+        return NextResponse.json({
+          success: true,
+          isEmpty: true,
+          hasContent: false,
+          message: "No active diagnostic recovery found. Please complete a diagnostic first.",
+        });
+      }
+    }
+
+    const intervention = RecoveryService.getIntervention(conceptId, sessionId);
+    const retest = RecoveryService.getReTest(conceptId, sessionId);
+    const dagEngine = store.getDagEngine(sessionId);
+    const concept = dagEngine.getConcept(conceptId) || {
+      id: conceptId,
+      name: intervention?.title || conceptId,
+      category: "Recovery Target",
+      description: intervention?.explanation || "Targeted concept for invariant recovery.",
+      prerequisites: [],
+      difficulty: "intermediate",
+      estimatedMinutes: 30,
+    };
 
     if (!intervention) {
       return NextResponse.json(

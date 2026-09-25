@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ReTestService } from "@/lib/recovery/retestService";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { conceptId, selectedOptionId } = body;
+    const { conceptId, selectedOptionId, sessionId } = body;
 
     if (!conceptId || !selectedOptionId) {
       return NextResponse.json(
@@ -13,10 +15,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = ReTestService.evaluateReTest(conceptId, selectedOptionId);
+    const result = ReTestService.evaluateReTest(conceptId, selectedOptionId, sessionId);
 
     return NextResponse.json({
       success: true,
+      sessionId,
       ...result,
     });
   } catch (error: any) {

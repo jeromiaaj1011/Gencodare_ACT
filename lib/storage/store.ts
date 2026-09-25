@@ -10,7 +10,8 @@ import {
   StudentSubmission,
   CourseMaterial,
   LearningProgressMetrics,
-} from "../types";
+  DiagnosticSession,
+} from "../types/index";
 import { INITIAL_CONCEPTS, INITIAL_EDGES } from "../graph/topology";
 import {
   SEED_COURSE_MATERIALS,
@@ -23,378 +24,377 @@ import {
 import { DAGEngine } from "../graph/dagEngine";
 
 class DataStore {
-  private concepts: Concept[];
-  private edges: ConceptEdge[];
-  private learnerStates: Map<string, LearnerConceptState>;
-  private misconceptions: Map<string, Misconception>;
-  private probes: Map<string, DiagnosticProbe>;
-  private interventions: Map<string, InterventionContent>;
-  private reTests: Map<string, ReTestAssessment>;
-  private submissions: StudentSubmission[];
-  private activeBisectSession?: BisectSession;
+  // Session Registry: Isolated per diagnostic session
+  private diagnosticSessions: Map<string, DiagnosticSession> = new Map();
+
+  // Curated Demo investigation store (isolated from normal user flow)
+  private demoConcepts: Concept[] = [...INITIAL_CONCEPTS];
+  private demoEdges: ConceptEdge[] = [...INITIAL_EDGES];
+  private demoLearnerStates: Map<string, LearnerConceptState> = new Map();
+  private demoMisconceptions: Map<string, Misconception> = new Map();
+  private demoProbes: Map<string, DiagnosticProbe> = new Map();
+  private demoInterventions: Map<string, InterventionContent> = new Map();
+  private demoReTests: Map<string, ReTestAssessment> = new Map();
+  private demoActiveBisect?: BisectSession;
+
   private courseMaterials: CourseMaterial[];
   private dagEngine: DAGEngine;
 
   constructor() {
-    this.concepts = [...INITIAL_CONCEPTS];
-    this.edges = [...INITIAL_EDGES];
-    this.learnerStates = new Map();
-    this.misconceptions = new Map();
-    this.probes = new Map();
-    this.interventions = new Map();
-    this.reTests = new Map();
-    this.submissions = [];
     this.courseMaterials = [...SEED_COURSE_MATERIALS];
-
-    this.resetToSeed();
-    this.dagEngine = new DAGEngine(this.concepts, this.edges);
+    this.resetDemoData();
+    this.dagEngine = new DAGEngine(this.demoConcepts, this.demoEdges);
   }
 
-  public resetToSeed(): void {
-    this.concepts = [...INITIAL_CONCEPTS];
-    this.edges = [...INITIAL_EDGES];
-    this.learnerStates = new Map();
-    SEED_LEARNER_STATES.forEach((s) =>
-      this.learnerStates.set(s.conceptId, { ...s })
+  public resetDemoData(): void {
+    this.demoConcepts = [...INITIAL_CONCEPTS];
+    this.demoEdges = [...INITIAL_EDGES];
+    this.demoLearnerStates = new Map();
+    SEED_LEARNER_STATES.forEach((s) => this.demoLearnerStates.set(s.conceptId, { ...s }));
+
+    this.demoMisconceptions = new Map();
+    SEED_MISCONCEPTIONS.forEach((m) => this.demoMisconceptions.set(m.id, { ...m }));
+
+    this.demoProbes = new Map();
+    SEED_DIAGNOSTIC_PROBES.forEach((p) => this.demoProbes.set(p.id, { ...p }));
+
+    this.demoInterventions = new Map();
+    Object.entries(SEED_INTERVENTIONS).forEach(([k, v]) => this.demoInterventions.set(k, { ...v }));
+
+    this.demoReTests = new Map();
+    Object.entries(SEED_RETEST_ASSESSMENTS).forEach(([k, v]) => this.demoReTests.set(k, { ...v }));
+
+    this.demoActiveBisect = {
+      id: "bisect_demo_dfs",
+      targetConceptId: "graph_traversal",
+      detectedMisconceptionId: "rec_context_replace",
+      ancestorChain: ["memory_allocation", "functions_context", "call_stack", "recursion", "tree_traversal"],
+      investigatedConcepts: [],
+      probesAnswered: [],
+      candidateScores: {
+        memory_allocation: 50,
+        functions_context: 50,
+        call_stack: 50,
+        recursion: 50,
+        tree_traversal: 50,
+      },
+      currentProbe: SEED_DIAGNOSTIC_PROBES.find((p) => p.conceptId === "call_stack"),
+      status: "active",
+    };
+  }
+
+  // --- Diagnostic Session Lifecycle (Scoped by Session ID) ---
+
+  public createDiagnosticSession(session: DiagnosticSession): void {
+    this.diagnosticSessions.set(session.id, session);
+  }
+
+  public getDiagnosticSession(sessionId?: string): DiagnosticSession | undefined {
+    if (!sessionId) return undefined;
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      return this.getDemoSession();
+    }
+    return this.diagnosticSessions.get(sessionId);
+  }
+
+  public updateDiagnosticSession(
+    sessionId: string,
+    updates: Partial<DiagnosticSession>
+  ): DiagnosticSession | undefined {
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      return this.getDemoSession();
+    }
+    const session = this.diagnosticSessions.get(sessionId);
+    if (!session) return undefined;
+    const updated = { ...session, ...updates };
+    this.diagnosticSessions.set(sessionId, updated);
+    return updated;
+  }
+
+  public getLatestSession(userId?: string): DiagnosticSession | undefined {
+    const list = Array.from(this.diagnosticSessions.values()).filter(
+      (s) => !s.isDemo && (!userId || s.userId === userId)
     );
+    return list.length > 0 ? list[list.length - 1] : undefined;
+  }
 
-    this.misconceptions = new Map();
-    SEED_MISCONCEPTIONS.forEach((m) => this.misconceptions.set(m.id, { ...m }));
-
-    this.probes = new Map();
-    SEED_DIAGNOSTIC_PROBES.forEach((p) => this.probes.set(p.id, { ...p }));
-
-    this.interventions = new Map();
-    Object.entries(SEED_INTERVENTIONS).forEach(([k, v]) =>
-      this.interventions.set(k, { ...v })
+  public getUserSessions(userId?: string): DiagnosticSession[] {
+    return Array.from(this.diagnosticSessions.values()).filter(
+      (s) => !s.isDemo && (!userId || s.userId === userId)
     );
-
-    this.reTests = new Map();
-    Object.entries(SEED_RETEST_ASSESSMENTS).forEach(([k, v]) =>
-      this.reTests.set(k, { ...v })
-    );
-
-    this.submissions = [];
-    this.activeBisectSession = undefined;
-    this.dagEngine = new DAGEngine(this.concepts, this.edges);
   }
 
-  public getDagEngine(): DAGEngine {
-    return this.dagEngine;
+  public getDemoSession(): DiagnosticSession {
+    const statesRecord: Record<string, LearnerConceptState> = {};
+    this.demoLearnerStates.forEach((v, k) => {
+      statesRecord[k] = { ...v };
+    });
+
+    return {
+      id: "demo_dfs",
+      isDemo: true,
+      createdAt: new Date().toISOString(),
+      submission: {
+        conceptId: "graph_traversal",
+        conceptName: "Graph Traversal (DFS)",
+        questionText:
+          "In recursive Depth-First Search (DFS) on a graph, what happens to the execution state of the current node when dfs() is called on an unvisited neighbor?",
+        responseType: "written",
+        content:
+          "When dfs(neighbor) is invoked, it replaces the current function. Because the child executes, the parent function is overwritten, so after visiting node 2 it forgets where it was and exits without exploring node 3.",
+      },
+      analysis: {
+        hasMisconception: true,
+        misconception: SEED_MISCONCEPTIONS[0],
+        masteryScore: 45,
+        confidence: 94,
+        evidence: 'Student stated: "When dfs(neighbor) is invoked, it replaces the current function..."',
+        explanation:
+          "The learner models execution as a single mutating state register rather than a stack of isolated activation records.",
+        studentAssumption:
+          "Recursive child calls replace or overwrite the parent function frame, destroying caller loop positions.",
+        formalReality:
+          "Each recursive invocation pushes a new stack frame onto the Call Stack. The caller frame remains suspended in memory and seamlessly resumes when the child returns.",
+        normalizedReasoning:
+          "Belief in destructive activation record overwriting during nested recursion.",
+        extractedIndicators: ["Recursive context replacement", "Call stack unwinding misunderstanding"],
+        affectedConcepts: ["graph_traversal", "recursion", "call_stack"],
+      },
+      graph: {
+        concepts: [...this.demoConcepts],
+        edges: [...this.demoEdges],
+        learnerStates: statesRecord,
+      },
+      bisectSession: this.demoActiveBisect,
+      bisectProbes: Array.from(this.demoProbes.values()),
+      recoveryIntervention: this.demoInterventions.get("call_stack"),
+      retestAssessment: this.demoReTests.get("call_stack"),
+    };
   }
 
-  public getConcepts(): Concept[] {
-    return this.concepts;
+  // --- Session-Aware DAG & Concept Methods ---
+
+  public getConcepts(sessionId?: string, userId?: string): Concept[] {
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      return this.demoConcepts;
+    }
+    if (sessionId) {
+      const session = this.diagnosticSessions.get(sessionId);
+      if (session) return session.graph.concepts;
+      return [];
+    }
+    if (userId) {
+      const latest = this.getLatestSession(userId);
+      return latest ? latest.graph.concepts : [];
+    }
+    return [];
   }
 
-  public getEdges(): ConceptEdge[] {
-    return this.edges;
+  public getEdges(sessionId?: string, userId?: string): ConceptEdge[] {
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      return this.demoEdges;
+    }
+    if (sessionId) {
+      const session = this.diagnosticSessions.get(sessionId);
+      if (session) return session.graph.edges;
+      return [];
+    }
+    if (userId) {
+      const latest = this.getLatestSession(userId);
+      return latest ? latest.graph.edges : [];
+    }
+    return [];
   }
 
-  public getCourseMaterials(): CourseMaterial[] {
-    return this.courseMaterials;
+  public getAllLearnerStates(sessionId?: string, userId?: string): LearnerConceptState[] {
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      return Array.from(this.demoLearnerStates.values());
+    }
+    if (sessionId) {
+      const session = this.diagnosticSessions.get(sessionId);
+      if (session) return Object.values(session.graph.learnerStates);
+      return [];
+    }
+    if (userId) {
+      const latest = this.getLatestSession(userId);
+      return latest ? Object.values(latest.graph.learnerStates) : [];
+    }
+    return [];
   }
 
-  public addCourseMaterial(material: CourseMaterial): void {
-    this.courseMaterials.push(material);
-  }
-
-  public getLearnerState(conceptId: string): LearnerConceptState | undefined {
-    return this.learnerStates.get(conceptId);
-  }
-
-  public getAllLearnerStates(): LearnerConceptState[] {
-    return Array.from(this.learnerStates.values());
+  public getLearnerState(conceptId: string, sessionId?: string, userId?: string): LearnerConceptState | undefined {
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      return this.demoLearnerStates.get(conceptId);
+    }
+    if (sessionId) {
+      const session = this.diagnosticSessions.get(sessionId);
+      if (session) return session.graph.learnerStates[conceptId];
+      return undefined;
+    }
+    if (userId) {
+      const latest = this.getLatestSession(userId);
+      return latest?.graph.learnerStates[conceptId];
+    }
+    return undefined;
   }
 
   public updateLearnerState(
     conceptId: string,
-    updates: Partial<LearnerConceptState>
+    updates: Partial<LearnerConceptState>,
+    sessionId?: string
   ): LearnerConceptState {
-    const existing = this.learnerStates.get(conceptId) || {
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      const existing = this.demoLearnerStates.get(conceptId) || {
+        conceptId,
+        masteryScore: 0,
+        status: "untested",
+        confidence: 0,
+        recoveryAttempts: 0,
+      };
+      const updated = { ...existing, ...updates };
+      this.demoLearnerStates.set(conceptId, updated);
+      return updated;
+    }
+
+    const session = sessionId ? this.diagnosticSessions.get(sessionId) : this.getLatestSession();
+    if (session) {
+      const existing = session.graph.learnerStates[conceptId] || {
+        conceptId,
+        masteryScore: 0,
+        status: "untested",
+        confidence: 0,
+        recoveryAttempts: 0,
+      };
+      const updated = { ...existing, ...updates };
+      session.graph.learnerStates[conceptId] = updated;
+      return updated;
+    }
+
+    const fallback: LearnerConceptState = {
       conceptId,
       masteryScore: 0,
       status: "untested",
       confidence: 0,
       recoveryAttempts: 0,
+      ...updates,
     };
-
-    const updated = { ...existing, ...updates };
-    this.learnerStates.set(conceptId, updated);
-    return updated;
+    return fallback;
   }
 
-  public getMisconception(id: string): Misconception | undefined {
-    return this.misconceptions.get(id);
+  public getDagEngine(sessionId?: string): DAGEngine {
+    const concepts = this.getConcepts(sessionId);
+    const edges = this.getEdges(sessionId);
+    return new DAGEngine(concepts, edges);
   }
 
-  public getAllMisconceptions(): Misconception[] {
-    return Array.from(this.misconceptions.values());
-  }
+  // --- Bisect & Probes ---
 
-  public addMisconception(m: Misconception): void {
-    this.misconceptions.set(m.id, m);
-  }
-
-  public addSubmission(submission: StudentSubmission): void {
-    this.submissions.push(submission);
-  }
-
-  public getSubmissions(): StudentSubmission[] {
-    return this.submissions;
-  }
-
-  public ensureConcept(
-    conceptId: string,
-    name?: string,
-    prerequisites?: string[],
-    description?: string
-  ): Concept {
-    let concept = this.concepts.find((c) => c.id === conceptId);
-    if (!concept) {
-      const cleanName =
-        name ||
-        conceptId
-          .split(/[-_]/)
-          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(" ");
-
-      let inferredPrereqs = prerequisites;
-      if (!inferredPrereqs || inferredPrereqs.length === 0) {
-        const lower = conceptId.toLowerCase();
-        if (lower.includes("async") || lower.includes("promise") || lower.includes("event")) {
-          inferredPrereqs = ["call_stack", "functions_context"];
-        } else if (lower.includes("tree") || lower.includes("graph") || lower.includes("dfs") || lower.includes("bfs")) {
-          inferredPrereqs = ["tree_traversal", "recursion"];
-        } else if (lower.includes("dynamic") || lower.includes("dp") || lower.includes("memo")) {
-          inferredPrereqs = ["recursion", "memory_allocation"];
-        } else if (lower.includes("sort") || lower.includes("search") || lower.includes("binary")) {
-          inferredPrereqs = ["recursion", "memory_allocation"];
-        } else {
-          inferredPrereqs = ["call_stack", "memory_allocation"];
-        }
-      }
-
-      concept = {
-        id: conceptId,
-        name: cleanName,
-        category: "Investigated Topic",
-        description:
-          description ||
-          `Learner-submitted concept: ${cleanName}. Evaluated against foundational computing execution invariants.`,
-        prerequisites: inferredPrereqs,
-        difficulty: "intermediate",
-        estimatedMinutes: 30,
-      };
-
-      this.concepts.push(concept);
-
-      for (const p of inferredPrereqs) {
-        if (!this.edges.some((e) => e.from === p && e.to === conceptId)) {
-          this.edges.push({
-            from: p,
-            to: conceptId,
-            rationale: `Understanding ${p} is required to master ${cleanName}.`,
-          });
-        }
-      }
-
-      this.dagEngine = new DAGEngine(this.concepts, this.edges);
-
-      if (!this.learnerStates.has(conceptId)) {
-        this.learnerStates.set(conceptId, {
-          conceptId,
-          masteryScore: 45,
-          status: "misconception_detected",
-          confidence: 85,
-          recoveryAttempts: 0,
-        });
-      }
+  public getActiveBisectSession(sessionId?: string, userId?: string): BisectSession | undefined {
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      return this.demoActiveBisect;
     }
-    return concept;
+    if (sessionId) {
+      return this.diagnosticSessions.get(sessionId)?.bisectSession;
+    }
+    if (userId) {
+      return this.getLatestSession(userId)?.bisectSession;
+    }
+    return undefined;
   }
 
-  public getProbe(id: string): DiagnosticProbe | undefined {
-    return this.probes.get(id);
+  public setActiveBisectSession(session: BisectSession, sessionId?: string): void {
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      this.demoActiveBisect = session;
+      return;
+    }
+    const diagSession = sessionId ? this.diagnosticSessions.get(sessionId) : this.getLatestSession();
+    if (diagSession) {
+      diagSession.bisectSession = session;
+    }
   }
 
-  public getProbesForConcept(conceptId: string): DiagnosticProbe[] {
-    const existing = Array.from(this.probes.values()).filter(
-      (p) => p.conceptId === conceptId
-    );
-    if (existing.length > 0) return existing;
-
-    const concept = this.concepts.find((c) => c.id === conceptId);
-    const conceptName = concept?.name || conceptId.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-
-    const dynamicProbe: DiagnosticProbe = {
-      id: `probe_dynamic_${conceptId}`,
-      conceptId,
-      targetConceptId: conceptId,
-      question: `In the runtime execution model of ${conceptName}, how are state transitions and execution context preserved across boundaries?`,
-      options: [
-        {
-          id: `opt_${conceptId}_flawed`,
-          text: `The active context overwrites the caller's memory state, terminating or replacing preceding frames.`,
-          isCorrect: false,
-          indicator: `Exhibits context replacement and destructive state mutation fallacy in ${conceptName}.`,
-        },
-        {
-          id: `opt_${conceptId}_correct`,
-          text: `Each execution context preserves its own isolated scope/frame, resuming state deterministically upon boundary return.`,
-          isCorrect: true,
-          indicator: `Accurately models frame isolation and invariant preservation in ${conceptName}.`,
-        },
-        {
-          id: `opt_${conceptId}_distractor`,
-          text: `All state is immediately written to non-volatile secondary storage on every sub-routine step.`,
-          isCorrect: false,
-          indicator: `Confuses runtime RAM memory frames with persistent secondary disk storage.`,
-        },
-      ],
-      invariantTested: `State isolation and execution resumption invariants in ${conceptName}.`,
-      rationale: `Determines whether the learner understands physical memory preservation versus destructive mutation in ${conceptName}.`,
-    };
-
-    this.probes.set(dynamicProbe.id, dynamicProbe);
-    return [dynamicProbe];
+  public getProbesForConcept(conceptId: string, sessionId?: string): DiagnosticProbe[] {
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      return Array.from(this.demoProbes.values()).filter((p) => p.conceptId === conceptId);
+    }
+    const diagSession = sessionId ? this.diagnosticSessions.get(sessionId) : this.getLatestSession();
+    if (diagSession) {
+      return diagSession.bisectProbes.filter((p) => p.conceptId === conceptId);
+    }
+    return [];
   }
 
-  public getActiveBisectSession(): BisectSession | undefined {
-    return this.activeBisectSession;
+  public getProbe(probeId: string, sessionId?: string): DiagnosticProbe | undefined {
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      return this.demoProbes.get(probeId);
+    }
+    const diagSession = sessionId ? this.diagnosticSessions.get(sessionId) : this.getLatestSession();
+    if (diagSession) {
+      return diagSession.bisectProbes.find((p) => p.id === probeId);
+    }
+    return this.demoProbes.get(probeId);
   }
 
-  public setActiveBisectSession(session?: BisectSession): void {
-    this.activeBisectSession = session;
+  // --- Recovery & Retest ---
+
+  public getIntervention(conceptId: string, sessionId?: string, userId?: string): InterventionContent | undefined {
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      return this.demoInterventions.get(conceptId) || this.demoInterventions.get("call_stack");
+    }
+    const diagSession = sessionId ? this.diagnosticSessions.get(sessionId) : (userId ? this.getLatestSession(userId) : undefined);
+    if (diagSession && diagSession.recoveryIntervention) {
+      return diagSession.recoveryIntervention;
+    }
+    return undefined;
   }
 
-  public getIntervention(conceptId: string): InterventionContent | undefined {
-    const existing = this.interventions.get(conceptId);
-    if (existing) return existing;
-
-    const concept = this.concepts.find((c) => c.id === conceptId);
-    const cleanName = concept?.name || conceptId.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-
-    const dynamicIntervention: InterventionContent = {
-      id: `intervention_${conceptId}`,
-      rootConceptId: conceptId,
-      targetConceptId: conceptId,
-      title: `${cleanName}: Execution Invariant Remediation`,
-      explanation: `When analyzing ${cleanName}, misconceptions arise when conflating mutable memory pointers with isolated state frames. At the hardware and runtime level, every execution boundary maintains an isolated environment. Child invocations or sub-operations do not destroy the caller's context; they suspend it until completion.`,
-      visualMemoryModel: {
-        type: "call_stack",
-        title: `Interactive ${cleanName} Memory Model`,
-        description: `Inspect how execution state is preserved across transitions in ${cleanName}.`,
-        frames: [
-          {
-            step: 1,
-            label: `Initial State: ${cleanName} Frame 1`,
-            stackFrames: [`Context 1: ${cleanName} (Active)`],
-            activeLine: 1,
-            explanation: `Initial execution boundary created. Local variables allocated in isolated memory space.`,
-          },
-          {
-            step: 2,
-            label: `Sub-Procedure Dispatched`,
-            stackFrames: [
-              `Context 2: Sub-operation (Active)`,
-              `Context 1: ${cleanName} (Frozen / Suspended)`,
-            ],
-            activeLine: 2,
-            explanation: `Child operation pushed to execution queue. Context 1 is NOT overwritten; it pauses at current instruction.`,
-          },
-          {
-            step: 3,
-            label: `Unwind & Resumption`,
-            stackFrames: [`Context 1: ${cleanName} (Resumed)`],
-            activeLine: 3,
-            explanation: `Sub-operation finishes and releases memory. Context 1 instantly resumes with preserved local state.`,
-          },
-        ],
-      },
-      counterexample: {
-        title: `Counterexample: Proving Isolated Scope in ${cleanName}`,
-        code: `function verifyBoundary(depth) {\n  let savedState = "Parent_" + depth;\n  if (depth < 2) {\n    verifyBoundary(depth + 1);\n  }\n  console.log(savedState); // Verifies parent state survived!\n}\nverifyBoundary(1);\n// Output:\n// Parent_2\n// Parent_1`,
-        expectedOutput: "Parent_2\nParent_1",
-        actualOutput: "Parent_2\nParent_1",
-        mentalModelExplanation: `Notice that 'Parent_1' prints after 'Parent_2'. If the sub-procedure had overwritten the memory context, 'Parent_1' would be lost. Instead, runtime invariants kept it safely intact!`,
-      },
-      microPuzzle: {
-        question: `In ${cleanName}, what happens to local variables when a nested sub-routine is executed?`,
-        codeSnippet: `let state = 100;\nfunction execute() {\n  nestedCall();\n  return state;\n}`,
-        options: [
-          "State is permanently erased to free CPU cache.",
-          "State is safely frozen in its execution frame and preserved.",
-          "State is cloned into a separate operating system process.",
-          "State becomes undefined until explicitly re-assigned.",
-        ],
-        correctIndex: 1,
-        explanation: `Runtime memory architectures preserve local frames on the activation stack, keeping state frozen until the nested sub-routine returns.`,
-      },
-      codeExercise: {
-        instructions: `Refactor the procedure below to ensure the parent execution state is preserved without early premature termination.`,
-        initialCode: `function executeRoutine(items, processItem) {\n  let results = [];\n  for (let item of items) {\n    // Fix premature exit:\n    return processItem(item, results);\n  }\n  return results;\n}`,
-        expectedPattern: "processItem(item",
-        solutionCode: `function executeRoutine(items, processItem) {\n  let results = [];\n  for (let item of items) {\n    processItem(item, results);\n  }\n  return results;\n}`,
-        hints: ["Remove the early return inside the loop so the loop can iterate through all items."],
-      },
-      industryBlastRadius: {
-        incidentTitle: `Production Outage from Corrupted State in ${cleanName}`,
-        organizationType: "Distributed High-Frequency Trading Platform",
-        outageDescription: `A production engine encountered silent transaction loss when a developer mistakenly assumed that sub-calls mutated caller registers in place.`,
-        howMisconceptionCausesIt: `Assuming destructive context replacement leads engineers to bypass return value checking, causing downstream data pipelines to process uninitialized records.`,
-        illustrativeNote: `Real-world impact: Understanding memory boundaries in ${cleanName} prevents critical data corruption in production systems.`,
-      },
-    };
-
-    this.interventions.set(conceptId, dynamicIntervention);
-    return dynamicIntervention;
+  public getReTest(conceptId: string, sessionId?: string, userId?: string): ReTestAssessment | undefined {
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      return this.demoReTests.get(conceptId) || this.demoReTests.get("call_stack");
+    }
+    const diagSession = sessionId ? this.diagnosticSessions.get(sessionId) : (userId ? this.getLatestSession(userId) : undefined);
+    if (diagSession && diagSession.retestAssessment) {
+      return diagSession.retestAssessment;
+    }
+    return undefined;
   }
 
-  public setIntervention(conceptId: string, content: InterventionContent): void {
-    this.interventions.set(conceptId, content);
+  // --- Metrics Calculation ---
+
+  public calculateMetrics(sessionId?: string, userId?: string): LearningProgressMetrics | null {
+    if (sessionId === "demo" || sessionId === "demo_dfs") {
+      return this.calculateMetricsFromStates(
+        this.demoConcepts,
+        Array.from(this.demoLearnerStates.values()),
+        Array.from(this.demoMisconceptions.values())
+      );
+    }
+
+    const targetSession = sessionId
+      ? this.diagnosticSessions.get(sessionId)
+      : userId
+      ? this.getLatestSession(userId)
+      : undefined;
+
+    // If user has no sessions, return null (indicating clean empty state!)
+    if (!targetSession) {
+      return null;
+    }
+
+    const states = Object.values(targetSession.graph.learnerStates);
+    const misconceptions = targetSession.analysis.misconception
+      ? [targetSession.analysis.misconception]
+      : [];
+
+    return this.calculateMetricsFromStates(targetSession.graph.concepts, states, misconceptions);
   }
 
-  public getReTest(conceptId: string): ReTestAssessment | undefined {
-    const existing = this.reTests.get(conceptId);
-    if (existing) return existing;
-
-    const concept = this.concepts.find((c) => c.id === conceptId);
-    const cleanName = concept?.name || conceptId.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-
-    const dynamicReTest: ReTestAssessment = {
-      id: `retest_${conceptId}`,
-      conceptId,
-      question: `Now that you have reviewed the runtime execution invariants for ${cleanName}, what is the fundamental guarantee provided by the runtime regarding execution context?`,
-      options: [
-        {
-          id: `retest_${conceptId}_opt_correct`,
-          text: `Each activation record retains its private frame; child invocations pause the caller, which resumes automatically when child frames pop.`,
-          isCorrect: true,
-          feedback: `Verified! You correctly understand the physical execution boundary and frame lifecycle in ${cleanName}.`,
-        },
-        {
-          id: `retest_${conceptId}_opt_flawed`,
-          text: `The child invocation directly replaces and overwrites the parent's memory context, requiring manual restoration.`,
-          isCorrect: false,
-          feedback: `Incorrect. In modern runtimes, caller frames are preserved in LIFO order and are never overwritten by child invocations.`,
-        },
-        {
-          id: `retest_${conceptId}_opt_distractor`,
-          text: `Context is destroyed and recomputed on demand from scratch via compiler JIT caches.`,
-          isCorrect: false,
-          feedback: `Incorrect. JIT compilation does not alter the physical stack frame semantics of runtime execution.`,
-        },
-      ],
-    };
-
-    this.reTests.set(conceptId, dynamicReTest);
-    return dynamicReTest;
-  }
-
-  public calculateMetrics(): LearningProgressMetrics {
-    const states = Array.from(this.learnerStates.values());
-    const total = this.concepts.length;
+  private calculateMetricsFromStates(
+    concepts: Concept[],
+    states: LearnerConceptState[],
+    misconceptions: Misconception[]
+  ): LearningProgressMetrics {
+    const total = concepts.length;
     let mastered = 0;
     let diagnosed = 0;
     let recovered = 0;
@@ -421,19 +421,15 @@ class DataStore {
     const overallMastery = total > 0 ? Math.round(totalScore / total) : 0;
     const totalInterventions = recovered + unresolved;
     const recoveryRate =
-      totalInterventions > 0
-        ? Math.round((recovered / totalInterventions) * 100)
-        : 100;
+      totalInterventions > 0 ? Math.round((recovered / totalInterventions) * 100) : 100;
 
-    const activeMisconceptions = Array.from(this.misconceptions.values()).filter(
-      (m) => {
-        const state = this.learnerStates.get(m.conceptId);
-        return (
-          state?.status === "misconception_detected" ||
-          state?.status === "root_gap_identified"
-        );
-      }
-    );
+    const activeMisconceptions = misconceptions.filter((m) => {
+      const state = states.find((s) => s.conceptId === m.conceptId);
+      return (
+        state?.status === "misconception_detected" ||
+        state?.status === "root_gap_identified"
+      );
+    });
 
     return {
       totalConcepts: total,
@@ -446,9 +442,17 @@ class DataStore {
       activeMisconceptions,
     };
   }
+
+  public getCourseMaterials(): CourseMaterial[] {
+    return this.courseMaterials;
+  }
+
+  public addCourseMaterial(material: CourseMaterial): void {
+    this.courseMaterials.push(material);
+  }
 }
 
-// Global singleton instance for in-memory persistence in development
+// Global singleton instance for in-memory persistence across routes
 const globalForStore = globalThis as unknown as { archaiaStore?: DataStore };
 
 export const store = globalForStore.archaiaStore ?? new DataStore();

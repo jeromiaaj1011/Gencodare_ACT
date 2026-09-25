@@ -54,11 +54,14 @@ export default function RecoveryPage() {
   const [selectedReTestOpt, setSelectedReTestOpt] = useState<string | null>(null);
   const [reTestResult, setReTestResult] = useState<any>(null);
   const [reTesting, setReTesting] = useState(false);
-  const [activeConceptId, setActiveConceptId] = useState("call_stack");
+  const [activeConceptId, setActiveConceptId] = useState("");
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [fromTarget, setFromTarget] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const loadConceptRecovery = (cId: string) => {
-    setActiveConceptId(cId);
+
+  const loadConceptRecovery = (cId?: string, explicitSessionId?: string) => {
+    setLoading(true);
     setVisualStep(0);
     setSelectedPuzzleIdx(null);
     setPuzzleSubmitted(false);
@@ -67,28 +70,53 @@ export default function RecoveryPage() {
     setSelectedReTestOpt(null);
     setReTestResult(null);
 
-    fetch(`/api/recovery?conceptId=${cId}`)
+    const targetSessionId =
+      explicitSessionId ||
+      sessionId ||
+      (typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("sessionId") ||
+          sessionStorage.getItem("archaia_session_id")
+        : null);
+
+    const queryParams = new URLSearchParams();
+    if (targetSessionId) queryParams.set("sessionId", targetSessionId);
+    if (cId) queryParams.set("conceptId", cId);
+
+    const url = `/api/recovery${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+
+    fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
+        if (data.success && data.intervention) {
           setConcept(data.concept);
           setIntervention(data.intervention);
           setRetest(data.retest);
-          setUserCode(data.intervention.codeExercise.initialCode);
+          setActiveConceptId(data.concept?.id || cId || "");
+          if (data.intervention.codeExercise?.initialCode) {
+            setUserCode(data.intervention.codeExercise.initialCode);
+          }
+        } else {
+          setConcept(null);
+          setIntervention(null);
+          setRetest(null);
         }
       })
-      .catch((e) => console.error(e));
+      .catch((e) => console.error(e))
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      const initialConcept = params.get("conceptId") || "call_stack";
+      const initialConcept = params.get("conceptId") || undefined;
       const targetParam = params.get("fromTarget");
+      const urlSession = params.get("sessionId");
       if (targetParam) setFromTarget(targetParam);
-      loadConceptRecovery(initialConcept);
+      if (urlSession) setSessionId(urlSession);
+      loadConceptRecovery(initialConcept, urlSession || undefined);
     }
   }, []);
+
 
   const handleLanguageChange = async (lang: string) => {
     setSelectedLanguage(lang);
@@ -112,22 +140,14 @@ export default function RecoveryPage() {
 
   const handleCodeCheck = () => {
     setCodeTested(true);
-    if (intervention) {
-      if (activeConceptId === "call_stack") {
-        const isCorrect =
-          userCode.includes("dfs(neighbor, visited, path);") &&
-          !userCode.includes("return dfs(neighbor");
-        setCodeSuccess(isCorrect);
-      } else if (activeConceptId === "memory_allocation") {
-        const isCorrect =
-          userCode.includes("new Set") || userCode.includes("[...");
-        setCodeSuccess(isCorrect);
+    if (intervention?.codeExercise) {
+      const pattern = intervention.codeExercise.expectedPattern;
+      if (pattern && userCode.includes(pattern)) {
+        setCodeSuccess(true);
+      } else if (!pattern && userCode.trim() !== intervention.codeExercise.initialCode.trim()) {
+        setCodeSuccess(true);
       } else {
-        const isCorrect =
-          userCode.includes("processItem") ||
-          userCode.includes("return") ||
-          !userCode.includes("return processItem");
-        setCodeSuccess(isCorrect);
+        setCodeSuccess(false);
       }
     }
   };
@@ -136,10 +156,18 @@ export default function RecoveryPage() {
     if (!selectedReTestOpt) return;
     setReTesting(true);
     try {
+      const targetSessionId =
+        sessionId ||
+        (typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("sessionId") ||
+            sessionStorage.getItem("archaia_session_id")
+          : undefined);
+
       const res = await fetch("/api/retest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          sessionId: targetSessionId,
           conceptId: activeConceptId,
           selectedOptionId: selectedReTestOpt,
         }),
@@ -155,13 +183,53 @@ export default function RecoveryPage() {
     }
   };
 
-  if (!intervention) {
+  if (loading) {
     return (
-      <div className="h-64 flex items-center justify-center text-blue-400 font-sans text-xs">
-        Loading Recovery Lab Modules...
+      <div className="h-64 flex items-center justify-center text-blue-400 font-sans text-xs space-x-2">
+        <RotateCcw className="w-4 h-4 animate-spin" />
+        <span>Loading Recovery Lab Modules...</span>
       </div>
     );
   }
+
+  if (!intervention) {
+    return (
+      <div className="space-y-6 max-w-5xl mx-auto">
+        <CognitivePipelineStepper currentStep={3} />
+        <div className="p-8 rounded-2xl bg-archaia-dark border border-archaia-border flex flex-col items-center justify-center text-center space-y-4">
+          <div className="p-3.5 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <HeartPulse className="w-8 h-8" />
+          </div>
+          <div className="space-y-1.5 max-w-md">
+            <h3 className="text-base font-bold text-white">No Active Recovery Lab</h3>
+            <p className="text-xs text-slate-400 font-sans leading-relaxed">
+              Targeted Recovery Labs remediate prerequisite conceptual gaps identified during Cognitive Bisect. Start a diagnostic in Step 1 or explore the benchmark demo investigation.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link
+              href="/detector"
+              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-sm flex items-center space-x-1.5"
+            >
+              <span>Start Diagnostic in Step 1</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <button
+              onClick={() => {
+                setSessionId("demo_dfs");
+                loadConceptRecovery("call_stack", "demo_dfs");
+              }}
+              className="px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-700 text-slate-300 text-xs font-semibold transition-colors flex items-center space-x-1.5"
+            >
+              <Play className="w-3.5 h-3.5 text-amber-400" />
+              <span>Try Demo Investigation</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
 
   const currentFrame =
     intervention.visualMemoryModel.frames[visualStep] ||
@@ -743,17 +811,17 @@ export default function RecoveryPage() {
               {reTestResult.isCorrect && (
                 <div className="pt-2 border-t border-emerald-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <span className="text-xs font-sans text-slate-300">
-                    Unlocked Downstream: {reTestResult.unlockedConcepts?.join(", ") || "Recursion, Tree Traversal, Graph Traversal"} 🔓
+                    Unlocked Downstream: {reTestResult.unlockedConcepts?.join(", ") || "Downstream concepts unblocked in Causal DAG"} 🔓
                   </span>
                   <div className="flex items-center space-x-2">
                     <Link
-                      href={`/progress?recoveredConcept=${activeConceptId}&fromTarget=${fromTarget || ""}`}
+                      href={`/progress?sessionId=${sessionId || ""}&recoveredConcept=${activeConceptId}&fromTarget=${fromTarget || ""}`}
                       className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors shadow-sm"
                     >
                       <span>Proceed to Step 4: Adaptive Roadmap →</span>
                     </Link>
                     <Link
-                      href={`/graph?highlight=${activeConceptId}`}
+                      href={`/graph?sessionId=${sessionId || ""}&highlight=${activeConceptId}`}
                       className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors"
                     >
                       Inspect in DAG
@@ -761,6 +829,7 @@ export default function RecoveryPage() {
                   </div>
                 </div>
               )}
+
             </div>
           )}
         </div>

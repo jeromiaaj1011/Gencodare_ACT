@@ -105,7 +105,7 @@ export interface InterventionContent {
   title: string;
   explanation: string;
   visualMemoryModel: {
-    type: "call_stack" | "heap_pointers" | "tree_recursion" | "state_machine";
+    type: "call_stack" | "heap_pointers" | "tree_recursion" | "state_machine" | "timeline" | "tabular" | string;
     title: string;
     description: string;
     frames: {
@@ -178,3 +178,58 @@ export interface LearningProgressMetrics {
   recoverySuccessRate: number;
   activeMisconceptions: Misconception[];
 }
+
+export interface DiagnosticSession {
+  id: string;
+  topic?: string;
+  userId?: string;
+  createdAt: string;
+  isDemo?: boolean;
+
+  submission: {
+    conceptId: string;
+    conceptName: string;
+    questionText: string;
+    responseType: ResponseType;
+    content: string;
+    code?: string;
+    mcqSelected?: string;
+    steps?: string[];
+  };
+
+  analysis: {
+    hasMisconception: boolean;
+    misconception?: Misconception;
+    masteryScore?: number;
+    evidence: string;
+    explanation: string;
+    studentAssumption: string;
+    formalReality: string;
+    normalizedReasoning: string;
+    confidence: number;
+    extractedIndicators: string[];
+    affectedConcepts: string[];
+  };
+
+  graph: {
+    concepts: Concept[];
+    edges: ConceptEdge[];
+    learnerStates: Record<string, LearnerConceptState>;
+  };
+
+  bisectSession?: BisectSession;
+  bisectProbes: DiagnosticProbe[];
+
+  recoveryIntervention?: InterventionContent;
+  retestAssessment?: ReTestAssessment;
+
+  recoveryCompleted?: boolean;
+  retestResult?: {
+    isCorrect: boolean;
+    score?: number;
+    updatedMastery: number;
+    unlockedConcepts: string[];
+    feedback: string;
+  };
+}
+

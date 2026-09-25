@@ -2,18 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/storage/store";
 import { BisectEngine } from "@/lib/bisect/bisectEngine";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
+  const sessionId = searchParams.get("sessionId") || undefined;
   const paramConceptId = searchParams.get("conceptId");
   const paramMisconceptionId = searchParams.get("misconceptionId");
 
-  let session = store.getActiveBisectSession();
+  let session = store.getActiveBisectSession(sessionId);
 
-  // If a specific concept was requested, start or sync session for that concept
+  // If a specific concept was requested and doesn't match active target, sync or start for that concept
   if (paramConceptId && (!session || session.targetConceptId !== paramConceptId)) {
     session = BisectEngine.startSession(
       paramConceptId,
-      paramMisconceptionId || `misc_${paramConceptId}_active`
+      paramMisconceptionId || `misc_${paramConceptId}_active`,
+      sessionId
     );
   }
 
@@ -21,10 +25,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       success: true,
       hasActiveSession: false,
+      isEmpty: true,
     });
   }
 
-  const dagEngine = store.getDagEngine();
+  const dagEngine = store.getDagEngine(sessionId);
   const rootConcept = session.likelyRootGapId
     ? dagEngine.getConcept(session.likelyRootGapId)
     : undefined;
@@ -33,6 +38,7 @@ export async function GET(req: NextRequest) {
     success: true,
     hasActiveSession: true,
     session,
+    currentProbe: session.currentProbe,
     rootConcept,
   });
 }
@@ -40,14 +46,22 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { probeId, selectedOptionId } = body;
+    const { probeId, sessionId } = body;
+    let selectedOptionId = body.selectedOptionId;
 
-    const session = store.getActiveBisectSession();
+    const session = store.getActiveBisectSession(sessionId);
     if (!session) {
       return NextResponse.json(
-        { success: false, error: "No active Cognitive Bisect session found." },
+        { success: false, error: "No active Cognitive Bisect session found. Please run a diagnostic first." },
         { status: 400 }
       );
+    }
+
+    if (!selectedOptionId && typeof body.selectedOptionIndex === "number") {
+      const probe = store.getProbe(probeId, sessionId);
+      if (probe && probe.options[body.selectedOptionIndex]) {
+        selectedOptionId = probe.options[body.selectedOptionIndex].id;
+      }
     }
 
     if (!probeId || !selectedOptionId) {
@@ -57,8 +71,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = BisectEngine.recordProbeAnswer(session, probeId, selectedOptionId);
-    const dagEngine = store.getDagEngine();
+    const result = BisectEngine.recordProbeAnswer(session, probeId, selectedOptionId, sessionId);
+    const dagEngine = store.getDagEngine(sessionId);
     const rootConcept = result.session.likelyRootGapId
       ? dagEngine.getConcept(result.session.likelyRootGapId)
       : undefined;

@@ -1,282 +1,250 @@
-import { Misconception, ResponseType } from "../types";
+import { ResponseType, Misconception, Concept, ConceptEdge, DiagnosticProbe, InterventionContent, ReTestAssessment } from "../types/index";
 import { callGemini } from "./gemini";
+import { analyzeDomainTopic, AnalyzedDomainResult, toId, toCleanName } from "./domainAnalyzer";
 
-export interface AnalysisResult {
-  hasMisconception: boolean;
-  misconception?: Misconception;
-  normalizedReasoning: string;
-  confidence: number;
-  extractedIndicators: string[];
-}
+export interface AnalysisResult extends AnalyzedDomainResult {}
 
 export async function analyzeStudentResponse(
-  conceptId: string,
+  conceptIdOrTopic: string,
   questionText: string,
   responseType: ResponseType,
-  rawContent: string
+  rawContent: string,
+  conceptName?: string,
+  codeContent?: string
 ): Promise<AnalysisResult> {
   const content = rawContent.trim();
-  const lower = content.toLowerCase();
+  const topic = conceptName || toCleanName(conceptIdOrTopic);
 
-  // Try live Gemini API first if configured
-  const prompt = `
-You are ARCHAIA, an expert cognitive diagnostic engine for Computer Science education.
-A student answered the following question on concept "${conceptId}":
-Question: "${questionText}"
+  // 1. Try Gemini API first if configured
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (apiKey && apiKey.trim() !== "") {
+    const prompt = `
+You are ARCHAIA, an expert cognitive diagnostic engine for Computer Science and Software Engineering.
+Analyze the following student response for deep conceptual misconceptions vs formal computing reality.
+
+Topic / Concept: "${topic}"
+Question / Problem: "${questionText}"
 Response Type: ${responseType}
-Student Answer: "${content}"
+Student Content: "${content}"
+${codeContent ? `Submitted Code:\n${codeContent}\n` : ""}
 
-Analyze if the student exhibits a fundamental conceptual misconception.
-DO NOT just classify as right or wrong. Contrast their underlying mental model against formal computing reality.
-Respond in valid JSON format:
+Evaluate whether the student exhibits an inaccurate mental model.
+DO NOT provide generic or superficial classification. Contrast their underlying assumption against formal system invariants.
+Return ONLY valid JSON matching this schema:
 {
   "hasMisconception": boolean,
   "misconceptionName": string,
   "description": string,
   "studentAssumption": string,
   "formalReality": string,
-  "affectedConcepts": string[],
-  "confidence": number,
   "evidence": string,
-  "normalizedReasoning": string,
-  "extractedIndicators": string[]
+  "explanation": string,
+  "masteryScore": number,
+  "confidence": number,
+  "extractedIndicators": string[],
+  "affectedConcepts": string[],
+  "concepts": [
+    {
+      "id": string,
+      "name": string,
+      "category": string,
+      "description": string,
+      "prerequisites": string[],
+      "difficulty": "beginner" | "intermediate" | "advanced",
+      "estimatedMinutes": number
+    }
+  ],
+  "edges": [
+    {
+      "from": string,
+      "to": string,
+      "rationale": string
+    }
+  ],
+  "bisectProbes": [
+    {
+      "id": string,
+      "conceptId": string,
+      "targetConceptId": string,
+      "question": string,
+      "options": [
+        { "id": string, "text": string, "isCorrect": boolean, "indicator": string }
+      ],
+      "invariantTested": string,
+      "rationale": string
+    }
+  ],
+  "recovery": {
+    "rootConceptId": string,
+    "title": string,
+    "explanation": string,
+    "counterexample": {
+      "title": string,
+      "code": string,
+      "expectedOutput": string,
+      "actualOutput": string,
+      "mentalModelExplanation": string
+    },
+    "microPuzzle": {
+      "question": string,
+      "codeSnippet": string,
+      "options": string[],
+      "correctIndex": number,
+      "explanation": string
+    },
+    "codeExercise": {
+      "instructions": string,
+      "initialCode": string,
+      "expectedPattern": string,
+      "solutionCode": string,
+      "hints": string[]
+    },
+    "industryBlastRadius": {
+      "incidentTitle": string,
+      "organizationType": string,
+      "outageDescription": string,
+      "howMisconceptionCausesIt": string,
+      "illustrativeNote": string
+    },
+    "retest": {
+      "question": string,
+      "options": [
+        { "id": string, "text": string, "isCorrect": boolean, "feedback": string }
+      ]
+    }
+  }
 }
 `;
 
-  const geminiText = await callGemini({
-    prompt,
-    systemInstruction: "You are ARCHAIA Cognitive Analyzer. Return ONLY raw JSON without markdown fences.",
-  });
-
-  if (geminiText) {
     try {
-      const cleanJson = geminiText.replace(/```json/g, "").replace(/```/g, "").trim();
-      const parsed = JSON.parse(cleanJson);
-      if (parsed.hasMisconception) {
-        const misconception: Misconception = {
-          id: "misc_" + Date.now(),
-          conceptId,
-          name: parsed.misconceptionName || "Recursive Context Replacement",
-          description: parsed.description || "Misunderstanding runtime activation records.",
-          studentAssumption: parsed.studentAssumption || "Recursive calls overwrite caller state.",
-          formalReality: parsed.formalReality || "Each invocation maintains an independent stack frame.",
-          affectedConcepts: parsed.affectedConcepts || [conceptId, "recursion", "call_stack"],
-          confidence: parsed.confidence || 92,
-          evidence: parsed.evidence || content,
-        };
-        return {
-          hasMisconception: true,
-          misconception,
-          normalizedReasoning: parsed.normalizedReasoning || content,
-          confidence: parsed.confidence || 92,
-          extractedIndicators: parsed.extractedIndicators || ["Context replacement indicator"],
-        };
+      const geminiText = await callGemini({
+        prompt,
+        systemInstruction: "You are the ARCHAIA Cognitive Analyzer. Return ONLY raw JSON without markdown formatting or code fences.",
+      });
+
+      if (geminiText) {
+        const cleanJson = geminiText.replace(/```json/g, "").replace(/```/g, "").trim();
+        const parsed = JSON.parse(cleanJson);
+
+        if (parsed.concepts && parsed.concepts.length > 0) {
+          const rootConceptId = parsed.recovery?.rootConceptId || parsed.concepts[0].id;
+          const targetConceptId = toId(topic);
+
+          const misconception: Misconception | undefined = parsed.hasMisconception
+            ? {
+                id: "misc_" + Date.now(),
+                conceptId: targetConceptId,
+                name: parsed.misconceptionName || `${topic} Conceptual Misconception`,
+                description: parsed.description || `Inaccurate mental model regarding ${topic}.`,
+                studentAssumption: parsed.studentAssumption || content,
+                formalReality: parsed.formalReality || `Formal specification for ${topic}.`,
+                affectedConcepts: parsed.affectedConcepts || [targetConceptId, rootConceptId],
+                confidence: parsed.confidence || 90,
+                evidence: parsed.evidence || `Student stated: "${content.substring(0, 140)}"`,
+              }
+            : undefined;
+
+          const recoveryIntervention: InterventionContent = {
+            id: `recovery_${rootConceptId}`,
+            rootConceptId,
+            targetConceptId,
+            title: parsed.recovery?.title || `${topic}: Invariant Remediation`,
+            explanation: parsed.recovery?.explanation || parsed.formalReality,
+            visualMemoryModel: {
+              type: "timeline",
+              title: `${topic} Execution Timeline`,
+              description: "System state transition sequence.",
+              frames: [
+                {
+                  step: 1,
+                  label: "Initial State",
+                  stackFrames: ["Context active"],
+                  activeLine: 1,
+                  explanation: "Preconditions established.",
+                },
+                {
+                  step: 2,
+                  label: "State Transition",
+                  stackFrames: ["Processing transition"],
+                  activeLine: 2,
+                  explanation: "Invariant evaluated.",
+                },
+              ],
+            },
+            counterexample: parsed.recovery?.counterexample || {
+              title: `Counterexample in ${topic}`,
+              code: `// Demonstrating invariant contract in ${topic}`,
+              expectedOutput: "Expected state",
+              actualOutput: "Observed state",
+              mentalModelExplanation: parsed.formalReality,
+            },
+            microPuzzle: parsed.recovery?.microPuzzle || {
+              question: `In ${topic}, what is the foundational contract?`,
+              options: ["Arbitrary state mutation", "Strict invariant preservation", "Ignore boundary conditions"],
+              correctIndex: 1,
+              explanation: "Preserving invariants guarantees correctness.",
+            },
+            codeExercise: parsed.recovery?.codeExercise || {
+              instructions: `Refactor the code to respect ${topic} guarantees.`,
+              initialCode: `// Fix implementation for ${topic}`,
+              expectedPattern: "return",
+              solutionCode: `// Solution for ${topic}`,
+              hints: ["Enforce boundary verification."],
+            },
+            industryBlastRadius: parsed.recovery?.industryBlastRadius || {
+              incidentTitle: `Production Outage in ${topic}`,
+              organizationType: "Distributed Services",
+              outageDescription: `Inconsistent state handling in ${topic} led to downstream service disruption.`,
+              howMisconceptionCausesIt: "Unverified assumptions allowed anomalous state transitions to occur.",
+              illustrativeNote: `Real-world impact: Understanding ${topic} prevents production failures.`,
+            },
+          };
+
+          const retestAssessment: ReTestAssessment = {
+            id: `retest_${rootConceptId}`,
+            conceptId: rootConceptId,
+            question: parsed.recovery?.retest?.question || `What is the key invariant guarantee in ${topic}?`,
+            options: parsed.recovery?.retest?.options || [
+              {
+                id: "opt_correct",
+                text: parsed.formalReality,
+                isCorrect: true,
+                feedback: "Correct! You have mastered the invariant.",
+              },
+              {
+                id: "opt_flawed",
+                text: parsed.studentAssumption,
+                isCorrect: false,
+                feedback: "Incorrect. That reflects the original misconception.",
+              },
+            ],
+          };
+
+          return {
+            hasMisconception: parsed.hasMisconception ?? true,
+            misconception,
+            masteryScore: parsed.masteryScore ?? (parsed.hasMisconception ? 45 : 92),
+            explanation: parsed.explanation || (parsed.hasMisconception ? parsed.description : "Accurate understanding."),
+            evidence: parsed.evidence || `Student stated: "${content.substring(0, 140)}"`,
+            studentAssumption: parsed.studentAssumption || content,
+            formalReality: parsed.formalReality || `Formal rules of ${topic}.`,
+            normalizedReasoning: parsed.normalizedReasoning || content,
+            confidence: parsed.confidence || 90,
+            extractedIndicators: parsed.extractedIndicators || ["Domain invariants evaluated"],
+            affectedConcepts: parsed.affectedConcepts || [targetConceptId],
+            concepts: parsed.concepts,
+            edges: parsed.edges || [],
+            bisectProbes: parsed.bisectProbes || [],
+            recoveryIntervention,
+            retestAssessment,
+          };
+        }
       }
     } catch (e) {
-      console.warn("Failed to parse Gemini response JSON, utilizing deterministic cognitive heuristic:", e);
+      console.warn("Gemini analysis parse error, utilizing deterministic domain synthesizer:", e);
     }
   }
 
-  // Deterministic Multi-Scenario Cognitive Heuristics Engine
-
-  // Check 1: Student has an ACCURATE Mental Model (No Misconception)
-  const isSoundExplanation =
-    (lower.includes("stack frame") || lower.includes("activation record") || lower.includes("call stack")) &&
-    (lower.includes("pause") || lower.includes("suspend") || lower.includes("resume") || lower.includes("return") || lower.includes("preserve") || lower.includes("lifo"));
-
-  const isSoundAliasing =
-    (lower.includes("reference") || lower.includes("address") || lower.includes("pointer")) &&
-    (lower.includes("same") || lower.includes("mutate") || lower.includes("affects both") || lower.includes("shallow"));
-
-  const isExplicitlyCorrect =
-    lower.includes("resumes its loop") ||
-    lower.includes("continues to the next neighbor") ||
-    lower.includes("pushed onto the stack") ||
-    lower.includes("does not overwrite") ||
-    lower.includes("does not replace") ||
-    lower.includes("isolated in memory") ||
-    lower.includes("each invocation maintains") ||
-    lower.includes("queued in the microtask") ||
-    lower.includes("independent stack frame");
-
-  if (isSoundExplanation || isSoundAliasing || isExplicitlyCorrect) {
-    return {
-      hasMisconception: false,
-      normalizedReasoning: "The learner exhibits an accurate, verified mental model aligned with formal runtime computing reality.",
-      confidence: 96,
-      extractedIndicators: [
-        "Accurate execution invariant preserved",
-        "Correct understanding of runtime memory boundaries",
-      ],
-    };
-  }
-
-  // Check 2: Reference vs Value / Aliasing Fallacy
-  if (
-    lower.includes("copy") ||
-    lower.includes("visited_copy") ||
-    lower.includes("clone") ||
-    lower.includes("duplicate") ||
-    lower.includes("independent memory") ||
-    lower.includes("will not mutate original") ||
-    lower.includes("separate array") ||
-    conceptId === "memory_allocation"
-  ) {
-    const misconception: Misconception = {
-      id: "pass_by_val_aliasing",
-      conceptId: "memory_allocation",
-      name: "Object Reference Aliasing Fallacy",
-      description: "Believing that assigning an array or object to a new variable creates an isolated duplicate in memory.",
-      studentAssumption: "Writing `let copy = visited` duplicates the array so modifications to `copy` will not mutate `visited`.",
-      formalReality: "In modern programming runtimes, object and array variables store memory references. Assigning a reference copies only the memory address pointing to the same heap structure.",
-      affectedConcepts: ["memory_allocation", "functions_context", conceptId !== "memory_allocation" ? conceptId : "graph_traversal"],
-      confidence: 93,
-      evidence: `Student asserted: "${content.substring(0, 140)}"`,
-    };
-
-    return {
-      hasMisconception: true,
-      misconception,
-      normalizedReasoning: "The learner confuses variable reference assignment with deep value copying.",
-      confidence: 93,
-      extractedIndicators: [
-        "Confuses reference copy with deep clone",
-        "Assumes separate heap memory addresses",
-      ],
-    };
-  }
-
-  // Check 3: Asynchronous Event Loop & Concurrency Fallacy
-  if (
-    lower.includes("async") ||
-    lower.includes("promise") ||
-    lower.includes("await") ||
-    lower.includes("thread") ||
-    lower.includes("parallel") ||
-    conceptId.includes("async") ||
-    conceptId.includes("event_loop")
-  ) {
-    const misconception: Misconception = {
-      id: "async_blocking_fallacy",
-      conceptId: conceptId,
-      name: "Asynchronous Execution Sequencing Fallacy",
-      description: "Assuming that asynchronous promises execute synchronously or create background OS threads that block the main event loop.",
-      studentAssumption: "Asynchronous tasks run immediately in sequence or interrupt the synchronous call stack mid-execution.",
-      formalReality: "JavaScript runtimes utilize a single-threaded Event Loop with a Call Stack and a Microtask Queue. Asynchronous callbacks wait in the queue until the Call Stack completely unwinds to 0 frames.",
-      affectedConcepts: [conceptId, "call_stack", "functions_context"],
-      confidence: 91,
-      evidence: `Student stated: "${content.substring(0, 140)}"`,
-    };
-
-    return {
-      hasMisconception: true,
-      misconception,
-      normalizedReasoning: "The learner models asynchronous scheduling as synchronous preemptive multi-threading.",
-      confidence: 91,
-      extractedIndicators: [
-        "Assumes synchronous immediate resolution",
-        "Overlooks Microtask Queue event-loop mechanics",
-      ],
-    };
-  }
-
-  // Check 4: Lexical Scope & Closure Leakage Fallacy
-  if (
-    lower.includes("global") ||
-    lower.includes("leak") ||
-    lower.includes("shadow") ||
-    lower.includes("shared across all") ||
-    conceptId === "functions_context"
-  ) {
-    const misconception: Misconception = {
-      id: "scope_leak_fallacy",
-      conceptId: "functions_context",
-      name: "Lexical Scope Permeability Fallacy",
-      description: "Believing that inner or sibling function invocations can arbitrarily mutate outer local variables without reference passing.",
-      studentAssumption: "Local variables declared inside a function are globally mutable across sibling execution scopes.",
-      formalReality: "Lexical environments strictly encapsulate local variables. Unless closed over or explicitly passed, outer activation frames remain immutable to sibling calls.",
-      affectedConcepts: ["functions_context", "call_stack", conceptId],
-      confidence: 89,
-      evidence: `Student reasoned: "${content.substring(0, 140)}"`,
-    };
-
-    return {
-      hasMisconception: true,
-      misconception,
-      normalizedReasoning: "The learner lacks understanding of lexical scope isolation and activation boundaries.",
-      confidence: 89,
-      extractedIndicators: [
-        "Believes local variables permeate caller scopes",
-        "Lacks lexical environment boundary model",
-      ],
-    };
-  }
-
-  // Check 5: Recursive Context Replacement & Frame Overwrite
-  const hasReplacementKeywords =
-    lower.includes("replace") ||
-    lower.includes("overwrite") ||
-    lower.includes("cannot go back") ||
-    lower.includes("forgets") ||
-    lower.includes("exit") ||
-    lower.includes("lost") ||
-    lower.includes("terminate") ||
-    lower.includes("destroys");
-
-  if (
-    hasReplacementKeywords ||
-    conceptId === "graph_traversal" ||
-    conceptId === "recursion" ||
-    conceptId === "tree_traversal" ||
-    conceptId === "call_stack"
-  ) {
-    const cleanConceptName = conceptId.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-    const misconception: Misconception = {
-      id: "rec_context_replace",
-      conceptId: conceptId,
-      name: `${cleanConceptName} Execution State Replacement`,
-      description: `Believing that a sub-routine or recursive invocation overwrites or replaces the caller's execution environment in ${cleanConceptName}.`,
-      studentAssumption: "When child execution begins, it replaces the current function frame. Once the child completes, the caller loses its loop position or variable state.",
-      formalReality: "Each invocation pushes an independent activation record onto the Call Stack. The parent invocation remains paused in memory and seamlessly resumes execution when the child returns.",
-      affectedConcepts: [conceptId, "recursion", "call_stack"],
-      confidence: 94,
-      evidence: `Student stated: "${content.substring(0, 140)}"`,
-    };
-
-    return {
-      hasMisconception: true,
-      misconception,
-      normalizedReasoning: "The learner models execution as a single mutating state register rather than a stack of isolated activation frames.",
-      confidence: 94,
-      extractedIndicators: [
-        "Believes child execution destroys parent local scope",
-        "Lacks mental model of stack unwinding and resumption",
-      ],
-    };
-  }
-
-  // Check 6: Dynamic General Misconception for Any Custom User Input
-  const cleanConcept = conceptId.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-  const customMisconception: Misconception = {
-    id: `misc_${conceptId}_${Date.now()}`,
-    conceptId: conceptId,
-    name: `${cleanConcept} Runtime Boundary Invariant Violation`,
-    description: `Misunderstanding the underlying hardware/runtime memory lifecycle and boundary contracts during ${cleanConcept} execution.`,
-    studentAssumption: content.length > 120 ? content.substring(0, 120) + "..." : content,
-    formalReality: `In formal computing execution, ${cleanConcept} operates under deterministic memory isolation. State transitions do not destructively alter preceding frames without explicit references.`,
-    affectedConcepts: [conceptId, "call_stack", "memory_allocation"],
-    confidence: 88,
-    evidence: `Student submitted: "${content.substring(0, 140)}"`,
-  };
-
-  return {
-    hasMisconception: true,
-    misconception: customMisconception,
-    normalizedReasoning: `Analysis of student input on ${cleanConcept} reveals an underlying discrepancy between operational intuition and runtime memory semantics.`,
-    confidence: 88,
-    extractedIndicators: [
-      "Procedural state assumption conflicts with runtime invariants",
-      "Prerequisite memory boundary validation required",
-    ],
-  };
+  // 2. High-Fidelity Domain-Aware Cognitive Synthesizer
+  return analyzeDomainTopic(topic, questionText, content, codeContent);
 }

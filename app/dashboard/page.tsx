@@ -275,9 +275,11 @@ export default function DashboardPage() {
             <TrendingUp className="w-4 h-4 text-blue-400" />
           </div>
           <div className="text-2xl sm:text-3xl font-bold font-sans text-white">
-            {metrics ? `${metrics.overallMasteryPercentage}%` : "62%"}
+            {metrics ? `${metrics.overallMasteryPercentage}%` : "--"}
           </div>
-          <div className="text-[11px] text-slate-400">Across 7 core CS concepts</div>
+          <div className="text-[11px] text-slate-400">
+            {metrics && metrics.totalConcepts > 0 ? `Across ${metrics.totalConcepts} active concepts` : "No diagnostic completed yet"}
+          </div>
         </div>
 
         <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2">
@@ -286,9 +288,11 @@ export default function DashboardPage() {
             <AlertOctagon className="w-4 h-4 text-rose-400" />
           </div>
           <div className="text-2xl sm:text-3xl font-bold font-sans text-rose-400">
-            {metrics ? metrics.activeMisconceptions.length : 1}
+            {metrics ? metrics.activeMisconceptions.length : 0}
           </div>
-          <div className="text-[11px] text-slate-400">Isolated for Cognitive Bisect</div>
+          <div className="text-[11px] text-slate-400">
+            {metrics && metrics.activeMisconceptions.length > 0 ? "Isolated for Cognitive Bisect" : "No active cognitive bugs"}
+          </div>
         </div>
 
         <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2">
@@ -297,9 +301,11 @@ export default function DashboardPage() {
             <CheckCircle className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-2xl sm:text-3xl font-bold font-sans text-emerald-400">
-            {metrics ? metrics.masteredCount : 2}
+            {metrics ? metrics.masteredCount : 0}
           </div>
-          <div className="text-[11px] text-slate-400">Solid mental models verified</div>
+          <div className="text-[11px] text-slate-400">
+            {metrics && metrics.masteredCount > 0 ? "Solid mental models verified" : "Start diagnostic to verify"}
+          </div>
         </div>
 
         <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2">
@@ -308,11 +314,12 @@ export default function DashboardPage() {
             <HeartPulse className="w-4 h-4 text-amber-400" />
           </div>
           <div className="text-2xl sm:text-3xl font-bold font-sans text-amber-400">
-            {metrics ? `${metrics.recoverySuccessRate}%` : "100%"}
+            {metrics && metrics.recoveredCount > 0 ? `${metrics.recoverySuccessRate}%` : "--"}
           </div>
           <div className="text-[11px] text-slate-400">Post-intervention re-test rate</div>
         </div>
       </div>
+
 
       {/* Main Content Split: Active Misconceptions vs Recommended Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
