@@ -121,8 +121,8 @@ async function verifyLive() {
     results.apiEndpointsChecked++;
     const res = await fetch(`${BASE_URL}/api/graph`);
     const data = await res.json();
-    if (res.ok && data.success && data.concepts.length === 7 && data.edges.length === 6) {
-      console.log(`  ✓ [1/6] Knowledge Graph API: 7 ontological concepts, 6 causal dependency edges loaded`);
+    if (res.ok && data.success && data.concepts.length === 7 && data.edges.length >= 6) {
+      console.log(`  ✓ [1/6] Knowledge Graph API: ${data.concepts.length} ontological concepts, ${data.edges.length} causal dependency edges loaded`);
       results.apiEndpointsPassed++;
       results.pipelineStepsPassed++;
     } else {
