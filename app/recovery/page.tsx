@@ -123,20 +123,21 @@ export default function RecoveryPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      const initialConcept = params.get("conceptId") || undefined;
+      const initialConcept = params.get("conceptId") || "call_stack";
       const targetParam = params.get("fromTarget");
       const urlSession = params.get("sessionId");
       const storedSession = sessionStorage.getItem("archaia_session_id");
       const resolvedSession =
         (urlSession && urlSession.trim().length > 0 ? urlSession.trim() : null) ||
-        (storedSession && storedSession.trim().length > 0 ? storedSession.trim() : null);
+        (storedSession && storedSession.trim().length > 0 ? storedSession.trim() : null) ||
+        "demo_dfs";
 
       if (targetParam) setFromTarget(targetParam);
       if (resolvedSession) {
         setSessionId(resolvedSession);
         sessionStorage.setItem("archaia_session_id", resolvedSession);
       }
-      loadConceptRecovery(initialConcept, resolvedSession || undefined);
+      loadConceptRecovery(initialConcept, resolvedSession);
     }
   }, []);
 

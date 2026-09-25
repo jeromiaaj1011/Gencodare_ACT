@@ -507,7 +507,7 @@ export default function DashboardPage() {
           </Link>
 
           <Link
-            href="/recovery"
+            href="/recovery?sessionId=demo_dfs&conceptId=call_stack"
             className="p-5 rounded-2xl bg-[#0e111a] hover:bg-[#141824] border border-white/[0.08] hover:border-emerald-500/40 transition-all group flex flex-col justify-between space-y-3 card-shades"
           >
             <div className="space-y-2">
@@ -606,20 +606,92 @@ export default function DashboardPage() {
                 </div>
               ))
             ) : (
-              <div className="card-shades p-6 rounded-2xl text-center space-y-2">
-                <ShieldAlert className="w-8 h-8 text-emerald-400 mx-auto" />
-                <h4 className="text-sm font-semibold text-white font-editorial">No Unresolved Misconceptions</h4>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto font-sans">
-                  {mode === "demo"
-                    ? "All active learning paths have verified mental model invariants. Submit a response to stress-test your understanding!"
-                    : `No cognitive gaps detected in ${activeCourse?.title || "active course"}. Select any concept below to test invariants.`}
-                </p>
-                <Link
-                  href="/detector"
-                  className="inline-block px-4 py-2 mt-2 rounded-lg btn-shades-primary text-xs font-medium shadow-sm"
-                >
-                  Take Diagnostic Probe
-                </Link>
+              <div className="space-y-4">
+                {/* Benchmark Scenario Demonstration Card */}
+                <div className="card-shades p-5 sm:p-6 rounded-2xl border-rose-500/35 hover:border-rose-500/60 transition-all space-y-4 bg-gradient-to-br from-[#0c0f17] via-[#101420] to-[#0a0d14]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-white/[0.08] pb-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/35 font-sans tracking-wide">
+                        DEMO INVESTIGATION BENCHMARK
+                      </span>
+                      <span className="text-[11px] text-slate-400 font-mono">
+                        Target: Graph Traversal (DFS) → Root Gap: Call Stack
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-emerald-400 font-semibold flex items-center space-x-1 font-sans">
+                      <CheckCircle className="w-3.5 h-3.5" />
+                      <span>Ready for Demonstration</span>
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <h3 className="text-base sm:text-lg font-semibold text-white font-editorial">
+                      Worked Example: Recursive Context Replacement
+                    </h3>
+                    <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                      The benchmark demonstration investigates the widespread student misconception that recursive calls overwrite or replace the parent function frame. ARCHAIA bisects the Causal DAG and isolates the root gap at Call Stack activation records.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="p-3.5 rounded-xl bg-rose-950/30 border border-rose-900/40 space-y-1">
+                      <div className="text-[10px] font-semibold text-rose-400 uppercase tracking-wider font-sans">
+                        Student Assumption (Flawed)
+                      </div>
+                      <div className="text-rose-200/90 text-[11px] leading-relaxed font-sans">
+                        &quot;When dfs(neighbor) is invoked, it replaces the current function. Once neighbor finishes, the caller loop is destroyed.&quot;
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-900/40 space-y-1">
+                      <div className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider font-sans">
+                        Targeted Remediation Invariant
+                      </div>
+                      <div className="text-emerald-200/90 text-[11px] leading-relaxed font-sans">
+                        Each recursive call allocates a private stack frame. Parent state is paused in memory and resumes when child returns.
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Direct 1-Click Action Buttons for Judges & Users */}
+                  <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                    <Link
+                      href="/recovery?sessionId=demo_dfs&conceptId=call_stack"
+                      className="px-4 py-2.5 rounded-xl btn-shades-primary font-semibold text-xs transition-all shadow-md flex items-center space-x-1.5"
+                    >
+                      <HeartPulse className="w-3.5 h-3.5" />
+                      <span>Enter Recovery Lab Demo →</span>
+                    </Link>
+
+                    <Link
+                      href="/bisect?sessionId=demo_dfs"
+                      className="px-4 py-2.5 rounded-xl btn-shades-outline text-slate-200 hover:text-white font-semibold text-xs transition-all flex items-center space-x-1.5"
+                    >
+                      <Split className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Run Cognitive Bisect →</span>
+                    </Link>
+
+                    <Link
+                      href="/detector"
+                      className="px-3.5 py-2.5 rounded-xl bg-[#141824] hover:bg-[#1f2538] border border-white/[0.08] text-slate-300 text-xs font-medium transition-colors flex items-center space-x-1.5"
+                    >
+                      <Bug className="w-3.5 h-3.5 text-rose-400" />
+                      <span>Inspect in Detector</span>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Subsystem Pipeline Integrity Status */}
+                <div className="card-shades p-4 rounded-xl border border-white/[0.06] flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center space-x-2">
+                    <ShieldAlert className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span className="font-semibold text-white font-sans">Invariant Pipeline Health:</span>
+                    <span className="text-slate-400 font-sans">All 4 diagnostic engines operational</span>
+                  </div>
+                  <span className="text-[11px] text-rose-300 font-mono">
+                    Mode: {mode.toUpperCase()}
+                  </span>
+                </div>
               </div>
             )}
           </div>

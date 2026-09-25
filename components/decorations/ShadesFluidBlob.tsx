@@ -59,19 +59,19 @@ export default function ShadesFluidBlob({
     return (
       <div
         aria-hidden="true"
-        className={`pointer-events-none absolute -bottom-20 -left-20 z-0 overflow-hidden ${className}`}
+        className={`pointer-events-none absolute -bottom-24 -left-24 z-0 overflow-hidden ${className}`}
       >
         <div
-          className={`w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] rounded-full blur-[75px] sm:blur-[95px] opacity-70 mix-blend-screen ${
+          className={`w-[280px] h-[280px] sm:w-[380px] sm:h-[380px] rounded-full blur-[90px] sm:blur-[110px] opacity-20 sm:opacity-25 mix-blend-screen ${
             animated ? "shades-blob-pulse" : ""
           }`}
           style={{
             background:
-              "radial-gradient(circle at 60% 60%, #fecdd3 0%, #f43f5e 30%, #be123c 60%, #4c0519 80%, transparent 95%)",
+              "radial-gradient(circle at 50% 50%, rgba(251,113,133,0.5) 0%, rgba(225,29,72,0.35) 40%, rgba(76,5,25,0.2) 75%, transparent 95%)",
           }}
         />
         <svg
-          className="absolute -bottom-10 -left-10 w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] opacity-50 mix-blend-screen"
+          className="absolute -bottom-10 -left-10 w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] opacity-15 mix-blend-screen"
           viewBox="0 0 400 400"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -79,13 +79,13 @@ export default function ShadesFluidBlob({
           <path
             d="M80,320 C30,260 20,150 70,80 C120,10 240,20 310,80 C380,140 370,260 300,320 C230,380 130,380 80,320 Z"
             fill="url(#coralGradCornerBL)"
-            filter="blur(32px)"
+            filter="blur(40px)"
           />
           <defs>
             <radialGradient id="coralGradCornerBL" cx="60%" cy="60%" r="65%">
-              <stop offset="0%" stopColor="#fecdd3" />
-              <stop offset="40%" stopColor="#fb7185" />
-              <stop offset="75%" stopColor="#e11d48" />
+              <stop offset="0%" stopColor="#fecdd3" stopOpacity="0.4" />
+              <stop offset="40%" stopColor="#fb7185" stopOpacity="0.3" />
+              <stop offset="75%" stopColor="#e11d48" stopOpacity="0.15" />
               <stop offset="100%" stopColor="#300311" stopOpacity="0" />
             </radialGradient>
           </defs>
