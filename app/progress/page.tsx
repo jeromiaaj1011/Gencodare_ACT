@@ -24,6 +24,7 @@ import {
 import { Concept, LearnerConceptState, LearningProgressMetrics } from "@/lib/types";
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
 import ContentModeBanner from "@/components/mode/ContentModeBanner";
+import ShadesFluidBlob from "@/components/decorations/ShadesFluidBlob";
 
 // Animated counter helper that smoothly counts up to target real value
 function CountUpNumber({ end, suffix = "" }: { end: number; suffix?: string }) {
@@ -247,29 +248,28 @@ export default function ProgressPage() {
         </div>
       )}
 
-      {/* Header */}
+      {/* Header with Editorial Presentation Typography */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2">
-            <LineChart className="w-5 h-5 text-blue-400" />
-            <h1 className="text-2xl font-bold text-white tracking-tight">
-              Learning Progress & Adaptive Path (Step 4)
-            </h1>
-          </div>
-          <p className="text-xs text-slate-400 mt-1 font-sans">
+        <div className="space-y-1">
+          <span className="shades-subtitle text-rose-300/80">04. STAGE FOUR • ADAPTIVE ROADMAP</span>
+          <h1 className="font-editorial text-2xl sm:text-3xl font-medium text-white flex items-center space-x-2.5">
+            <LineChart className="w-6 h-6 text-rose-400" />
+            <span>Learning Progress & Adaptive Path</span>
+          </h1>
+          <p className="text-xs text-slate-300 font-sans">
             Longitudinal cognitive recovery analytics. Recalibrates personalized sequences as prerequisite invariants are restored.
           </p>
         </div>
 
         <div className="flex items-center space-x-2">
           {sessionId === "demo_dfs" && (
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/35">
               Demo Session
             </span>
           )}
           <Link
             href={sessionId ? `/graph?sessionId=${encodeURIComponent(sessionId)}` : "/graph"}
-            className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white text-xs font-medium transition-colors btn-interactive-subtle"
+            className="flex items-center space-x-2 px-4 py-2 rounded-xl btn-shades-outline text-white text-xs font-medium transition-colors"
           >
             <span>View Updated DAG Map →</span>
           </Link>

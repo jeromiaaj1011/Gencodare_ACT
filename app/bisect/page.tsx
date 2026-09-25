@@ -25,6 +25,7 @@ import {
 import { BisectSession, Concept } from "@/lib/types";
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
 import ContentModeBanner from "@/components/mode/ContentModeBanner";
+import ShadesFluidBlob from "@/components/decorations/ShadesFluidBlob";
 
 export default function BisectPage() {
   const [session, setSession] = useState<BisectSession | null>(null);
@@ -148,29 +149,28 @@ export default function BisectPage() {
       {/* Mode Indicator & Switcher Banner */}
       <ContentModeBanner onModeChange={() => fetchSession()} />
 
-      {/* Header */}
+      {/* Header with Editorial Presentation Typography */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2">
-            <Split className="w-5 h-5 text-amber-400" />
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">
-              Cognitive Bisect Investigation (Step 2)
-            </h1>
-          </div>
-          <p className="text-xs text-slate-400 mt-1 font-sans">
+        <div className="space-y-1">
+          <span className="shades-subtitle text-rose-300/80">02. STAGE TWO • PREREQUISITE BISECT</span>
+          <h1 className="font-editorial text-2xl sm:text-3xl font-medium text-white flex items-center space-x-2.5">
+            <Split className="w-6 h-6 text-amber-400" />
+            <span>Cognitive Bisect Investigation</span>
+          </h1>
+          <p className="text-xs text-slate-300 font-sans">
             Algorithmic prerequisite fault isolation over the Causal Knowledge Graph. Issues targeted invariant micro-probes to isolate the Likely Root Gap.
           </p>
         </div>
 
         <div className="flex items-center space-x-2">
           {sessionId === "demo_dfs" && (
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/35">
               Demo Investigation
             </span>
           )}
           <button
             onClick={() => fetchSession()}
-            className="p-1.5 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-400 hover:text-white btn-interactive-subtle"
+            className="p-2 rounded-lg bg-[#11141e] hover:bg-[#181c28] border border-white/[0.08] text-slate-400 hover:text-white transition-colors"
             title="Refresh Bisect Session"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />

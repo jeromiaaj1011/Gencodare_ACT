@@ -4,46 +4,89 @@
 
 @layer base {
   body {
-    @apply bg-archaia-darker text-archaia-text min-h-screen font-sans antialiased selection:bg-archaia-primary selection:text-white;
+    @apply bg-shades-obsidian text-archaia-text min-h-screen font-sans antialiased selection:bg-shades-coral selection:text-white;
+  }
+
+  h1, h2, h3 {
+    @apply tracking-tight;
   }
 }
 
-/* Custom scrollbars */
+/* Custom scrollbars matching obsidian palette */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #06070a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #181c28;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #282f42;
 }
 
-/* Subtle Ambient Background Pulse */
-@keyframes ambientGlowPulse {
+/* Editorial Serif & Presentation Typography */
+.font-editorial {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+}
+
+.shades-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+
+.shades-subtitle {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+/* 3D Organic Fluid Mesh Keyframes & Classes ("Shades That Inspire") */
+@keyframes shadesBlobMorph {
   0%, 100% {
-    opacity: 0.28;
+    border-radius: 58% 42% 64% 36% / 46% 54% 46% 54%;
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  33% {
+    border-radius: 64% 36% 48% 52% / 54% 42% 58% 46%;
+    transform: translate(-4px, 6px) scale(1.02) rotate(1.5deg);
+  }
+  66% {
+    border-radius: 48% 52% 68% 32% / 38% 62% 38% 62%;
+    transform: translate(6px, -4px) scale(0.985) rotate(-1.5deg);
+  }
+}
+
+@keyframes shadesBlobGlowPulse {
+  0%, 100% {
+    opacity: 0.55;
     transform: scale(1);
   }
   50% {
-    opacity: 0.38;
-    transform: scale(1.025);
+    opacity: 0.75;
+    transform: scale(1.05);
   }
 }
 
-.ambient-pulse {
-  animation: ambientGlowPulse 18s ease-in-out infinite;
+.shades-blob-float {
+  animation: shadesBlobMorph 14s ease-in-out infinite;
 }
 
-/* Logo Entry Shimmer (Single run on entry, restrained) */
+.shades-blob-pulse {
+  animation: shadesBlobGlowPulse 8s ease-in-out infinite;
+}
+
+/* Logo & Serif Shimmer */
 @keyframes brandShimmer {
   0% {
     background-position: -200% 0;
@@ -57,127 +100,124 @@
   background: linear-gradient(
     90deg,
     #ffffff 0%,
-    #ffffff 40%,
-    #93c5fd 50%,
-    #ffffff 60%,
+    #ffffff 35%,
+    #fecdd3 50%,
+    #ffffff 65%,
     #ffffff 100%
   );
   background-size: 200% auto;
   color: transparent;
   -webkit-background-clip: text;
   background-clip: text;
-  animation: brandShimmer 2.4s cubic-bezier(0.16, 1, 0.3, 1) 1;
+  animation: brandShimmer 3s cubic-bezier(0.16, 1, 0.3, 1) 1;
 }
 
-/* Input Focus Glow */
+/* Presentation Deck Cards */
+.card-shades {
+  background: rgba(14, 17, 26, 0.88);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s ease,
+              box-shadow 0.22s ease;
+}
+
+.card-shades:hover {
+  transform: translateY(-2px);
+  border-color: rgba(244, 63, 94, 0.35);
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.65), 0 0 20px -2px rgba(244, 63, 94, 0.2);
+}
+
+/* Interactive Coral / Rose Buttons */
+.btn-shades-primary {
+  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.35), 0 4px 12px rgba(225, 29, 72, 0.25);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.18s ease;
+}
+
+.btn-shades-primary:hover {
+  transform: translateY(-1.5px);
+  filter: brightness(1.08);
+  box-shadow: 0 0 30px rgba(244, 63, 94, 0.55), 0 8px 24px rgba(225, 29, 72, 0.4);
+}
+
+.btn-shades-primary:active {
+  transform: scale(0.97) translateY(0);
+}
+
+.btn-shades-outline {
+  background: rgba(17, 20, 30, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-shades-outline:hover {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.4);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Input Focus Glow in Coral */
 .input-focus-glow {
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .input-focus-glow:focus {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25), 0 0 16px -2px rgba(59, 130, 246, 0.2) !important;
+  border-color: #f43f5e !important;
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.22), 0 0 16px -2px rgba(244, 63, 94, 0.25) !important;
   outline: none;
 }
 
-/* Interactive Motion & Polish System */
-.btn-interactive {
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.18s ease;
+/* Side Metadata Labels (matching presentation slides) */
+.side-metadata-left {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 0.22em;
+  font-size: 9px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
+  user-select: none;
 }
 
-.btn-interactive:hover {
-  transform: translateY(-1.5px);
-  box-shadow: 0 6px 20px -3px rgba(37, 99, 235, 0.4);
+.side-metadata-right {
+  writing-mode: vertical-rl;
+  letter-spacing: 0.22em;
+  font-size: 9px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
+  user-select: none;
 }
 
-.btn-interactive:active {
-  transform: scale(0.97) translateY(0);
+/* Presentation Numbering (01., 02., etc.) */
+.slide-index-serif {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  color: #fb7185;
 }
 
-.btn-interactive-subtle {
-  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease, background-color 0.18s ease;
-}
-
-.btn-interactive-subtle:hover {
-  transform: translateY(-1px);
-}
-
-.btn-interactive-subtle:active {
-  transform: scale(0.98);
-}
-
-/* Dashboard & Metric Cards Interactive 3D Tilt & Elevation */
-.card-interactive {
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease, box-shadow 0.22s ease;
-}
-
-.card-interactive:hover {
-  transform: translateY(-2.5px);
-  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.6), 0 0 16px -4px rgba(59, 130, 246, 0.12);
-}
-
-.card-interactive:hover .number-emphasis {
-  transform: scale(1.035);
-  color: #93c5fd;
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.22s ease;
-}
-
-.number-emphasis {
-  display: inline-block;
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.22s ease;
-}
-
-/* Navigation Item Interactive Polish */
-.nav-item-interactive {
-  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-}
-
-.nav-item-interactive:hover {
-  box-shadow: 0 0 14px -3px rgba(59, 130, 246, 0.15);
-}
-
-.nav-item-interactive:hover .nav-icon {
-  transform: scale(1.1) translateY(-0.5px);
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.nav-icon {
-  transition: transform 0.2s ease;
-}
-
-/* Staggered Entrance Animations */
-.stagger-1 {
-  animation: enterStagger 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.05s;
-}
-
-.stagger-2 {
-  animation: enterStagger 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.12s;
-}
-
-.stagger-3 {
-  animation: enterStagger 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.19s;
-}
-
-.stagger-4 {
-  animation: enterStagger 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.26s;
-}
-
-@keyframes enterStagger {
-  0% {
-    opacity: 0;
-    transform: translateY(8px);
+/* Bar Chart Stagger & Draw */
+@keyframes barGrowVertical {
+  from {
+    transform: scaleY(0);
   }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
+  to {
+    transform: scaleY(1);
   }
 }
 
-/* Line Chart Smooth Drawing */
+.bar-grow {
+  transform-origin: bottom;
+  animation: barGrowVertical 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* SVG Path Draw */
 @keyframes drawStroke {
   to {
     stroke-dashoffset: 0;
@@ -190,13 +230,29 @@
   animation: drawStroke 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Stagger Animations */
+.stagger-1 { animation: enterStagger 0.35s cubic-bezier(0.16, 1, 0.3, 1) both 0.05s; }
+.stagger-2 { animation: enterStagger 0.35s cubic-bezier(0.16, 1, 0.3, 1) both 0.12s; }
+.stagger-3 { animation: enterStagger 0.35s cubic-bezier(0.16, 1, 0.3, 1) both 0.19s; }
+.stagger-4 { animation: enterStagger 0.35s cubic-bezier(0.16, 1, 0.3, 1) both 0.26s; }
+
+@keyframes enterStagger {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-  .btn-interactive,
-  .btn-interactive-subtle,
-  .card-interactive,
-  .nav-item-interactive,
+  .shades-blob-float,
+  .shades-blob-pulse,
   .logo-shimmer,
-  .ambient-pulse,
+  .bar-grow,
   .path-draw,
   .stagger-1,
   .stagger-2,

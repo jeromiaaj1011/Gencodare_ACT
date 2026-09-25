@@ -10,16 +10,15 @@ export default function LoginConceptGraph() {
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* Clean Arrowhead markers */}
           <marker
-            id="arrowBlue"
+            id="arrowRose"
             markerWidth="7"
             markerHeight="7"
             refX="6"
             refY="3.5"
             orient="auto"
           >
-            <polygon points="0 1, 6 3.5, 0 6" fill="#3B82F6" />
+            <polygon points="0 1, 6 3.5, 0 6" fill="#FB7185" />
           </marker>
 
           <marker
@@ -46,19 +45,17 @@ export default function LoginConceptGraph() {
         </defs>
 
         {/* CONNECTING EDGES */}
-        {/* Edge 1: Functions -> Recursion (Top to Center) */}
         <line
           x1="230"
           y1="90"
           x2="230"
           y2="135"
-          stroke="#3B82F6"
+          stroke="#FB7185"
           strokeWidth="1.8"
-          markerEnd="url(#arrowBlue)"
-          opacity="0.85"
+          markerEnd="url(#arrowRose)"
+          opacity="0.9"
         />
 
-        {/* Edge 2: Recursion -> Call Stack (Center to Bottom-Left) */}
         <line
           x1="220"
           y1="175"
@@ -70,19 +67,17 @@ export default function LoginConceptGraph() {
           opacity="0.85"
         />
 
-        {/* Edge 3: Recursion -> Tree Traversal (Center to Bottom-Right) */}
         <line
           x1="240"
           y1="175"
           x2="275"
           y2="215"
-          stroke="#3B82F6"
+          stroke="#FB7185"
           strokeWidth="1.8"
-          markerEnd="url(#arrowBlue)"
+          markerEnd="url(#arrowRose)"
           opacity="0.85"
         />
 
-        {/* Edge 4: Call Stack -> Graph Traversal (Bottom-Left to Bottom-Center) */}
         <line
           x1="180"
           y1="260"
@@ -94,11 +89,10 @@ export default function LoginConceptGraph() {
           opacity="0.75"
         />
 
-        {/* NODE 1: Functions (Top) - Recovered */}
+        {/* NODE 1: Functions (Top) - Mastered */}
         <g transform="translate(230, 65)">
           <circle r="22" fill="#064E3B" stroke="#10B981" strokeWidth="1.8" />
           <circle r="18" fill="#047857" opacity="0.3" />
-          {/* Checkmark icon */}
           <path
             d="M -6 -1 L -2 3 L 6 -5"
             fill="none"
@@ -107,8 +101,7 @@ export default function LoginConceptGraph() {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          {/* Label on right */}
-          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Plus Jakarta Sans, sans-serif">
+          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Playfair Display, Georgia, serif">
             Functions
           </text>
           <text x="34" y="14" fill="#34D399" fontSize="11" fontWeight="500" fontFamily="Plus Jakarta Sans, sans-serif">
@@ -116,13 +109,12 @@ export default function LoginConceptGraph() {
           </text>
         </g>
 
-        {/* NODE 2: Recursion (Center) - Needs Attention */}
+        {/* NODE 2: Recursion (Center) - Needs Review */}
         <g transform="translate(230, 155)">
           <circle r="22" fill="#451A03" stroke="#F59E0B" strokeWidth="1.8" />
           <circle r="18" fill="#78350F" opacity="0.3" />
           <circle r="6" fill="#FDE68A" />
-          {/* Label on right */}
-          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Plus Jakarta Sans, sans-serif">
+          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Playfair Display, Georgia, serif">
             Recursion
           </text>
           <text x="34" y="14" fill="#FBBF24" fontSize="11" fontWeight="500" fontFamily="Plus Jakarta Sans, sans-serif">
@@ -130,21 +122,20 @@ export default function LoginConceptGraph() {
           </text>
         </g>
 
-        {/* NODE 3: Call Stack (Left) - In Progress */}
+        {/* NODE 3: Call Stack (Left) - Root Gap */}
         <g transform="translate(170, 235)">
-          <circle r="22" fill="#4C0519" stroke="#E11D48" strokeWidth="1.8" />
-          <circle r="18" fill="#881337" opacity="0.3" />
-          <circle r="6" fill="#FDA4AF" />
-          {/* Label on right */}
-          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Plus Jakarta Sans, sans-serif">
+          <circle r="22" fill="#4C0519" stroke="#E11D48" strokeWidth="2.2" />
+          <circle r="18" fill="#881337" opacity="0.4" />
+          <circle r="7" fill="#FDA4AF" />
+          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Playfair Display, Georgia, serif">
             Call Stack
           </text>
-          <text x="34" y="14" fill="#FB7185" fontSize="11" fontWeight="500" fontFamily="Plus Jakarta Sans, sans-serif">
-            Root Gap Identified
+          <text x="34" y="14" fill="#FB7185" fontSize="11" fontWeight="600" fontFamily="Plus Jakarta Sans, sans-serif">
+            Likely Root Gap
           </text>
         </g>
 
-        {/* NODE 4: Tree Traversal (Right) - Recovered */}
+        {/* NODE 4: Tree Traversal (Right) - Mastered */}
         <g transform="translate(290, 235)">
           <circle r="22" fill="#064E3B" stroke="#10B981" strokeWidth="1.8" />
           <circle r="18" fill="#047857" opacity="0.3" />
@@ -156,8 +147,7 @@ export default function LoginConceptGraph() {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          {/* Label on right */}
-          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Plus Jakarta Sans, sans-serif">
+          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Playfair Display, Georgia, serif">
             Tree Traversal
           </text>
           <text x="34" y="14" fill="#34D399" fontSize="11" fontWeight="500" fontFamily="Plus Jakarta Sans, sans-serif">
@@ -165,54 +155,51 @@ export default function LoginConceptGraph() {
           </text>
         </g>
 
-        {/* NODE 5: Graph Traversal (Bottom) - Not Started */}
+        {/* NODE 5: Graph Traversal (Bottom) - Pending */}
         <g transform="translate(220, 320)">
           <circle r="22" fill="#181C26" stroke="#475569" strokeWidth="1.8" />
           <circle r="18" fill="#334155" opacity="0.25" />
           <circle r="6" fill="#94A3B8" />
-          {/* Label on right */}
-          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Plus Jakarta Sans, sans-serif">
+          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Playfair Display, Georgia, serif">
             Graph Traversal
           </text>
           <text x="34" y="14" fill="#94A3B8" fontSize="11" fontWeight="500" fontFamily="Plus Jakarta Sans, sans-serif">
-            Pending Remediation
+            Target Concept
           </text>
         </g>
 
         {/* ELEGANT EDITORIAL CALLOUT */}
         <g transform="translate(10, 280)">
-          {/* Curved Callout Arrow */}
           <path
             d="M 60 5 C 60 30, 95 38, 125 45"
             fill="none"
-            stroke="#64748B"
+            stroke="#FB7185"
             strokeWidth="1.2"
             strokeDasharray="2 3"
             opacity="0.8"
           />
-          <polygon points="125 41, 131 46, 124 49" fill="#64748B" />
+          <polygon points="125 41, 131 46, 124 49" fill="#FB7185" />
 
           <text
             x="85"
             y="5"
-            fill="#CBD5E1"
+            fill="#FECDD3"
             fontSize="12"
-            fontFamily="Plus Jakarta Sans, sans-serif"
+            fontFamily="Playfair Display, serif"
+            fontStyle="italic"
             fontWeight="500"
-            opacity="0.9"
           >
             Trace causal dependencies.
           </text>
           <text
             x="88"
             y="23"
-            fill="#94A3B8"
-            fontSize="12"
+            fill="#FB7185"
+            fontSize="11"
             fontFamily="Plus Jakarta Sans, sans-serif"
             fontWeight="500"
-            opacity="0.9"
           >
-            Fix the root misconception.
+            Isolate the root misconception.
           </text>
         </g>
       </svg>

@@ -25,6 +25,7 @@ import {
 import { InterventionContent, ReTestAssessment, Concept } from "@/lib/types";
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
 import ContentModeBanner from "@/components/mode/ContentModeBanner";
+import ShadesFluidBlob from "@/components/decorations/ShadesFluidBlob";
 
 export default function RecoveryPage() {
   const router = useRouter();

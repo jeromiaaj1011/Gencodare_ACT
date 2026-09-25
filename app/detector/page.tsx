@@ -31,6 +31,7 @@ import { ResponseType, Misconception, CourseMaterial, AppContentMode } from "@/l
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
 import ContentModeBanner from "@/components/mode/ContentModeBanner";
 import StagedScanSequence from "@/components/detector/StagedScanSequence";
+import ShadesFluidBlob from "@/components/decorations/ShadesFluidBlob";
 
 export default function DetectorPage() {
   const router = useRouter();
@@ -369,16 +370,15 @@ export default function DetectorPage() {
         }}
       />
 
-      {/* Header */}
+      {/* Header with Editorial Presentation Typography */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2">
-            <Bug className="w-5 h-5 text-rose-400" />
-            <h1 className="text-2xl font-bold text-white tracking-tight">
-              Cognitive Bug Detector (Step 1)
-            </h1>
-          </div>
-          <p className="text-xs text-slate-400 mt-1 font-sans">
+        <div className="space-y-1">
+          <span className="shades-subtitle text-rose-300/80">01. STAGE ONE • INVARIANT SCAN</span>
+          <h1 className="font-editorial text-2xl sm:text-3xl font-medium text-white flex items-center space-x-2.5">
+            <Bug className="w-6 h-6 text-rose-400" />
+            <span>Misconception Detector</span>
+          </h1>
+          <p className="text-xs text-slate-300 font-sans">
             Enter any computer science concept, question, and student reasoning. The engine isolates mental model invariants against formal computing reality.
           </p>
         </div>
@@ -398,23 +398,23 @@ export default function DetectorPage() {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={importingFile}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-blue-500/40 bg-blue-600/10 hover:bg-blue-600/20 text-blue-300 text-xs font-medium transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-rose-500/35 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium transition-colors"
           >
             {importingFile ? (
-              <Sparkles className="w-3.5 h-3.5 animate-spin text-blue-400" />
+              <Sparkles className="w-3.5 h-3.5 animate-spin text-rose-400" />
             ) : (
-              <FolderOpen className="w-3.5 h-3.5 text-blue-400" />
+              <FolderOpen className="w-3.5 h-3.5 text-rose-400" />
             )}
-            <span>{importingFile ? "Analyzing File..." : "Import from File Manager"}</span>
+            <span>{importingFile ? "Analyzing File..." : "Import File"}</span>
           </button>
 
           <button
             type="button"
             onClick={handleStartNewDiagnostic}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-slate-700 bg-archaia-card hover:bg-archaia-cardHover text-slate-300 text-xs font-medium transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-white/[0.08] bg-[#11141e] hover:bg-[#181c28] text-slate-300 text-xs font-medium transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Start New Diagnostic</span>
+            <span>Reset Form</span>
           </button>
 
           <button
@@ -422,12 +422,12 @@ export default function DetectorPage() {
             onClick={handleLoadDfsDemo}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
               isDemo
-                ? "bg-amber-500/20 border-amber-500 text-amber-300"
-                : "border-slate-700 bg-archaia-card hover:bg-archaia-cardHover text-slate-400 hover:text-white"
+                ? "bg-rose-500/20 border-rose-500 text-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.3)]"
+                : "border-white/[0.08] bg-[#11141e] hover:bg-[#181c28] text-slate-400 hover:text-white"
             }`}
           >
             <PlayCircle className="w-3.5 h-3.5" />
-            <span>Try Demo Investigation</span>
+            <span>Demo Investigation</span>
           </button>
         </div>
       </div>

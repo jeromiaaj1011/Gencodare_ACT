@@ -32,6 +32,7 @@ import {
 import ArchaiaLogo from "@/components/ArchaiaLogo";
 import CyberMeshBackground from "@/components/CyberMeshBackground";
 import LoginConceptGraph from "@/components/LoginConceptGraph";
+import ShadesFluidBlob from "@/components/decorations/ShadesFluidBlob";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -296,39 +297,39 @@ void process_packet(size_t size) {
           <Link href="/dashboard" className="flex items-center space-x-3.5 group cursor-pointer">
             <ArchaiaLogo size={42} className="w-10 h-10 group-hover:scale-105 transition-transform" />
             <div className="flex flex-col">
-              <span className="text-2xl font-bold tracking-[0.2em] text-white uppercase font-sans">
+              <span className="text-2xl font-bold tracking-[0.16em] text-white uppercase font-editorial logo-shimmer">
                 ARCHAIA
               </span>
-              <span className="text-[11px] tracking-wide text-blue-400 font-sans -mt-0.5">
-                Cognitive Learning Diagnostics
+              <span className="text-[10px] tracking-widest text-rose-300/80 uppercase font-sans -mt-0.5">
+                Shades That Illuminate • Cognitive Diagnostics
               </span>
             </div>
           </Link>
 
           {/* Sample Accounts Quick Fill */}
-          <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs backdrop-blur-md">
-            <span className="text-slate-400 px-2 flex items-center space-x-1 font-medium font-sans">
-              <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+          <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-xl bg-[#10131c]/90 border border-white/[0.08] text-xs backdrop-blur-md">
+            <span className="text-slate-400 px-2 flex items-center space-x-1.5 font-medium font-sans">
+              <KeyRound className="w-3.5 h-3.5 text-rose-400" />
               <span>Sample Profiles:</span>
             </span>
             <button
               type="button"
               onClick={() => fillCredentials("student")}
-              className="px-2.5 py-1 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-slate-800 text-blue-400 text-[11px] font-medium transition-colors"
+              className="px-2.5 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/35 text-rose-300 text-[11px] font-medium transition-colors"
             >
               Student
             </button>
             <button
               type="button"
               onClick={() => fillCredentials("instructor")}
-              className="px-2.5 py-1 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-slate-800 text-indigo-300 text-[11px] font-medium transition-colors"
+              className="px-2.5 py-1 rounded-lg bg-[#181c28] hover:bg-[#202533] border border-white/[0.08] text-purple-300 text-[11px] font-medium transition-colors"
             >
               Instructor
             </button>
             <button
               type="button"
               onClick={() => fillCredentials("researcher")}
-              className="px-2.5 py-1 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-slate-800 text-emerald-300 text-[11px] font-medium transition-colors"
+              className="px-2.5 py-1 rounded-lg bg-[#181c28] hover:bg-[#202533] border border-white/[0.08] text-emerald-300 text-[11px] font-medium transition-colors"
             >
               Researcher
             </button>
@@ -337,22 +338,22 @@ void process_packet(size_t size) {
 
         {/* Main Two-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* LEFT COLUMN: Clean Card (5 cols on lg) */}
+          {/* LEFT COLUMN: Clean Presentation Card (5 cols on lg) */}
           <div className="lg:col-span-5 w-full max-w-md mx-auto lg:mx-0">
-            <div className="relative rounded-2xl bg-[#141722]/95 border border-[#282E3D] backdrop-blur-xl p-6 sm:p-8 shadow-xl space-y-5">
+            <div className="card-shades relative rounded-2xl p-6 sm:p-8 space-y-5">
               {/* Card Header */}
               <div className="space-y-2">
                 <div className="flex items-center space-x-2.5">
                   <ArchaiaLogo size={24} className="w-6 h-6" />
-                  <span className="text-xs text-slate-300 font-sans">
+                  <span className="text-xs text-rose-300/80 font-sans tracking-wide">
                     {isRegisterMode ? "Create your profile on" : "Welcome to"}
                   </span>
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold tracking-[0.2em] text-white uppercase font-sans">
+                  <h2 className="text-2xl font-bold tracking-[0.14em] text-white uppercase font-editorial">
                     ARCHAIA
                   </h2>
-                  <p className="text-xs text-slate-400 mt-0.5 font-sans">
+                  <p className="text-xs text-slate-400 mt-1 font-sans">
                     {isRegisterMode
                       ? "Register your student profile for personalized cognitive diagnostics."
                       : "Sign in to activate your diagnostic learning workspace."}
@@ -361,7 +362,7 @@ void process_packet(size_t size) {
               </div>
 
               {/* Pipeline Mode Switcher Tabs */}
-              <div className="flex rounded-xl bg-[#0D1017] p-1 border border-[#282E3D]">
+              <div className="flex rounded-xl bg-[#090b10] p-1 border border-white/[0.08]">
                 <button
                   type="button"
                   onClick={() => {
@@ -371,7 +372,7 @@ void process_packet(size_t size) {
                   }}
                   className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold font-sans flex items-center justify-center space-x-1.5 transition-all ${
                     pipelineMode === "credentials"
-                      ? "bg-blue-600 text-white shadow-sm"
+                      ? "bg-rose-500 text-white shadow-[0_0_14px_rgba(244,63,94,0.35)]"
                       : "text-slate-400 hover:text-white"
                   }`}
                 >
@@ -387,13 +388,13 @@ void process_packet(size_t size) {
                   }}
                   className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold font-sans flex items-center justify-center space-x-1.5 transition-all ${
                     pipelineMode === "file_upload"
-                      ? "bg-blue-600 text-white shadow-sm"
+                      ? "bg-rose-500 text-white shadow-[0_0_14px_rgba(244,63,94,0.35)]"
                       : "text-slate-400 hover:text-white"
                   }`}
                 >
-                  <FolderOpen className="w-3.5 h-3.5 text-blue-300" />
-                  <span>File Manager Intake</span>
-                  <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-blue-400/20 text-blue-200 border border-blue-400/30 font-medium">
+                  <FolderOpen className="w-3.5 h-3.5" />
+                  <span>File Intake</span>
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-[9px] bg-white/20 text-white font-medium">
                     Analysis
                   </span>
                 </button>
@@ -664,189 +665,189 @@ void process_packet(size_t size) {
               ) : (
                 <div className="space-y-4">
                   {/* 1-Click Instant Activation Banner */}
-              <button
-                type="button"
-                onClick={handleQuickActivate}
-                disabled={isSubmitting}
-                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center justify-center space-x-2 shadow-sm transition-all border border-blue-400/30"
-              >
-                <Sparkles className="w-4 h-4 text-blue-200" />
-                <span>Activate Student Workspace (1-Click)</span>
-              </button>
-
-              <div className="relative flex items-center justify-center">
-                <div className="border-t border-[#282E3D] w-full" />
-                <span className="bg-[#141722] px-2 text-[10px] uppercase text-slate-500 font-semibold font-sans absolute">
-                  or sign in with credentials
-                </span>
-              </div>
-
-              {/* Error & Success Banners */}
-              {errorMessage && (
-                <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/50 text-rose-200 text-xs font-sans flex items-start space-x-2 animate-in fade-in">
-                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                  <div className="space-y-0.5">
-                    <div>{errorMessage}</div>
-                    {attemptsLeft !== null && attemptsLeft > 0 && (
-                      <div className="text-[10px] text-rose-300 font-medium">
-                        Security Enforcement: {attemptsLeft} attempts left.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {successMessage && (
-                <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-200 text-xs font-sans flex items-center space-x-2 animate-in fade-in">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>{successMessage}</span>
-                </div>
-              )}
-
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-3.5">
-                {/* Full Name (Registration Mode Only) */}
-                {isRegisterMode && (
-                  <div className="space-y-1">
-                    <label className="block text-xs font-sans text-slate-300">
-                      Full Name
-                    </label>
-                    <div className="relative flex items-center">
-                      <div className="absolute left-3.5 text-slate-400 pointer-events-none">
-                        <User className="w-4 h-4" />
-                      </div>
-                      <input
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Alex Chen"
-                        required
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#0D1017] border border-[#282E3D] text-xs text-white placeholder-slate-500 transition-colors font-sans input-focus-glow"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Email Address */}
-                <div className="space-y-1">
-                  <label className="block text-xs font-sans text-slate-300">
-                    Email Address
-                  </label>
-                  <div className="relative flex items-center">
-                    <div className="absolute left-3.5 text-slate-400 pointer-events-none">
-                      <Mail className="w-4 h-4" />
-                    </div>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@college.edu"
-                      required
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#0D1017] border border-[#282E3D] text-xs text-white placeholder-slate-500 transition-colors font-sans input-focus-glow"
-                    />
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-xs font-sans text-slate-300">
-                      Password
-                    </label>
-                    {isRegisterMode && (
-                      <span className="text-[10px] text-slate-400 font-medium">
-                        Min 8 chars, 1 uppercase, 1 number
-                      </span>
-                    )}
-                  </div>
-                  <div className="relative flex items-center">
-                    <div className="absolute left-3.5 text-slate-400 pointer-events-none">
-                      <Lock className="w-4 h-4" />
-                    </div>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
-                      required
-                      className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#0D1017] border border-[#282E3D] text-xs text-white placeholder-slate-500 transition-colors font-sans input-focus-glow"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 text-slate-400 hover:text-slate-200 transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Primary Action Button (Solid Classic Sapphire Blue) */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all duration-200 shadow-sm flex items-center justify-center space-x-1.5 active:scale-[0.98] disabled:opacity-75 pt-2.5 btn-interactive"
-                >
-                  <span>
-                    {isSubmitting
-                      ? "Verifying Cryptographic Credentials..."
-                      : isRegisterMode
-                      ? "Register & Launch Dashboard"
-                      : "Continue"}
-                  </span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </form>
-
-              {/* Or Divider */}
-              <div className="relative flex items-center justify-center pt-1">
-                <div className="border-t border-[#282E3D] w-full" />
-                <span className="bg-[#141722] px-3 text-[11px] font-sans text-slate-400 uppercase tracking-wider relative z-10">
-                  Or
-                </span>
-                <div className="border-t border-[#282E3D] w-full" />
-              </div>
-
-              {/* Toggle Between Sign In and Register Profile Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsRegisterMode(!isRegisterMode);
-                  setErrorMessage(null);
-                  setSuccessMessage(null);
-                }}
-                className="w-full py-2.5 px-4 rounded-xl bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-xs text-slate-200 font-sans transition-all flex items-center justify-center space-x-2"
-              >
-                <GraduationCap className="w-4 h-4 text-blue-400" />
-                <span>
-                  {isRegisterMode
-                    ? "Back to Existing Account Sign In"
-                    : "Create a new learner profile"}
-                </span>
-              </button>
-
-              {/* Forgot Password Link */}
-              {!isRegisterMode && (
-                <div className="text-center pt-0.5">
                   <button
                     type="button"
-                    onClick={() =>
-                      alert(
-                        "Security Protocol: Temporary reset token sent to your institutional email. Check inbox."
-                      )
-                    }
-                    className="text-xs text-blue-400 hover:text-blue-300 transition-colors font-sans hover:underline"
+                    onClick={handleQuickActivate}
+                    disabled={isSubmitting}
+                    className="w-full py-2.5 px-4 rounded-xl btn-shades-primary font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-75"
                   >
-                    Forgot password?
+                    <Sparkles className="w-4 h-4 text-white" />
+                    <span>Activate Student Workspace (1-Click)</span>
                   </button>
+
+                  <div className="relative flex items-center justify-center">
+                    <div className="border-t border-white/[0.08] w-full" />
+                    <span className="bg-[#10131c] px-2 text-[10px] uppercase text-slate-400 font-semibold font-sans absolute">
+                      or sign in with credentials
+                    </span>
+                  </div>
+
+                  {/* Error & Success Banners */}
+                  {errorMessage && (
+                    <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/50 text-rose-200 text-xs font-sans flex items-start space-x-2 animate-in fade-in">
+                      <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                      <div className="space-y-0.5">
+                        <div>{errorMessage}</div>
+                        {attemptsLeft !== null && attemptsLeft > 0 && (
+                          <div className="text-[10px] text-rose-300 font-medium">
+                            Security Enforcement: {attemptsLeft} attempts left.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {successMessage && (
+                    <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-200 text-xs font-sans flex items-center space-x-2 animate-in fade-in">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>{successMessage}</span>
+                    </div>
+                  )}
+
+                  {/* Form */}
+                  <form onSubmit={handleSubmit} className="space-y-3.5">
+                    {/* Full Name (Registration Mode Only) */}
+                    {isRegisterMode && (
+                      <div className="space-y-1">
+                        <label className="block text-xs font-sans text-slate-300">
+                          Full Name
+                        </label>
+                        <div className="relative flex items-center">
+                          <div className="absolute left-3.5 text-slate-400 pointer-events-none">
+                            <User className="w-4 h-4" />
+                          </div>
+                          <input
+                            type="text"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            placeholder="Alex Chen"
+                            required
+                            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white placeholder-slate-500 transition-colors font-sans input-focus-glow"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Email Address */}
+                    <div className="space-y-1">
+                      <label className="block text-xs font-sans text-slate-300">
+                        Email Address
+                      </label>
+                      <div className="relative flex items-center">
+                        <div className="absolute left-3.5 text-slate-400 pointer-events-none">
+                          <Mail className="w-4 h-4" />
+                        </div>
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="you@college.edu"
+                          required
+                          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white placeholder-slate-500 transition-colors font-sans input-focus-glow"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Password */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-sans text-slate-300">
+                          Password
+                        </label>
+                        {isRegisterMode && (
+                          <span className="text-[10px] text-slate-400 font-medium">
+                            Min 8 chars, 1 uppercase, 1 number
+                          </span>
+                        )}
+                      </div>
+                      <div className="relative flex items-center">
+                        <div className="absolute left-3.5 text-slate-400 pointer-events-none">
+                          <Lock className="w-4 h-4" />
+                        </div>
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Enter your password"
+                          required
+                          className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white placeholder-slate-500 transition-colors font-sans input-focus-glow"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3.5 text-slate-400 hover:text-slate-200 transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Primary Action Button */}
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full py-2.5 px-4 rounded-xl btn-shades-primary font-semibold text-xs transition-all shadow-sm flex items-center justify-center space-x-1.5 disabled:opacity-75 pt-2.5"
+                    >
+                      <span>
+                        {isSubmitting
+                          ? "Verifying Cryptographic Credentials..."
+                          : isRegisterMode
+                          ? "Register & Launch Dashboard"
+                          : "Continue"}
+                      </span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </form>
+
+                  {/* Or Divider */}
+                  <div className="relative flex items-center justify-center pt-1">
+                    <div className="border-t border-white/[0.08] w-full" />
+                    <span className="bg-[#10131c] px-3 text-[11px] font-sans text-slate-400 uppercase tracking-wider relative z-10">
+                      Or
+                    </span>
+                    <div className="border-t border-white/[0.08] w-full" />
+                  </div>
+
+                  {/* Toggle Between Sign In and Register Profile Button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsRegisterMode(!isRegisterMode);
+                      setErrorMessage(null);
+                      setSuccessMessage(null);
+                    }}
+                    className="w-full py-2.5 px-4 rounded-xl bg-[#141824] hover:bg-[#1c2233] border border-white/[0.08] text-xs text-slate-200 font-sans transition-all flex items-center justify-center space-x-2"
+                  >
+                    <GraduationCap className="w-4 h-4 text-rose-400" />
+                    <span>
+                      {isRegisterMode
+                        ? "Back to Existing Account Sign In"
+                        : "Create a new learner profile"}
+                    </span>
+                  </button>
+
+                  {/* Forgot Password Link */}
+                  {!isRegisterMode && (
+                    <div className="text-center pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          alert(
+                            "Security Protocol: Temporary reset token sent to your institutional email. Check inbox."
+                          )
+                        }
+                        className="text-xs text-rose-400 hover:text-rose-300 transition-colors font-sans hover:underline"
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-          )}
 
               {/* Card Footer Badge */}
-              <div className="pt-2 border-t border-[#282E3D] flex items-center justify-center space-x-1.5 text-[11px] text-slate-400 font-sans">
-                <Shield className="w-3.5 h-3.5 text-slate-400" />
+              <div className="pt-2 border-t border-white/[0.08] flex items-center justify-center space-x-1.5 text-[11px] text-slate-400 font-sans">
+                <Shield className="w-3.5 h-3.5 text-rose-400/80" />
                 <span>PBKDF2 Salting • Rate Limited • Built for Learners</span>
               </div>
             </div>
@@ -855,58 +856,73 @@ void process_packet(size_t size) {
             <div className="text-center pt-3">
               <Link
                 href="/dashboard"
-                className="text-xs text-slate-400 hover:text-blue-400 transition-colors inline-flex items-center space-x-1 group font-sans"
+                className="text-xs text-slate-400 hover:text-rose-300 transition-colors inline-flex items-center space-x-1 group font-sans"
               >
                 <span>Continue into Platform as Guest Student</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-blue-400" />
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-rose-400" />
               </Link>
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Value Proposition & Interactive Node Graph (7 cols on lg) */}
-          <div className="lg:col-span-7 space-y-6 lg:pl-6">
-            {/* Tagline & Editorial Typography */}
-            <div className="space-y-3">
-              <span className="text-[11px] font-sans tracking-[0.25em] text-slate-400 uppercase font-semibold">
-                Y O U R &nbsp; L E A R N I N G &nbsp; J O U R N E Y
-              </span>
+          {/* RIGHT COLUMN: Slide 1 & Slide 3 Presentation Centerpiece */}
+          <div className="lg:col-span-7 space-y-6 lg:pl-6 relative">
+            {/* Centerpiece 3D Fluid Blob ("Shades That Inspire" signature) */}
+            <div className="relative">
+              <ShadesFluidBlob variant="hero" size="md" className="mx-auto -mb-10 sm:-mb-14" />
+              
+              {/* Overlayed Editorial Title & Subtitle */}
+              <div className="relative z-10 text-center sm:text-left space-y-2.5 pt-2">
+                <span className="shades-subtitle text-rose-300/90 font-medium">
+                  C O G N I T I V E &nbsp; D I A G N O S T I C S
+                </span>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-bold tracking-tight text-white leading-[1.18] font-sans">
-                Understand the <br />
-                connections. <br />
-                <span className="text-blue-400">Close the gaps.</span>
-              </h1>
+                <h1 className="font-editorial text-4xl sm:text-5xl lg:text-[54px] font-medium tracking-tight text-white leading-[1.12]">
+                  Shades That <span className="italic text-rose-300 font-normal">Illuminate.</span>
+                </h1>
 
-              <p className="text-xs sm:text-sm text-slate-400 max-w-lg leading-relaxed font-sans pt-1">
-                ARCHAIA analyzes your learning patterns, isolates foundational misconceptions, and guides you to true mastery through causal knowledge graphs.
-              </p>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-lg leading-relaxed font-sans pt-0.5">
+                  Debugging the invisible root-cause gaps in human learning through Causal Knowledge Graphs and Binary Cognitive Bisect.
+                </p>
+              </div>
             </div>
 
             {/* Interactive Concept Dependency Graph Diagram */}
-            <div className="pt-2">
+            <div className="pt-1">
               <LoginConceptGraph />
             </div>
 
-            {/* Bottom Feature Indicators */}
-            <div className="flex flex-wrap items-center gap-5 sm:gap-6 pt-4 border-t border-[#282E3D] text-slate-300">
-              <div className="flex items-center space-x-2">
-                <Brain className="w-4 h-4 text-blue-400" />
-                <span className="text-xs font-sans font-medium">Root Gap Isolation</span>
+            {/* Slide 2 / 3 Style 4 Pillars */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 border-t border-white/[0.08]">
+              <div className="p-2.5 rounded-xl bg-[#0c0e15]/80 border border-white/[0.06] space-y-1">
+                <div className="flex items-center space-x-1.5 text-rose-300">
+                  <Brain className="w-3.5 h-3.5" />
+                  <span className="text-[11px] font-serif font-bold">01. Scan</span>
+                </div>
+                <p className="text-[10px] text-slate-400 font-sans">Misconception Detection</p>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <BarChart3 className="w-4 h-4 text-blue-400" />
-                <span className="text-xs font-sans font-medium">Causal Prerequisite Tracing</span>
+              <div className="p-2.5 rounded-xl bg-[#0c0e15]/80 border border-white/[0.06] space-y-1">
+                <div className="flex items-center space-x-1.5 text-rose-300">
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  <span className="text-[11px] font-serif font-bold">02. Bisect</span>
+                </div>
+                <p className="text-[10px] text-slate-400 font-sans">Prerequisite Isolation</p>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Target className="w-4 h-4 text-blue-400" />
-                <span className="text-xs font-sans font-medium">Physical Memory Models</span>
+              <div className="p-2.5 rounded-xl bg-[#0c0e15]/80 border border-white/[0.06] space-y-1">
+                <div className="flex items-center space-x-1.5 text-rose-300">
+                  <Target className="w-3.5 h-3.5" />
+                  <span className="text-[11px] font-serif font-bold">03. Recover</span>
+                </div>
+                <p className="text-[10px] text-slate-400 font-sans">Physical Memory Lab</p>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <FolderOpen className="w-4 h-4 text-indigo-400" />
-                <span className="text-xs font-sans font-medium">File Manager Intake</span>
+              <div className="p-2.5 rounded-xl bg-[#0c0e15]/80 border border-white/[0.06] space-y-1">
+                <div className="flex items-center space-x-1.5 text-purple-300">
+                  <FolderOpen className="w-3.5 h-3.5" />
+                  <span className="text-[11px] font-serif font-bold">04. Roadmap</span>
+                </div>
+                <p className="text-[10px] text-slate-400 font-sans">Adaptive Mastery DAG</p>
               </div>
             </div>
           </div>

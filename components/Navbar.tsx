@@ -164,7 +164,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0C0E12]/95 backdrop-blur-md border-b border-archaia-border">
+    <header className="sticky top-0 z-50 bg-[#06070a]/92 backdrop-blur-xl border-b border-white/[0.08]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Tagline */}
@@ -175,11 +175,11 @@ export default function Navbar() {
                 className="w-8 h-8 group-hover:scale-105 transition-transform"
               />
               <div>
-                <span className="text-xl font-bold tracking-[0.15em] text-white logo-shimmer block">
+                <span className="text-xl font-bold tracking-[0.16em] text-white logo-shimmer block font-editorial">
                   ARCHAIA
                 </span>
-                <span className="hidden sm:block text-[10px] uppercase font-medium tracking-wider text-slate-400 -mt-1">
-                  Cognitive Learning Diagnostics
+                <span className="hidden sm:block text-[9.5px] uppercase font-medium tracking-[0.2em] text-rose-300/80 -mt-0.5">
+                  Cognitive Diagnostics
                 </span>
               </div>
             </Link>
@@ -196,12 +196,12 @@ export default function Navbar() {
                   href={item.href}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium nav-item-interactive ${
                     isActive
-                      ? "bg-blue-600/15 text-blue-300 border border-blue-500/35 font-semibold shadow-[0_0_14px_rgba(59,130,246,0.18)]"
-                      : "text-slate-400 hover:text-white hover:bg-archaia-card/80 border border-transparent"
+                      ? "bg-rose-500/15 text-rose-200 border border-rose-500/40 font-semibold shadow-[0_0_16px_rgba(244,63,94,0.22)]"
+                      : "text-slate-400 hover:text-white hover:bg-white/[0.04] border border-transparent"
                   }`}
                 >
                   {isActive && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 mr-0.5 animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mr-0.5 animate-pulse" />
                   )}
                   <Icon className="w-3.5 h-3.5 nav-icon" />
                   <span>{item.label}</span>
@@ -217,14 +217,14 @@ export default function Navbar() {
               onClick={handleToggleMode}
               className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider border transition-all btn-interactive-subtle ${
                 currentMode === "demo"
-                  ? "bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25"
-                  : "bg-blue-600/15 text-blue-300 border-blue-500/30 hover:bg-blue-600/25"
+                  ? "bg-rose-500/15 text-rose-300 border-rose-500/35 hover:bg-rose-500/25"
+                  : "bg-purple-600/15 text-purple-300 border-purple-500/35 hover:bg-purple-600/25"
               }`}
               title={`Active Content Mode: ${currentMode.toUpperCase()}. Click to switch between Demo & Course Mode.`}
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  currentMode === "demo" ? "bg-amber-400 animate-pulse" : "bg-blue-400 animate-pulse"
+                  currentMode === "demo" ? "bg-rose-400 animate-pulse" : "bg-purple-400 animate-pulse"
                 }`}
               />
               <span>{currentMode === "demo" ? "DEMO MODE" : "COURSE MODE"}</span>
@@ -233,7 +233,7 @@ export default function Navbar() {
             <button
               onClick={handleReset}
               disabled={resetting}
-              className="flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs font-medium bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-400 hover:text-white transition-colors btn-interactive-subtle"
+              className="flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs font-medium bg-[#10131c] hover:bg-[#181c28] border border-white/[0.08] text-slate-400 hover:text-white transition-colors btn-interactive-subtle"
               title="Reset state to initial demo seed"
             >
               <RotateCcw className={`w-3.5 h-3.5 ${resetting ? "animate-spin" : ""}`} />
@@ -245,15 +245,15 @@ export default function Navbar() {
             {currentUser ? (
               /* Logged In User Pill */
               <div className="flex items-center space-x-1.5 pl-1">
-                <div className="flex items-center space-x-2 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-slate-800 text-xs shadow-sm">
-                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[10px]">
+                <div className="flex items-center space-x-2 px-2.5 py-1 rounded-xl bg-[#10131c] border border-white/[0.08] text-xs shadow-sm">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-rose-500 to-pink-500 text-white font-bold flex items-center justify-center text-[10px]">
                     {getInitials(currentUser.fullName)}
                   </div>
                   <div className="hidden sm:flex flex-col text-left">
                     <span className="text-[11px] font-medium text-slate-200 leading-tight">
                       {currentUser.fullName}
                     </span>
-                    <span className="text-[9px] uppercase tracking-wider text-blue-400 font-medium">
+                    <span className="text-[9px] uppercase tracking-wider text-rose-300 font-medium">
                       {currentUser.role}
                     </span>
                   </div>
@@ -273,7 +273,7 @@ export default function Navbar() {
               /* Guest / Not Logged In */
               <Link
                 href="/login"
-                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition-colors"
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/35 transition-colors"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Sign In</span>
@@ -282,7 +282,7 @@ export default function Navbar() {
 
             <Link
               href="/detector"
-              className="hidden sm:flex items-center space-x-1 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition-all"
+              className="hidden sm:flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold btn-shades-primary transition-all"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Diagnostic</span>
@@ -291,7 +291,7 @@ export default function Navbar() {
             {/* Mobile Menu Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg bg-archaia-card border border-archaia-border text-slate-300 hover:text-white"
+              className="lg:hidden p-2 rounded-lg bg-[#10131c] border border-white/[0.08] text-slate-300 hover:text-white"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

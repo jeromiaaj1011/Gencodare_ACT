@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, ChevronRight, Sparkles, Split, HeartPulse, LineChart } from "lucide-react";
+import { CheckCircle2, Sparkles, Split, HeartPulse, LineChart } from "lucide-react";
 
 interface StepperProps {
   currentStep: 1 | 2 | 3 | 4;
@@ -60,7 +60,8 @@ export default function CognitivePipelineStepper({
   const steps = [
     {
       step: 1,
-      name: "1. Input & Misconception",
+      num: "01.",
+      name: "01. Input & Misconception",
       shortName: "Detection",
       description: "Analyze learner model",
       icon: Sparkles,
@@ -68,7 +69,8 @@ export default function CognitivePipelineStepper({
     },
     {
       step: 2,
-      name: "2. Cognitive Bisect",
+      num: "02.",
+      name: "02. Cognitive Bisect",
       shortName: "Bisect",
       description: "Isolate root learning gap",
       icon: Split,
@@ -76,7 +78,8 @@ export default function CognitivePipelineStepper({
     },
     {
       step: 3,
-      name: "3. Targeted Recovery",
+      num: "03.",
+      name: "03. Targeted Recovery",
       shortName: "Recovery",
       description: "Restructure mental model",
       icon: HeartPulse,
@@ -84,7 +87,8 @@ export default function CognitivePipelineStepper({
     },
     {
       step: 4,
-      name: "4. Adaptive Roadmap",
+      num: "04.",
+      name: "04. Adaptive Roadmap",
       shortName: "Roadmap",
       description: "Recalibrate path & DAG",
       icon: LineChart,
@@ -93,23 +97,23 @@ export default function CognitivePipelineStepper({
   ];
 
   return (
-    <div className="rounded-2xl bg-archaia-dark border border-archaia-border p-3 sm:p-4 shadow-md space-y-3">
-      {/* Top status indicator */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-archaia-border/60 pb-2.5">
-        <div className="flex items-center space-x-2">
-          <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-          <span className="text-xs font-semibold text-white tracking-wide uppercase">
+    <div className="card-shades rounded-2xl p-4 sm:p-5 space-y-3.5 relative overflow-hidden">
+      {/* Top status indicator matching presentation theme */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
+        <div className="flex items-center space-x-2.5">
+          <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+          <span className="font-editorial text-sm font-medium tracking-normal text-white">
             Cognitive Diagnostic Pipeline
           </span>
-          <span className="text-[11px] text-slate-400 font-sans">
-            (Step {currentStep} of 4)
+          <span className="text-[11px] text-slate-400 font-sans tracking-wide">
+            (Stage {currentStep} of 4)
           </span>
         </div>
 
         {activeConceptName && (
           <div className="flex items-center space-x-2 text-xs font-sans">
-            <span className="text-slate-400">Current Investigation:</span>
-            <span className="px-2.5 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 font-medium">
+            <span className="text-slate-400">Current Node:</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-300 font-medium">
               {activeConceptName}
             </span>
             {rootConceptName && rootConceptName !== activeConceptName && (
@@ -124,8 +128,8 @@ export default function CognitivePipelineStepper({
         )}
       </div>
 
-      {/* Stepper tracks */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      {/* Stepper tracks with 01., 02., 03., 04. presentation styling */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {steps.map((st) => {
           const Icon = st.icon;
           const isCurrent = currentStep === st.step;
@@ -135,40 +139,50 @@ export default function CognitivePipelineStepper({
             <Link
               key={st.step}
               href={st.href}
-              className={`p-2.5 rounded-xl border transition-all flex flex-col justify-between ${
+              className={`p-3 rounded-xl border transition-all flex flex-col justify-between group ${
                 isCurrent
-                  ? "bg-blue-600/15 border-blue-500 text-white shadow-sm ring-1 ring-blue-500/30"
+                  ? "bg-rose-500/15 border-rose-500 text-white shadow-[0_0_20px_rgba(244,63,94,0.22)] ring-1 ring-rose-500/35"
                   : isCompleted
-                  ? "bg-archaia-card hover:bg-archaia-cardHover border-emerald-500/30 text-emerald-300"
-                  : "bg-archaia-card/50 border-archaia-border text-slate-500 opacity-70 hover:opacity-100"
+                  ? "bg-[#11141e]/90 hover:bg-[#181c28] border-emerald-500/30 text-emerald-300"
+                  : "bg-[#0c0e15]/70 border-white/[0.06] text-slate-500 opacity-70 hover:opacity-100 hover:border-white/[0.12]"
               }`}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-1.5">
-                  <Icon
-                    className={`w-3.5 h-3.5 ${
+                <div className="flex items-center space-x-2">
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center border text-[11px] ${
                       isCurrent
-                        ? "text-blue-400"
+                        ? "bg-rose-500 border-rose-400 text-white shadow-sm"
                         : isCompleted
-                        ? "text-emerald-400"
-                        : "text-slate-500"
+                        ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
+                        : "bg-white/[0.04] border-white/[0.08] text-slate-400"
                     }`}
-                  />
-                  <span className="text-xs font-semibold">
-                    {st.shortName}
-                  </span>
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <span
+                      className={`text-xs font-serif font-bold ${
+                        isCurrent ? "text-rose-300" : isCompleted ? "text-emerald-400" : "text-slate-400"
+                      }`}
+                    >
+                      {st.num}
+                    </span>{" "}
+                    <span className="text-xs font-semibold">{st.shortName}</span>
+                  </div>
                 </div>
+
                 {isCompleted ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                 ) : isCurrent ? (
-                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-500 text-white uppercase">
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500 text-white uppercase tracking-wider">
                     Active
                   </span>
                 ) : (
-                  <span className="text-[10px] text-slate-500">Step {st.step}</span>
+                  <span className="text-[10px] text-slate-500 font-mono">Stage {st.step}</span>
                 )}
               </div>
-              <p className="text-[10px] text-slate-400 font-sans mt-1 line-clamp-1">
+              <p className="text-[10px] text-slate-400 font-sans mt-2 line-clamp-1">
                 {st.description}
               </p>
             </Link>
