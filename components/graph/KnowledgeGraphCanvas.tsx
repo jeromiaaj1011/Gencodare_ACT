@@ -110,51 +110,46 @@ export default function KnowledgeGraphCanvas({
     switch (status) {
       case "mastered":
         return {
-          bg: "bg-[#06261E]/95",
-          border: "border-emerald-500/70",
-          glow: "shadow-[0_0_20px_rgba(16,185,129,0.3)]",
+          bg: "bg-[#0E1F18]/95",
+          border: "border-emerald-600/70",
           text: "text-emerald-300",
-          badge: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+          badge: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
           halo: "#10B981",
           label: "Mastered Invariant",
         };
       case "misconception_detected":
         return {
-          bg: "bg-[#2A0812]/95",
-          border: "border-rose-500",
-          glow: "shadow-[0_0_25px_rgba(244,63,94,0.55)]",
+          bg: "bg-[#201216]/95",
+          border: "border-rose-600/80",
           text: "text-rose-300",
-          badge: "bg-rose-500/25 text-rose-300 border-rose-500/50",
-          halo: "#F43F5E",
+          badge: "bg-rose-500/15 text-rose-300 border-rose-500/30",
+          halo: "#E11D48",
           label: "Observed Bug",
         };
       case "root_gap_identified":
         return {
-          bg: "bg-[#2A1805]/95",
-          border: "border-amber-400",
-          glow: "shadow-[0_0_30px_rgba(245,158,11,0.6)]",
+          bg: "bg-[#22180E]/95",
+          border: "border-amber-500/80",
           text: "text-amber-200",
-          badge: "bg-amber-500/25 text-amber-200 border-amber-400/60",
+          badge: "bg-amber-500/15 text-amber-200 border-amber-500/30",
           halo: "#F59E0B",
           label: "Likely Root Gap",
         };
       case "in_causal_path":
         return {
-          bg: "bg-[#111C3D]/95",
-          border: "border-indigo-400/80",
-          glow: "shadow-[0_0_20px_rgba(99,102,241,0.35)]",
-          text: "text-indigo-300",
-          badge: "bg-indigo-500/20 text-indigo-300 border-indigo-500/40",
-          halo: "#6366F1",
+          bg: "bg-[#121828]/95",
+          border: "border-blue-500/60",
+          text: "text-blue-300",
+          badge: "bg-blue-500/15 text-blue-300 border-blue-500/30",
+          halo: "#3B82F6",
           label: "Causal Pre-req",
         };
       default:
         return {
-          bg: "bg-[#091124]/90",
-          border: "border-slate-700/80",
-          glow: "",
+          bg: "bg-[#181C26]/95",
+          border: "border-[#282E3D]",
           text: "text-slate-300",
-          badge: "bg-slate-800/80 text-slate-400 border-slate-700",
+          badge: "bg-slate-800 text-slate-400 border-slate-700",
           halo: "#64748B",
           label: "Untested",
         };
@@ -223,7 +218,6 @@ export default function KnowledgeGraphCanvas({
 
   // Check if an edge is part of the active cognitive bisect causal path
   const isCausalTraceEdge = (edge: ConceptEdge) => {
-    // Ancestor causal path: memory -> functions -> call_stack -> recursion -> tree -> graph
     const traceEdges = [
       ["memory_allocation", "functions_context"],
       ["functions_context", "call_stack"],
@@ -249,32 +243,32 @@ export default function KnowledgeGraphCanvas({
   const nodeHeight = 84;
 
   return (
-    <div className="relative w-full rounded-3xl bg-[#050B18] border border-archaia-border overflow-hidden shadow-2xl space-y-0">
+    <div className="relative w-full rounded-2xl bg-[#0E1117] border border-[#282E3D] overflow-hidden shadow-xl space-y-0">
       {/* 1. TOP DIAGNOSTIC ANALYSIS COCKPIT RIBBON */}
-      <div className="p-4 sm:p-5 bg-gradient-to-r from-[#070D1C] via-[#0B1530] to-[#070D1C] border-b border-archaia-border/90 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 bg-[#141722] border-b border-[#282E3D] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Left: Active Analysis Summary */}
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center space-x-1.5">
-              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-rose-500/15 text-rose-300 border border-rose-500/30 flex items-center space-x-1.5">
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
               <span>Live Diagnostic Analysis Active</span>
             </span>
-            <span className="text-xs font-mono text-cyan-300">
+            <span className="text-xs text-blue-400 font-medium">
               Causal Fault Isolation: <strong className="text-white">DFS Context Replacement</strong>
             </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 text-xs font-sans">
-            <span className="text-slate-400">Analysis Breakdown:</span>
-            <span className="px-2 py-0.5 rounded bg-rose-950/70 border border-rose-800 text-rose-200 text-[11px] font-mono">
+            <span className="text-slate-400 font-medium">Analysis Breakdown:</span>
+            <span className="px-2 py-0.5 rounded bg-rose-950/60 border border-rose-800 text-rose-200 text-[11px] font-medium">
               Observed: Graph Traversal
             </span>
             <ArrowRight className="w-3 h-3 text-slate-500" />
-            <span className="px-2 py-0.5 rounded bg-indigo-950/70 border border-indigo-800 text-indigo-200 text-[11px] font-mono">
+            <span className="px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-200 text-[11px] font-medium">
               Trace: 4 Ancestor Hops
             </span>
             <ArrowRight className="w-3 h-3 text-slate-500" />
-            <span className="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-600 text-amber-200 text-[11px] font-mono font-bold flex items-center space-x-1">
+            <span className="px-2 py-0.5 rounded bg-amber-950/70 border border-amber-600/70 text-amber-200 text-[11px] font-semibold flex items-center space-x-1">
               <Flame className="w-3 h-3 text-amber-400" />
               <span>Root Gap: Call Stack & LIFO (95% Evidence)</span>
             </span>
@@ -282,12 +276,12 @@ export default function KnowledgeGraphCanvas({
         </div>
 
         {/* Right: Quick Actions */}
-        <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
+        <div className="flex flex-wrap items-center gap-2 text-xs font-sans">
           {onTriggerDemoAnalysis && (
             <button
               onClick={onTriggerDemoAnalysis}
               disabled={analyzingDemo}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white font-semibold transition-all shadow-glow"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-medium transition-all shadow-sm"
               title="Re-run student DFS analysis on graph"
             >
               <Play className="w-3 h-3" />
@@ -297,7 +291,7 @@ export default function KnowledgeGraphCanvas({
 
           <Link
             href="/bisect"
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-700 text-amber-300 transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-amber-300 font-medium transition-colors"
           >
             <Split className="w-3.5 h-3.5" />
             <span>Open Bisect</span>
@@ -305,7 +299,7 @@ export default function KnowledgeGraphCanvas({
 
           <Link
             href="/recovery"
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-700 text-emerald-300 transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-emerald-300 font-medium transition-colors"
           >
             <HeartPulse className="w-3.5 h-3.5" />
             <span>Recovery Lab</span>
@@ -314,10 +308,10 @@ export default function KnowledgeGraphCanvas({
       </div>
 
       {/* 2. SUB-BAR: FILTERS, ZOOM & LEGEND */}
-      <div className="flex flex-wrap items-center justify-between px-4 py-2.5 border-b border-archaia-border/70 bg-[#070D1C]/60 text-xs font-mono gap-3">
+      <div className="flex flex-wrap items-center justify-between px-4 py-2 border-b border-[#282E3D] bg-[#12151C] text-xs font-sans gap-3">
         {/* View Mode Filters */}
         <div className="flex items-center space-x-1">
-          <span className="text-slate-400 mr-2 text-[11px]">View Mode:</span>
+          <span className="text-slate-400 mr-2 text-[11px] font-medium">View Mode:</span>
           {[
             { id: "all", label: "Full Graph" },
             { id: "causal_trace", label: "Causal Analysis Trace" },
@@ -326,10 +320,10 @@ export default function KnowledgeGraphCanvas({
             <button
               key={tab.id}
               onClick={() => setViewFilter(tab.id as any)}
-              className={`px-2.5 py-1 rounded-lg text-[11px] transition-all ${
+              className={`px-2.5 py-1 rounded-md text-[11px] transition-all font-medium ${
                 viewFilter === tab.id
-                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-semibold"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  ? "bg-blue-600/15 text-blue-400 border border-blue-500/30 font-semibold"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
               }`}
             >
               {tab.label}
@@ -338,21 +332,21 @@ export default function KnowledgeGraphCanvas({
         </div>
 
         {/* Legend Pills */}
-        <div className="hidden md:flex items-center space-x-3 text-[11px]">
+        <div className="hidden md:flex items-center space-x-3 text-[11px] font-medium">
           <div className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
             <span className="text-slate-300">Observed Bug</span>
           </div>
           <div className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
             <span className="text-slate-300">Root Learning Gap</span>
           </div>
           <div className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-indigo-400" />
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
             <span className="text-slate-300">Causal Pre-req</span>
           </div>
           <div className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
             <span className="text-slate-300">Mastered</span>
           </div>
         </div>
@@ -361,15 +355,15 @@ export default function KnowledgeGraphCanvas({
         <div className="flex items-center space-x-1.5">
           <button
             onClick={() => setScale((s) => Math.max(0.65, s - 0.1))}
-            className="p-1 rounded bg-archaia-card hover:bg-archaia-cardHover text-slate-300 hover:text-white"
+            className="p-1 rounded bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white"
             title="Zoom out"
           >
             <Minimize2 className="w-3.5 h-3.5" />
           </button>
-          <span className="text-[11px] text-slate-400 px-1">{Math.round(scale * 100)}%</span>
+          <span className="text-[11px] text-slate-400 px-1 font-medium">{Math.round(scale * 100)}%</span>
           <button
             onClick={() => setScale((s) => Math.min(1.4, s + 0.1))}
-            className="p-1 rounded bg-archaia-card hover:bg-archaia-cardHover text-slate-300 hover:text-white"
+            className="p-1 rounded bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white"
             title="Zoom in"
           >
             <Maximize2 className="w-3.5 h-3.5" />
@@ -379,7 +373,7 @@ export default function KnowledgeGraphCanvas({
               setScale(1);
               setNodePositions(initialPositions);
             }}
-            className="p-1 rounded bg-archaia-card hover:bg-archaia-cardHover text-slate-300 hover:text-white ml-1"
+            className="p-1 rounded bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white ml-1"
             title="Reset zoom & layout"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -389,25 +383,25 @@ export default function KnowledgeGraphCanvas({
 
       {/* 3. MAIN SVG GRAPH CANVAS */}
       <div
-        className="relative w-full overflow-hidden min-h-[580px] select-none bg-[radial-gradient(#152243_1px,transparent_1px)] [background-size:24px_24px] cursor-grab active:cursor-grabbing"
+        className="relative w-full overflow-hidden min-h-[580px] select-none bg-[radial-gradient(#282E3D_1px,transparent_1px)] [background-size:24px_24px] cursor-grab active:cursor-grabbing"
         onMouseMove={handleMouseMoveCanvas}
         onMouseUp={handleMouseUpCanvas}
       >
         {/* Watermark Helper Text */}
-        <div className="absolute bottom-3 left-4 pointer-events-none text-[11px] font-mono text-slate-500/80 z-0">
-          Tip: Click any concept to inspect diagnostic telemetry • Drag nodes freely to customize topology
+        <div className="absolute bottom-3 left-4 pointer-events-none text-[11px] font-sans text-slate-500 z-0">
+          Tip: Click any concept to inspect diagnostic analysis • Drag nodes freely to customize layout
         </div>
 
-        {/* Hovered Edge Rationale Glass Badge */}
+        {/* Hovered Edge Rationale Card */}
         {hoveredEdge && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 max-w-xl p-3.5 rounded-2xl bg-[#091124]/95 border border-cyan-500/50 shadow-[0_10px_35px_rgba(0,0,0,0.8)] backdrop-blur-md text-xs font-sans animate-in fade-in">
-            <div className="flex items-center space-x-2 text-cyan-400 font-mono font-semibold text-[11px] uppercase mb-1">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 max-w-xl p-3.5 rounded-xl bg-[#141722]/98 border border-[#282E3D] shadow-xl backdrop-blur-md text-xs font-sans animate-in fade-in">
+            <div className="flex items-center space-x-2 text-blue-400 font-semibold text-[11px] uppercase mb-1">
               <span>Causal Dependency Rationale:</span>
               <span className="text-white">
                 {hoveredEdge.from} ➔ {hoveredEdge.to}
               </span>
             </div>
-            <p className="text-slate-200 text-xs leading-relaxed font-mono">
+            <p className="text-slate-300 text-xs leading-relaxed font-sans">
               "{hoveredEdge.rationale}"
             </p>
           </div>
@@ -428,32 +422,14 @@ export default function KnowledgeGraphCanvas({
             className="overflow-visible"
           >
             <defs>
-              {/* Laser Trace Gradient for Active Causal Analysis */}
-              <linearGradient id="activeLaserGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#F59E0B" />
-                <stop offset="50%" stopColor="#EC4899" />
-                <stop offset="100%" stopColor="#EF4444" />
-              </linearGradient>
-
-              {/* Standard Prerequisite Gradient */}
-              <linearGradient id="standardEdgeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="#06B6D4" stopOpacity="0.7" />
-              </linearGradient>
-
               {/* Arrowheads */}
-              <marker id="arrowStandard" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
-                <polygon points="0 0.5, 8 3.5, 0 6.5" fill="#38BDF8" opacity="0.8" />
+              <marker id="arrowStandard" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                <polygon points="0 0.5, 7 3, 0 5.5" fill="#475569" opacity="0.9" />
               </marker>
 
-              <marker id="arrowActiveCausal" markerWidth="11" markerHeight="9" refX="9" refY="4.5" orient="auto">
-                <polygon points="0 0.5, 10 4.5, 0 8.5" fill="#F59E0B" />
+              <marker id="arrowActiveCausal" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+                <polygon points="0 0.5, 8 3.5, 0 6.5" fill="#3B82F6" />
               </marker>
-
-              {/* Drop Shadow Filter for Rich Glass Node Cards */}
-              <filter id="nodeCardShadow" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow dx="0" dy="8" stdDeviation="10" floodColor="#000000" floodOpacity="0.7" />
-              </filter>
             </defs>
 
             {/* EDGES LAYER */}
@@ -483,35 +459,22 @@ export default function KnowledgeGraphCanvas({
                   onMouseLeave={() => setHoveredEdge(null)}
                 >
                   {/* Invisible wide hover target */}
-                  <path d={pathData} fill="none" stroke="transparent" strokeWidth="26" />
-
-                  {/* Outer Glow Path for Causal Trace */}
-                  {isCausal && (
-                    <path
-                      d={pathData}
-                      fill="none"
-                      stroke="#F59E0B"
-                      strokeWidth="6"
-                      strokeOpacity="0.3"
-                      className="animate-pulse"
-                    />
-                  )}
+                  <path d={pathData} fill="none" stroke="transparent" strokeWidth="24" />
 
                   {/* Main Visible Path */}
                   <path
                     d={pathData}
                     fill="none"
-                    stroke={isCausal ? "url(#activeLaserGradient)" : "url(#standardEdgeGradient)"}
-                    strokeWidth={isCausal ? "3.2" : "1.8"}
-                    strokeDasharray={isCausal ? "8 4" : undefined}
-                    className={isCausal ? "animate-[dash_1.2s_linear_infinite]" : "hover:stroke-cyan-300 transition-colors"}
+                    stroke={isCausal ? "#3B82F6" : "#334155"}
+                    strokeWidth={isCausal ? "2.5" : "1.6"}
+                    strokeDasharray={isCausal ? "6 3" : undefined}
                     markerEnd={isCausal ? "url(#arrowActiveCausal)" : "url(#arrowStandard)"}
                   />
 
-                  {/* Active Laser Flow Particle on Causal Trace */}
+                  {/* Smooth particle indicator along causal trace */}
                   {isCausal && (
-                    <circle r="4.5" fill="#F59E0B">
-                      <animateMotion dur="2.4s" repeatCount="indefinite" path={pathData} />
+                    <circle r="3.5" fill="#F59E0B">
+                      <animateMotion dur="2.8s" repeatCount="indefinite" path={pathData} />
                     </circle>
                   )}
                 </g>
@@ -548,183 +511,202 @@ export default function KnowledgeGraphCanvas({
                   onMouseEnter={() => setHoveredNodeId(concept.id)}
                   onMouseLeave={() => setHoveredNodeId(null)}
                 >
-                  {/* Outer Pulsing Radiation Halo for Observed Error */}
+                  {/* Subtle Accent Outline for Key Nodes */}
                   {isObservedError && (
                     <rect
-                      x="-8"
-                      y="-8"
-                      width={nodeWidth + 16}
-                      height={nodeHeight + 16}
-                      rx="22"
+                      x="-4"
+                      y="-4"
+                      width={nodeWidth + 8}
+                      height={nodeHeight + 8}
+                      rx="18"
                       fill="none"
-                      stroke="#F43F5E"
-                      strokeWidth="2"
+                      stroke="#E11D48"
+                      strokeWidth="1.5"
                       strokeDasharray="4 4"
-                      className="animate-ping opacity-75"
+                      className="opacity-75"
                     />
                   )}
 
-                  {/* Outer Rotating Target Halo for Root Gap */}
                   {isRootGap && (
                     <rect
-                      x="-7"
-                      y="-7"
-                      width={nodeWidth + 14}
-                      height={nodeHeight + 14}
-                      rx="20"
+                      x="-4"
+                      y="-4"
+                      width={nodeWidth + 8}
+                      height={nodeHeight + 8}
+                      rx="18"
                       fill="none"
                       stroke="#F59E0B"
-                      strokeWidth="2.5"
-                      strokeDasharray="6 4"
-                      className="animate-[spin_10s_linear_infinite]"
-                      style={{ transformOrigin: `${nodeWidth / 2}px ${nodeHeight / 2}px` }}
+                      strokeWidth="1.8"
                     />
                   )}
 
-                  {/* Main Node Glass Card */}
+                  {/* Main Node Card */}
                   <rect
                     width={nodeWidth}
                     height={nodeHeight}
-                    rx="16"
+                    rx="14"
                     fill={
                       isObservedError
-                        ? "#230810"
+                        ? "#201216"
                         : isRootGap
-                        ? "#221304"
+                        ? "#22180E"
                         : status === "mastered"
-                        ? "#051C15"
+                        ? "#0E1F18"
                         : status === "in_causal_path"
-                        ? "#0C1733"
-                        : "#081022"
+                        ? "#121828"
+                        : "#181C26"
                     }
                     stroke={
                       isSelected
-                        ? "#38BDF8"
+                        ? "#FFFFFF"
+                        : isHovered
+                        ? "#3B82F6"
                         : isObservedError
-                        ? "#F43F5E"
+                        ? "#E11D48"
                         : isRootGap
                         ? "#F59E0B"
                         : status === "mastered"
                         ? "#10B981"
                         : status === "in_causal_path"
-                        ? "#6366F1"
-                        : "#334155"
+                        ? "#3B82F6"
+                        : "#282E3D"
                     }
-                    strokeWidth={isSelected ? "2.5" : isObservedError || isRootGap ? "2" : "1.2"}
-                    filter="url(#nodeCardShadow)"
-                    className="transition-all duration-200"
+                    strokeWidth={isSelected ? "2" : "1.2"}
                   />
 
-                  {/* Top Status Banner Ribbon */}
-                  <rect
-                    x="0"
-                    y="0"
-                    width={nodeWidth}
-                    height="22"
-                    rx="16"
-                    fill={
-                      isObservedError
-                        ? "rgba(244,63,94,0.25)"
-                        : isRootGap
-                        ? "rgba(245,158,11,0.25)"
-                        : status === "mastered"
-                        ? "rgba(16,185,129,0.2)"
-                        : status === "in_causal_path"
-                        ? "rgba(99,102,241,0.2)"
-                        : "rgba(30,41,59,0.5)"
-                    }
-                  />
+                  {/* Top Status Header inside Card */}
+                  <g transform="translate(12, 18)">
+                    {/* Status Pill */}
+                    <rect
+                      x="0"
+                      y="-12"
+                      width={
+                        isRootGap
+                          ? 110
+                          : isObservedError
+                          ? 100
+                          : status === "mastered"
+                          ? 82
+                          : status === "in_causal_path"
+                          ? 86
+                          : 65
+                      }
+                      height="18"
+                      rx="9"
+                      fill={
+                        isRootGap
+                          ? "rgba(245, 158, 11, 0.15)"
+                          : isObservedError
+                          ? "rgba(225, 29, 72, 0.15)"
+                          : status === "mastered"
+                          ? "rgba(16, 185, 129, 0.15)"
+                          : status === "in_causal_path"
+                          ? "rgba(59, 130, 246, 0.15)"
+                          : "rgba(100, 116, 139, 0.15)"
+                      }
+                    />
 
-                  {/* Category Chip & Status Badge */}
+                    {/* Status Dot */}
+                    <circle
+                      cx="8"
+                      cy="-3"
+                      r="3"
+                      fill={
+                        isRootGap
+                          ? "#F59E0B"
+                          : isObservedError
+                          ? "#E11D48"
+                          : status === "mastered"
+                          ? "#10B981"
+                          : status === "in_causal_path"
+                          ? "#3B82F6"
+                          : "#94A3B8"
+                      }
+                    />
+
+                    {/* Status Label */}
+                    <text
+                      x="16"
+                      y="1"
+                      fill={
+                        isRootGap
+                          ? "#FDE68A"
+                          : isObservedError
+                          ? "#FECDD3"
+                          : status === "mastered"
+                          ? "#A7F3D0"
+                          : status === "in_causal_path"
+                          ? "#BFDBFE"
+                          : "#CBD5E1"
+                      }
+                      fontSize="9.5"
+                      fontFamily="Plus Jakarta Sans, sans-serif"
+                      fontWeight="600"
+                    >
+                      {colorInfo.label}
+                    </text>
+                  </g>
+
+                  {/* Concept Name */}
                   <text
-                    x="12"
-                    y="15"
-                    fill={
-                      isObservedError
-                        ? "#FDA4AF"
-                        : isRootGap
-                        ? "#FDE68A"
-                        : status === "mastered"
-                        ? "#A7F3D0"
-                        : status === "in_causal_path"
-                        ? "#C7D2FE"
-                        : "#94A3B8"
-                    }
-                    fontSize="9.5"
-                    fontFamily="monospace"
+                    x="14"
+                    y="44"
+                    fill="#F1F5F9"
+                    fontSize="13"
+                    fontFamily="Plus Jakarta Sans, sans-serif"
                     fontWeight="700"
-                    letterSpacing="0.05em"
                   >
-                    {isObservedError
-                      ? "● OBSERVED ERROR"
-                      : isRootGap
-                      ? "★ LIKELY ROOT GAP"
-                      : status === "mastered"
-                      ? "✓ MASTERED"
-                      : status === "in_causal_path"
-                      ? "▲ CAUSAL PATH"
-                      : concept.category.toUpperCase()}
+                    {concept.name.length > 20 ? concept.name.substring(0, 19) + "…" : concept.name}
                   </text>
 
-                  {/* Mastery Score Badge on Card Header */}
+                  {/* Category Chip */}
                   <text
-                    x={nodeWidth - 12}
-                    y="15"
+                    x="14"
+                    y="60"
+                    fill="#94A3B8"
+                    fontSize="10"
+                    fontFamily="Plus Jakarta Sans, sans-serif"
+                    fontWeight="500"
+                  >
+                    {concept.category}
+                  </text>
+
+                  {/* Mastery Score Badge */}
+                  <text
+                    x={nodeWidth - 14}
+                    y="60"
                     textAnchor="end"
-                    fill={mastery >= 80 ? "#34D399" : mastery >= 50 ? "#FBBF24" : "#94A3B8"}
-                    fontSize="9.5"
-                    fontFamily="monospace"
-                    fontWeight="bold"
+                    fill={mastery >= 80 ? "#10B981" : mastery > 40 ? "#F59E0B" : "#94A3B8"}
+                    fontSize="10.5"
+                    fontFamily="Plus Jakarta Sans, sans-serif"
+                    fontWeight="600"
                   >
                     {mastery}%
                   </text>
 
-                  {/* Concept Name */}
-                  <text
-                    x="12"
-                    y="45"
-                    fill="#FFFFFF"
-                    fontSize="12.5"
-                    fontFamily="sans-serif"
-                    fontWeight="600"
-                  >
-                    {concept.name.length > 22 ? concept.name.substring(0, 20) + "…" : concept.name}
-                  </text>
-
-                  {/* Difficulty & Estimated Time Sub-label */}
-                  <text
-                    x="12"
-                    y="63"
-                    fill="#94A3B8"
-                    fontSize="10"
-                    fontFamily="sans-serif"
-                  >
-                    {concept.difficulty.toUpperCase()} • ~{concept.estimatedMinutes}m
-                  </text>
-
-                  {/* Mini Mastery Meter Bar at Card Bottom */}
+                  {/* Mastery Mini Bar */}
                   <rect
                     x="12"
                     y="72"
                     width={nodeWidth - 24}
-                    height="3.5"
-                    rx="1.75"
-                    fill="#1E293B"
+                    height="3"
+                    rx="1.5"
+                    fill="#282E3D"
                   />
                   <rect
                     x="12"
                     y="72"
                     width={((nodeWidth - 24) * mastery) / 100}
-                    height="3.5"
-                    rx="1.75"
+                    height="3"
+                    rx="1.5"
                     fill={
                       status === "mastered"
                         ? "#10B981"
                         : isObservedError
-                        ? "#F43F5E"
+                        ? "#E11D48"
                         : isRootGap
                         ? "#F59E0B"
-                        : "#38BDF8"
+                        : "#3B82F6"
                     }
                   />
                 </g>
@@ -736,30 +718,30 @@ export default function KnowledgeGraphCanvas({
 
       {/* 4. BOTTOM INTERACTIVE CONCEPT INSPECTION DRAWER */}
       {selectedConcept && (
-        <div className="p-5 sm:p-6 bg-gradient-to-b from-[#081022] to-[#050A17] border-t border-archaia-border animate-in slide-in-from-bottom-2">
+        <div className="p-5 sm:p-6 bg-[#141722] border-t border-[#282E3D] animate-in slide-in-from-bottom-2">
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
             {/* Concept Overview */}
             <div className="space-y-3 max-w-2xl">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-600/15 text-blue-400 border border-blue-500/30">
                   {selectedConcept.category}
                 </span>
-                <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-slate-300">
+                <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-800 text-slate-300">
                   {selectedConcept.difficulty.toUpperCase()}
                 </span>
-                <span className="text-xs font-mono text-cyan-400">
+                <span className="text-xs text-slate-400 font-medium">
                   Est. Study: ~{selectedConcept.estimatedMinutes} min
                 </span>
 
                 {selectedConcept.id === likelyRootGapId && (
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center space-x-1">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center space-x-1">
                     <Flame className="w-3.5 h-3.5" />
                     <span>Likely Root Learning Gap</span>
                   </span>
                 )}
 
                 {selectedConcept.id === observedErrorNodeId && (
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold uppercase bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center space-x-1">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase bg-rose-500/15 text-rose-300 border border-rose-500/30 flex items-center space-x-1">
                     <AlertTriangle className="w-3.5 h-3.5" />
                     <span>Observed Misconception Symptom</span>
                   </span>
@@ -778,11 +760,11 @@ export default function KnowledgeGraphCanvas({
               {/* Diagnostic Invariant Assessment Details */}
               {selectedConcept.id === observedErrorNodeId && (
                 <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-900/60 text-xs font-sans space-y-1">
-                  <div className="text-rose-300 font-semibold font-mono flex items-center space-x-1">
+                  <div className="text-rose-300 font-semibold flex items-center space-x-1">
                     <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
                     <span>Observed Misconception on this Concept:</span>
                   </div>
-                  <p className="text-rose-200/90 leading-relaxed font-mono">
+                  <p className="text-rose-200/90 leading-relaxed font-sans">
                     Learner believed calling recursive child functions destroys or overwrites the current invocation frame in memory.
                   </p>
                 </div>
@@ -790,11 +772,11 @@ export default function KnowledgeGraphCanvas({
 
               {selectedConcept.id === likelyRootGapId && (
                 <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-900/60 text-xs font-sans space-y-1">
-                  <div className="text-amber-300 font-semibold font-mono flex items-center space-x-1">
+                  <div className="text-amber-300 font-semibold flex items-center space-x-1">
                     <Flame className="w-3.5 h-3.5 text-amber-400" />
                     <span>Why this is the Foundational Root Gap:</span>
                   </div>
-                  <p className="text-amber-200/90 leading-relaxed font-mono">
+                  <p className="text-amber-200/90 leading-relaxed font-sans">
                     Cognitive Bisect isolated that the student never internalized that Call Stack frames exist independently in LIFO memory. Without this physical invariant, recursive algorithms appear to overwrite parent scope.
                   </p>
                 </div>
@@ -803,19 +785,19 @@ export default function KnowledgeGraphCanvas({
 
             {/* Diagnostic Actions & Prerequisite Inspector */}
             <div className="space-y-4 shrink-0 lg:w-80">
-              <div className="p-4 rounded-2xl bg-[#091124] border border-slate-800 space-y-2.5 text-xs font-mono">
+              <div className="p-4 rounded-xl bg-[#181C26] border border-[#282E3D] space-y-2.5 text-xs font-sans">
                 <span className="text-slate-400 block font-semibold text-[11px] uppercase tracking-wider">
                   Causal Relational Mapping
                 </span>
                 <div>
-                  <span className="text-slate-500 block text-[10px]">Prerequisite Concepts:</span>
+                  <span className="text-slate-400 block text-[11px]">Prerequisite Concepts:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {selectedConcept.prerequisites.length > 0 ? (
                       selectedConcept.prerequisites.map((p) => (
                         <button
                           key={p}
                           onClick={() => setSelectedNodeId(p)}
-                          className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 text-[11px] border border-slate-700"
+                          className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-blue-400 text-[11px] border border-slate-700 font-medium"
                         >
                           {p}
                         </button>
@@ -826,13 +808,13 @@ export default function KnowledgeGraphCanvas({
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-slate-800">
-                  <span className="text-slate-500 block text-[10px]">Current Learner Mastery:</span>
+                <div className="pt-2 border-t border-[#282E3D]">
+                  <span className="text-slate-400 block text-[11px]">Current Learner Mastery:</span>
                   <div className="flex items-center space-x-2 mt-1">
                     <div className="flex-1 h-2 rounded-full bg-slate-800 overflow-hidden">
                       <div
                         style={{ width: `${learnerStates[selectedConcept.id]?.masteryScore || 0}%` }}
-                        className="h-full bg-cyan-400 rounded-full"
+                        className="h-full bg-blue-500 rounded-full"
                       />
                     </div>
                     <span className="text-white font-bold text-xs">
@@ -846,7 +828,7 @@ export default function KnowledgeGraphCanvas({
               <div className="flex flex-col gap-2">
                 <Link
                   href="/bisect"
-                  className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold text-xs transition-all flex items-center justify-center space-x-1.5 shadow-glowWarning"
+                  className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all flex items-center justify-center space-x-1.5 shadow-sm"
                 >
                   <Split className="w-3.5 h-3.5" />
                   <span>Execute Cognitive Bisect on this Node</span>
@@ -854,7 +836,7 @@ export default function KnowledgeGraphCanvas({
 
                 <Link
                   href={`/recovery?conceptId=${selectedConcept.id}`}
-                  className="w-full py-2.5 px-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-700 text-white font-semibold text-xs transition-all flex items-center justify-center space-x-1.5"
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-white font-medium text-xs transition-all flex items-center justify-center space-x-1.5"
                 >
                   <HeartPulse className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Open Targeted Recovery Lab</span>

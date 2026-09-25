@@ -73,9 +73,9 @@ export default function DashboardPage() {
                 ? `Welcome back, ${currentUser.fullName}`
                 : "Learner Cognitive Diagnostic Hub"}
             </h1>
-            <p className="text-archaia-muted text-sm leading-relaxed">
+            <p className="text-slate-400 text-sm leading-relaxed">
               {currentUser?.institution ? (
-                <span className="text-cyan-400 font-medium">{currentUser.institution} • </span>
+                <span className="text-blue-400 font-medium">{currentUser.institution} • </span>
               ) : null}
               ARCHAIA continuously models your conceptual invariants across the Causal Knowledge Graph. When advanced errors occur, we trace and isolate the foundational root gap rather than simply re-showing answers.
             </p>
@@ -84,7 +84,7 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/detector"
-              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-semibold text-xs shadow-glow transition-all hover:scale-105"
+              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-sm transition-all"
             >
               <PlayCircle className="w-4 h-4" />
               <span>Launch Live Diagnostic</span>
@@ -93,7 +93,7 @@ export default function DashboardPage() {
               href="/graph"
               className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white text-xs font-medium transition-all"
             >
-              <Network className="w-4 h-4 text-cyan-400" />
+              <Network className="w-4 h-4 text-blue-400" />
               <span>Inspect DAG Map</span>
             </Link>
           </div>
@@ -103,47 +103,47 @@ export default function DashboardPage() {
       {/* Metrics Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2">
-          <div className="flex items-center justify-between text-archaia-muted text-xs font-mono">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
             <span>Overall Mastery</span>
-            <TrendingUp className="w-4 h-4 text-cyan-400" />
+            <TrendingUp className="w-4 h-4 text-blue-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-white">
+          <div className="text-2xl sm:text-3xl font-bold font-sans text-white">
             {metrics ? `${metrics.overallMasteryPercentage}%` : "62%"}
           </div>
-          <div className="text-[11px] text-archaia-muted">Across 7 core CS concepts</div>
+          <div className="text-[11px] text-slate-400">Across 7 core CS concepts</div>
         </div>
 
         <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2">
-          <div className="flex items-center justify-between text-archaia-muted text-xs font-mono">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
             <span>Active Cognitive Bugs</span>
             <AlertOctagon className="w-4 h-4 text-rose-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-rose-400">
+          <div className="text-2xl sm:text-3xl font-bold font-sans text-rose-400">
             {metrics ? metrics.activeMisconceptions.length : 1}
           </div>
-          <div className="text-[11px] text-archaia-muted">Isolated for Cognitive Bisect</div>
+          <div className="text-[11px] text-slate-400">Isolated for Cognitive Bisect</div>
         </div>
 
         <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2">
-          <div className="flex items-center justify-between text-archaia-muted text-xs font-mono">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
             <span>Mastered Concepts</span>
             <CheckCircle className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-emerald-400">
+          <div className="text-2xl sm:text-3xl font-bold font-sans text-emerald-400">
             {metrics ? metrics.masteredCount : 2}
           </div>
-          <div className="text-[11px] text-archaia-muted">Solid mental models verified</div>
+          <div className="text-[11px] text-slate-400">Solid mental models verified</div>
         </div>
 
         <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2">
-          <div className="flex items-center justify-between text-archaia-muted text-xs font-mono">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
             <span>Recovery Success</span>
             <HeartPulse className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-2xl sm:text-3xl font-bold font-mono text-amber-400">
+          <div className="text-2xl sm:text-3xl font-bold font-sans text-amber-400">
             {metrics ? `${metrics.recoverySuccessRate}%` : "100%"}
           </div>
-          <div className="text-[11px] text-archaia-muted">Post-intervention re-test rate</div>
+          <div className="text-[11px] text-slate-400">Post-intervention re-test rate</div>
         </div>
       </div>
 
@@ -156,7 +156,7 @@ export default function DashboardPage() {
               <Bug className="w-4 h-4 text-rose-400" />
               <h2 className="text-base font-bold text-white">Active Cognitive Gaps Requiring Bisect</h2>
             </div>
-            <Link href="/detector" className="text-xs text-archaia-accent hover:underline flex items-center">
+            <Link href="/detector" className="text-xs text-blue-400 hover:underline flex items-center font-medium">
               <span>Submit New Response</span>
               <ArrowRight className="w-3 h-3 ml-1" />
             </Link>
@@ -167,15 +167,15 @@ export default function DashboardPage() {
               metrics.activeMisconceptions.map((misc) => (
                 <div
                   key={misc.id}
-                  className="p-5 rounded-2xl bg-archaia-card border border-rose-500/30 hover:border-rose-500/50 transition-all space-y-3 shadow-lg"
+                  className="p-5 rounded-2xl bg-archaia-card border border-rose-500/30 hover:border-rose-500/50 transition-all space-y-3 shadow-sm"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center space-x-2">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30">
                           DETECTED MISCONCEPTION
                         </span>
-                        <span className="text-xs font-mono text-archaia-muted">
+                        <span className="text-xs font-medium text-slate-400">
                           Concept: {misc.conceptId}
                         </span>
                       </div>
@@ -184,30 +184,30 @@ export default function DashboardPage() {
 
                     <Link
                       href="/bisect"
-                      className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-glow flex items-center space-x-1 shrink-0"
+                      className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium shadow-sm flex items-center space-x-1 shrink-0"
                     >
                       <Split className="w-3.5 h-3.5" />
                       <span>Run Bisect →</span>
                     </Link>
                   </div>
 
-                  <p className="text-xs text-archaia-muted leading-relaxed">
+                  <p className="text-xs text-slate-400 leading-relaxed font-sans">
                     {misc.description}
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
                     <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-900/50">
-                      <div className="text-[10px] font-mono text-rose-400 font-semibold mb-1 uppercase tracking-wider">
+                      <div className="text-[10px] font-semibold text-rose-400 mb-1 uppercase tracking-wider">
                         Learner's Flawed Assumption
                       </div>
-                      <div className="text-rose-200 text-[11px]">{misc.studentAssumption}</div>
+                      <div className="text-rose-200 text-[11px] leading-relaxed">{misc.studentAssumption}</div>
                     </div>
 
                     <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-900/50">
-                      <div className="text-[10px] font-mono text-emerald-400 font-semibold mb-1 uppercase tracking-wider">
+                      <div className="text-[10px] font-semibold text-emerald-400 mb-1 uppercase tracking-wider">
                         Formal Computing Reality
                       </div>
-                      <div className="text-emerald-200 text-[11px]">{misc.formalReality}</div>
+                      <div className="text-emerald-200 text-[11px] leading-relaxed">{misc.formalReality}</div>
                     </div>
                   </div>
                 </div>
@@ -216,12 +216,12 @@ export default function DashboardPage() {
               <div className="p-6 rounded-2xl bg-archaia-card border border-archaia-border text-center space-y-2">
                 <ShieldAlert className="w-8 h-8 text-emerald-400 mx-auto" />
                 <h4 className="text-sm font-semibold text-white">No Unresolved Misconceptions</h4>
-                <p className="text-xs text-archaia-muted max-w-sm mx-auto">
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
                   All active learning paths have verified mental model invariants. Submit a response to stress-test your understanding!
                 </p>
                 <Link
                   href="/detector"
-                  className="inline-block px-4 py-2 mt-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium"
+                  className="inline-block px-4 py-2 mt-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium shadow-sm"
                 >
                   Take Diagnostic Probe
                 </Link>
@@ -233,30 +233,30 @@ export default function DashboardPage() {
         {/* Right: Recommended Learning Actions (1 col) */}
         <div className="space-y-4">
           <h2 className="text-base font-bold text-white flex items-center space-x-2">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
+            <Sparkles className="w-4 h-4 text-blue-400" />
             <span>Recommended Recovery Path</span>
           </h2>
 
           <div className="space-y-3">
             <div className="p-4 rounded-2xl bg-archaia-card border border-archaia-border space-y-3">
-              <div className="flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center justify-between text-xs font-medium">
                 <span className="text-amber-400 font-semibold">STEP 1: Root Prerequisite</span>
-                <span className="text-archaia-muted">Estimated: 10m</span>
+                <span className="text-slate-400">Estimated: 10m</span>
               </div>
               <h4 className="text-sm font-bold text-white">Rebuild Call Stack LIFO Invariants</h4>
-              <p className="text-xs text-archaia-muted">
+              <p className="text-xs text-slate-400 leading-relaxed font-sans">
                 Interactive stack frame visualizer and micro-puzzle to disconfirm the recursive replacement fallacy.
               </p>
               <Link
                 href="/recovery"
-                className="block text-center py-2 rounded-lg bg-archaia-primary/20 hover:bg-archaia-primary/30 text-archaia-accent border border-archaia-primary/40 text-xs font-medium transition-colors"
+                className="block text-center py-2 rounded-lg bg-blue-600/15 hover:bg-blue-600/25 text-blue-400 border border-blue-500/30 text-xs font-medium transition-colors"
               >
                 Launch Recovery Lab →
               </Link>
             </div>
 
             <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-2 opacity-80">
-              <div className="flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center justify-between text-xs font-medium">
                 <span className="text-slate-400">STEP 2: Upstream Concept</span>
                 <span className="text-archaia-muted">Estimated: 15m</span>
               </div>

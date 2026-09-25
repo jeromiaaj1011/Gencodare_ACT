@@ -1,5 +1,4 @@
 import React from "react";
-import { Check } from "lucide-react";
 
 export default function LoginConceptGraph() {
   return (
@@ -11,16 +10,16 @@ export default function LoginConceptGraph() {
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* Arrowhead markers */}
+          {/* Clean Arrowhead markers */}
           <marker
-            id="arrowCyan"
+            id="arrowBlue"
             markerWidth="7"
             markerHeight="7"
             refX="6"
             refY="3.5"
             orient="auto"
           >
-            <polygon points="0 1, 6 3.5, 0 6" fill="#2DD4BF" />
+            <polygon points="0 1, 6 3.5, 0 6" fill="#3B82F6" />
           </marker>
 
           <marker
@@ -35,35 +34,15 @@ export default function LoginConceptGraph() {
           </marker>
 
           <marker
-            id="arrowBlue"
+            id="arrowSlate"
             markerWidth="7"
             markerHeight="7"
             refX="6"
             refY="3.5"
             orient="auto"
           >
-            <polygon points="0 1, 6 3.5, 0 6" fill="#38BDF8" />
+            <polygon points="0 1, 6 3.5, 0 6" fill="#64748B" />
           </marker>
-
-          <filter id="emeraldGlow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="4" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-
-          <filter id="amberGlow" x="-40%" y="-40%" width="180%" height="180%">
-            <feGaussianBlur stdDeviation="5" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-
-          <filter id="roseGlow" x="-40%" y="-40%" width="180%" height="180%">
-            <feGaussianBlur stdDeviation="5" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-
-          <filter id="blueGlow" x="-40%" y="-40%" width="180%" height="180%">
-            <feGaussianBlur stdDeviation="4" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
         </defs>
 
         {/* CONNECTING EDGES */}
@@ -73,9 +52,9 @@ export default function LoginConceptGraph() {
           y1="90"
           x2="230"
           y2="135"
-          stroke="#2DD4BF"
+          stroke="#3B82F6"
           strokeWidth="1.8"
-          markerEnd="url(#arrowCyan)"
+          markerEnd="url(#arrowBlue)"
           opacity="0.85"
         />
 
@@ -97,9 +76,9 @@ export default function LoginConceptGraph() {
           y1="175"
           x2="275"
           y2="215"
-          stroke="#2DD4BF"
+          stroke="#3B82F6"
           strokeWidth="1.8"
-          markerEnd="url(#arrowCyan)"
+          markerEnd="url(#arrowBlue)"
           opacity="0.85"
         />
 
@@ -109,16 +88,16 @@ export default function LoginConceptGraph() {
           y1="260"
           x2="210"
           y2="300"
-          stroke="#38BDF8"
+          stroke="#64748B"
           strokeWidth="1.8"
-          markerEnd="url(#arrowBlue)"
+          markerEnd="url(#arrowSlate)"
           opacity="0.75"
         />
 
         {/* NODE 1: Functions (Top) - Recovered */}
         <g transform="translate(230, 65)">
-          <circle r="22" fill="#064E3B" stroke="#10B981" strokeWidth="1.8" filter="url(#emeraldGlow)" />
-          <circle r="20" fill="#047857" opacity="0.4" />
+          <circle r="22" fill="#064E3B" stroke="#10B981" strokeWidth="1.8" />
+          <circle r="18" fill="#047857" opacity="0.3" />
           {/* Checkmark icon */}
           <path
             d="M -6 -1 L -2 3 L 6 -5"
@@ -129,46 +108,46 @@ export default function LoginConceptGraph() {
             strokeLinejoin="round"
           />
           {/* Label on right */}
-          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="sans-serif">
+          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Plus Jakarta Sans, sans-serif">
             Functions
           </text>
-          <text x="34" y="14" fill="#34D399" fontSize="11" fontWeight="500" fontFamily="sans-serif">
-            Recovered
+          <text x="34" y="14" fill="#34D399" fontSize="11" fontWeight="500" fontFamily="Plus Jakarta Sans, sans-serif">
+            Mastered
           </text>
         </g>
 
         {/* NODE 2: Recursion (Center) - Needs Attention */}
         <g transform="translate(230, 155)">
-          <circle r="22" fill="#451A03" stroke="#F59E0B" strokeWidth="1.8" filter="url(#amberGlow)" />
+          <circle r="22" fill="#451A03" stroke="#F59E0B" strokeWidth="1.8" />
           <circle r="18" fill="#78350F" opacity="0.3" />
-          <circle r="7" fill="#FDE68A" />
+          <circle r="6" fill="#FDE68A" />
           {/* Label on right */}
-          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="sans-serif">
+          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Plus Jakarta Sans, sans-serif">
             Recursion
           </text>
-          <text x="34" y="14" fill="#FBBF24" fontSize="11" fontWeight="500" fontFamily="sans-serif">
-            Needs Attention
+          <text x="34" y="14" fill="#FBBF24" fontSize="11" fontWeight="500" fontFamily="Plus Jakarta Sans, sans-serif">
+            Needs Review
           </text>
         </g>
 
         {/* NODE 3: Call Stack (Left) - In Progress */}
         <g transform="translate(170, 235)">
-          <circle r="22" fill="#4C0519" stroke="#F43F5E" strokeWidth="1.8" filter="url(#roseGlow)" />
+          <circle r="22" fill="#4C0519" stroke="#E11D48" strokeWidth="1.8" />
           <circle r="18" fill="#881337" opacity="0.3" />
-          <circle r="7" fill="#FDA4AF" className="animate-pulse" />
+          <circle r="6" fill="#FDA4AF" />
           {/* Label on right */}
-          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="sans-serif">
+          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Plus Jakarta Sans, sans-serif">
             Call Stack
           </text>
-          <text x="34" y="14" fill="#FB7185" fontSize="11" fontWeight="500" fontFamily="sans-serif">
-            In Progress
+          <text x="34" y="14" fill="#FB7185" fontSize="11" fontWeight="500" fontFamily="Plus Jakarta Sans, sans-serif">
+            Root Gap Identified
           </text>
         </g>
 
         {/* NODE 4: Tree Traversal (Right) - Recovered */}
         <g transform="translate(290, 235)">
-          <circle r="22" fill="#064E3B" stroke="#10B981" strokeWidth="1.8" filter="url(#emeraldGlow)" />
-          <circle r="20" fill="#047857" opacity="0.4" />
+          <circle r="22" fill="#064E3B" stroke="#10B981" strokeWidth="1.8" />
+          <circle r="18" fill="#047857" opacity="0.3" />
           <path
             d="M -6 -1 L -2 3 L 6 -5"
             fill="none"
@@ -178,63 +157,62 @@ export default function LoginConceptGraph() {
             strokeLinejoin="round"
           />
           {/* Label on right */}
-          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="sans-serif">
+          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Plus Jakarta Sans, sans-serif">
             Tree Traversal
           </text>
-          <text x="34" y="14" fill="#34D399" fontSize="11" fontWeight="500" fontFamily="sans-serif">
-            Recovered
+          <text x="34" y="14" fill="#34D399" fontSize="11" fontWeight="500" fontFamily="Plus Jakarta Sans, sans-serif">
+            Mastered
           </text>
         </g>
 
         {/* NODE 5: Graph Traversal (Bottom) - Not Started */}
         <g transform="translate(220, 320)">
-          <circle r="22" fill="#0F172A" stroke="#38BDF8" strokeWidth="1.8" filter="url(#blueGlow)" />
-          <circle r="18" fill="#0284C7" opacity="0.25" />
-          <circle r="7" fill="#BAE6FD" />
+          <circle r="22" fill="#181C26" stroke="#475569" strokeWidth="1.8" />
+          <circle r="18" fill="#334155" opacity="0.25" />
+          <circle r="6" fill="#94A3B8" />
           {/* Label on right */}
-          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="sans-serif">
+          <text x="34" y="-3" fill="#FFFFFF" fontSize="13" fontWeight="600" fontFamily="Plus Jakarta Sans, sans-serif">
             Graph Traversal
           </text>
-          <text x="34" y="14" fill="#94A3B8" fontSize="11" fontWeight="500" fontFamily="sans-serif">
-            Not Started
+          <text x="34" y="14" fill="#94A3B8" fontSize="11" fontWeight="500" fontFamily="Plus Jakarta Sans, sans-serif">
+            Pending Remediation
           </text>
         </g>
 
-        {/* PLAYFUL HANDWRITTEN / CURSIVE CALLOUT */}
+        {/* ELEGANT EDITORIAL CALLOUT */}
         <g transform="translate(10, 280)">
           {/* Curved Callout Arrow */}
           <path
             d="M 60 5 C 60 30, 95 38, 125 45"
             fill="none"
-            stroke="#94A3B8"
+            stroke="#64748B"
             strokeWidth="1.2"
             strokeDasharray="2 3"
             opacity="0.8"
           />
-          <polygon points="125 41, 131 46, 124 49" fill="#94A3B8" />
+          <polygon points="125 41, 131 46, 124 49" fill="#64748B" />
 
-          {/* Italic / Calligraphic Text */}
           <text
             x="85"
             y="5"
             fill="#CBD5E1"
-            fontSize="13"
-            fontStyle="italic"
-            fontFamily="Georgia, serif"
+            fontSize="12"
+            fontFamily="Plus Jakarta Sans, sans-serif"
+            fontWeight="500"
             opacity="0.9"
           >
-            Trace understanding.
+            Trace causal dependencies.
           </text>
           <text
             x="88"
             y="23"
-            fill="#CBD5E1"
-            fontSize="13"
-            fontStyle="italic"
-            fontFamily="Georgia, serif"
+            fill="#94A3B8"
+            fontSize="12"
+            fontFamily="Plus Jakarta Sans, sans-serif"
+            fontWeight="500"
             opacity="0.9"
           >
-            Find the gap.
+            Fix the root misconception.
           </text>
         </g>
       </svg>

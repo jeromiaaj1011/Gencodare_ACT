@@ -128,7 +128,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-[#070D1C]/90 backdrop-blur-md border-b border-archaia-border">
+    <header className="sticky top-0 z-50 bg-[#0C0E12]/95 backdrop-blur-md border-b border-archaia-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Tagline */}
@@ -136,13 +136,13 @@ export default function Navbar() {
             <Link href="/dashboard" className="flex items-center space-x-2.5 group">
               <ArchaiaLogo
                 size={32}
-                className="w-8 h-8 group-hover:scale-105 transition-transform drop-shadow-[0_0_8px_rgba(245,158,11,0.3)]"
+                className="w-8 h-8 group-hover:scale-105 transition-transform"
               />
               <div>
                 <span className="text-xl font-bold tracking-[0.15em] text-white">
                   ARCHAIA
                 </span>
-                <span className="hidden sm:block text-[10px] uppercase font-mono tracking-widest text-archaia-muted -mt-1">
+                <span className="hidden sm:block text-[10px] uppercase font-medium tracking-wider text-slate-400 -mt-1">
                   Cognitive Learning Diagnostics
                 </span>
               </div>
@@ -160,8 +160,8 @@ export default function Navbar() {
                   href={item.href}
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     isActive
-                      ? "bg-archaia-primary/20 text-archaia-accent border border-archaia-primary/40 shadow-glow"
-                      : "text-archaia-muted hover:text-white hover:bg-archaia-card"
+                      ? "bg-blue-600/15 text-blue-400 border border-blue-500/30 font-semibold shadow-sm"
+                      : "text-slate-400 hover:text-white hover:bg-archaia-card"
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -176,7 +176,7 @@ export default function Navbar() {
             <button
               onClick={handleReset}
               disabled={resetting}
-              className="flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs font-mono bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-archaia-muted hover:text-white transition-colors"
+              className="flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs font-medium bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-400 hover:text-white transition-colors"
               title="Reset state to initial demo seed"
             >
               <RotateCcw className={`w-3.5 h-3.5 ${resetting ? "animate-spin" : ""}`} />
@@ -188,15 +188,15 @@ export default function Navbar() {
             {currentUser ? (
               /* Logged In User Pill */
               <div className="flex items-center space-x-1.5 pl-1">
-                <div className="flex items-center space-x-2 px-2.5 py-1 rounded-xl bg-slate-900/80 border border-slate-700/70 text-xs">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 text-slate-950 font-bold flex items-center justify-center text-[10px]">
+                <div className="flex items-center space-x-2 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-slate-800 text-xs shadow-sm">
+                  <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[10px]">
                     {getInitials(currentUser.fullName)}
                   </div>
                   <div className="hidden sm:flex flex-col text-left">
                     <span className="text-[11px] font-medium text-slate-200 leading-tight">
                       {currentUser.fullName}
                     </span>
-                    <span className="text-[9px] uppercase tracking-wider text-cyan-400 font-mono">
+                    <span className="text-[9px] uppercase tracking-wider text-blue-400 font-medium">
                       {currentUser.role}
                     </span>
                   </div>
@@ -216,7 +216,7 @@ export default function Navbar() {
               /* Guest / Not Logged In */
               <Link
                 href="/login"
-                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#F6D097]/15 hover:bg-[#F6D097]/25 text-[#F6D097] border border-[#F6D097]/40 transition-colors"
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition-colors"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Sign In</span>
@@ -225,7 +225,7 @@ export default function Navbar() {
 
             <Link
               href="/detector"
-              className="hidden sm:flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white shadow-glow transition-all"
+              className="hidden sm:flex items-center space-x-1 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition-all"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Diagnostic</span>
@@ -245,7 +245,7 @@ export default function Navbar() {
 
       {/* Mobile Navigation Dropdown */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-archaia-border bg-[#070D1C]/95 backdrop-blur-xl px-4 py-3 space-y-2 animate-in slide-in-from-top-2">
+        <div className="lg:hidden border-b border-archaia-border bg-[#0C0E12]/98 backdrop-blur-xl px-4 py-3 space-y-2 animate-in slide-in-from-top-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -255,11 +255,11 @@ export default function Navbar() {
                 href={item.href}
                 className={`flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                   isActive
-                    ? "bg-archaia-primary/20 text-cyan-400 border border-archaia-primary/40 font-semibold"
+                    ? "bg-blue-600/15 text-blue-400 border border-blue-500/30 font-semibold"
                     : "text-slate-300 hover:text-white hover:bg-archaia-card"
                 }`}
               >
-                <Icon className="w-4 h-4 text-cyan-400" />
+                <Icon className="w-4 h-4 text-blue-400" />
                 <span>{item.label}</span>
               </Link>
             );

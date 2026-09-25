@@ -50,19 +50,19 @@ export default function ProgressPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <LineChart className="w-5 h-5 text-cyan-400" />
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">
+            <LineChart className="w-5 h-5 text-blue-400" />
+            <h1 className="text-2xl font-bold text-white tracking-tight">
               Learning Progress & Adaptive Path (Module 6)
             </h1>
           </div>
-          <p className="text-xs text-archaia-muted mt-1">
+          <p className="text-xs text-slate-400 mt-1 font-sans">
             Longitudinal cognitive recovery analytics (Features 31–33 & 42). Recalibrates personalized sequences as prerequisite invariants are restored.
           </p>
         </div>
 
         <Link
           href="/graph"
-          className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white text-xs font-mono transition-colors"
+          className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white text-xs font-medium transition-colors"
         >
           <span>View Updated DAG Map →</span>
         </Link>
@@ -71,80 +71,80 @@ export default function ProgressPage() {
       {/* Analytics Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1">
-          <div className="text-archaia-muted text-xs font-mono">Total Concepts</div>
-          <div className="text-2xl font-bold font-mono text-white">{concepts.length || 7}</div>
-          <div className="text-[10px] text-archaia-muted">Data Structures & Algo</div>
+          <div className="text-slate-400 text-xs font-sans">Total Concepts</div>
+          <div className="text-2xl font-bold font-sans text-white">{concepts.length || 7}</div>
+          <div className="text-[10px] text-slate-500 font-sans">Data Structures & Algo</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1">
-          <div className="text-archaia-muted text-xs font-mono">Mastered & Recovered</div>
-          <div className="text-2xl font-bold font-mono text-emerald-400">
+          <div className="text-slate-400 text-xs font-sans">Mastered & Recovered</div>
+          <div className="text-2xl font-bold font-sans text-emerald-400">
             {metrics?.masteredCount ?? 3}
           </div>
-          <div className="text-[10px] text-emerald-500/80 font-mono">Verified Mental Models</div>
+          <div className="text-[10px] text-emerald-500/80 font-sans">Verified Mental Models</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1">
-          <div className="text-archaia-muted text-xs font-mono">Diagnosed & Investigated</div>
-          <div className="text-2xl font-bold font-mono text-cyan-400">
+          <div className="text-slate-400 text-xs font-sans">Diagnosed & Investigated</div>
+          <div className="text-2xl font-bold font-sans text-blue-400">
             {metrics?.diagnosedCount ?? 2}
           </div>
-          <div className="text-[10px] text-archaia-muted">Via Cognitive Bisect</div>
+          <div className="text-[10px] text-slate-500 font-sans">Via Cognitive Bisect</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1">
-          <div className="text-archaia-muted text-xs font-mono">Recovery Success Rate</div>
-          <div className="text-2xl font-bold font-mono text-amber-400">
+          <div className="text-slate-400 text-xs font-sans">Recovery Success Rate</div>
+          <div className="text-2xl font-bold font-sans text-amber-400">
             {metrics ? `${metrics.recoverySuccessRate}%` : "100%"}
           </div>
-          <div className="text-[10px] text-archaia-muted">Post-Intervention Re-Tests</div>
+          <div className="text-[10px] text-slate-500 font-sans">Post-Intervention Re-Tests</div>
         </div>
       </div>
 
       {/* Personalized Recovery Path Milestone Banner */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-indigo-950/60 via-archaia-dark to-slate-900 border border-indigo-500/40 shadow-glow space-y-4">
-        <div className="flex items-center space-x-2 text-cyan-400 font-mono text-xs font-semibold">
+      <div className="p-6 rounded-2xl bg-archaia-card border border-archaia-border shadow-sm space-y-4">
+        <div className="flex items-center space-x-2 text-blue-400 font-sans text-xs font-semibold">
           <Milestone className="w-4 h-4" />
           <span>Personalized Prerequisite Remediation Journey</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs font-mono">
-          <div className="p-3 rounded-xl bg-archaia-card border border-emerald-500/50 space-y-1">
-            <span className="text-emerald-400 font-bold">1. ROOT GAP REPAIR</span>
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs font-sans">
+          <div className="p-3 rounded-xl bg-archaia-dark border border-emerald-500/30 space-y-1">
+            <span className="text-emerald-400 font-bold text-[11px]">1. ROOT GAP REPAIR</span>
             <div className="text-white text-xs font-semibold">Call Stack LIFO</div>
             <p className="text-[10px] text-emerald-300">Re-Test Passed (92%) 🟢</p>
           </div>
 
-          <div className="p-3 rounded-xl bg-archaia-card border border-emerald-500/50 space-y-1">
-            <span className="text-emerald-400 font-bold">2. PREREQUISITE UNLOCKED</span>
+          <div className="p-3 rounded-xl bg-archaia-dark border border-emerald-500/30 space-y-1">
+            <span className="text-emerald-400 font-bold text-[11px]">2. PREREQUISITE UNLOCKED</span>
             <div className="text-white text-xs font-semibold">Recursion Returns</div>
             <p className="text-[10px] text-emerald-300">Invariant Mastered 🟢</p>
           </div>
 
-          <div className="p-3 rounded-xl bg-archaia-card border border-cyan-500/50 space-y-1">
-            <span className="text-cyan-400 font-bold">3. DOWNSTREAM READY</span>
+          <div className="p-3 rounded-xl bg-archaia-dark border border-blue-500/30 space-y-1">
+            <span className="text-blue-400 font-bold text-[11px]">3. DOWNSTREAM READY</span>
             <div className="text-white text-xs font-semibold">Tree Traversal</div>
-            <p className="text-[10px] text-cyan-300">Unlocked & Ready 🔓</p>
+            <p className="text-[10px] text-blue-300">Unlocked & Ready 🔓</p>
           </div>
 
-          <div className="p-3 rounded-xl bg-archaia-card border border-indigo-500/50 space-y-1">
-            <span className="text-indigo-400 font-bold">4. TARGET RE-ENGAGE</span>
+          <div className="p-3 rounded-xl bg-archaia-dark border border-slate-700 space-y-1">
+            <span className="text-slate-300 font-bold text-[11px]">4. TARGET RE-ENGAGE</span>
             <div className="text-white text-xs font-semibold">Graph Traversal (DFS)</div>
-            <p className="text-[10px] text-indigo-300">Unlocked & Calibrated 🔓</p>
+            <p className="text-[10px] text-slate-400">Unlocked & Calibrated 🔓</p>
           </div>
         </div>
       </div>
 
       {/* Dynamic Adaptive Learning Path Timeline */}
-      <div className="p-6 rounded-3xl bg-archaia-dark border border-archaia-border space-y-4 shadow-xl">
+      <div className="p-6 rounded-2xl bg-archaia-dark border border-archaia-border space-y-4 shadow-sm">
         <div className="flex items-center justify-between border-b border-archaia-border pb-3">
           <div className="flex items-center space-x-2">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
+            <Sparkles className="w-4 h-4 text-blue-400" />
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider font-sans">
               Dynamic Adaptive Curriculum Roadmap
             </h3>
           </div>
-          <span className="text-xs font-mono text-archaia-muted">
+          <span className="text-xs font-sans text-slate-400">
             Dynamically Recalculated Based on Verified Mastery
           </span>
         </div>
@@ -160,18 +160,18 @@ export default function ProgressPage() {
             return (
               <div
                 key={item.conceptId}
-                className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                className={`p-4 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                   isMastered
-                    ? "bg-emerald-950/30 border-emerald-500/40 text-emerald-200"
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-200"
                     : isReady
-                    ? "bg-indigo-950/40 border-cyan-400 text-cyan-200 shadow-glow"
+                    ? "bg-blue-950/20 border-blue-500/40 text-blue-200 shadow-sm"
                     : needsRecovery
-                    ? "bg-amber-950/40 border-amber-500/50 text-amber-200 shadow-glowWarning"
+                    ? "bg-amber-950/20 border-amber-500/30 text-amber-200 shadow-sm"
                     : "bg-archaia-card/50 border-archaia-border text-archaia-muted opacity-60"
                 }`}
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold shrink-0 bg-black/40 border border-white/10">
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center font-sans text-xs font-bold shrink-0 bg-slate-900 border border-slate-700 text-slate-300">
                     {idx + 1}
                   </div>
                   <div>
@@ -179,17 +179,17 @@ export default function ProgressPage() {
                       <h4 className="text-sm font-bold text-white">
                         {conceptInfo?.name || item.conceptId}
                       </h4>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded uppercase border">
+                      <span className="text-[10px] font-sans px-2 py-0.5 rounded uppercase border border-slate-700 bg-slate-900/60 text-slate-300">
                         {item.status.replace("_", " ")}
                       </span>
                     </div>
-                    <p className="text-xs opacity-75 mt-0.5">
+                    <p className="text-xs opacity-75 mt-0.5 font-sans">
                       {conceptInfo?.description}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3 shrink-0 text-xs font-mono">
+                <div className="flex items-center space-x-3 shrink-0 text-xs font-sans">
                   {isMastered && (
                     <span className="flex items-center space-x-1 text-emerald-400 font-semibold">
                       <CheckCircle2 className="w-4 h-4" />
@@ -197,7 +197,7 @@ export default function ProgressPage() {
                     </span>
                   )}
                   {isReady && (
-                    <span className="flex items-center space-x-1 text-cyan-400 font-semibold animate-pulse">
+                    <span className="flex items-center space-x-1 text-blue-400 font-semibold">
                       <PlayCircle className="w-4 h-4" />
                       <span>Ready to Learn</span>
                     </span>
@@ -205,7 +205,7 @@ export default function ProgressPage() {
                   {needsRecovery && (
                     <Link
                       href="/recovery"
-                      className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-amber-500 text-black font-bold text-xs hover:bg-amber-400 transition-colors"
+                      className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-amber-600 text-white font-medium text-xs hover:bg-amber-500 transition-colors shadow-sm"
                     >
                       <span>Repair Gap →</span>
                     </Link>
@@ -224,8 +224,8 @@ export default function ProgressPage() {
       </div>
 
       {/* Concept Mastery Matrix (Feature 42) */}
-      <div className="p-6 rounded-3xl bg-archaia-dark border border-archaia-border space-y-4 shadow-xl">
-        <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
+      <div className="p-6 rounded-2xl bg-archaia-dark border border-archaia-border space-y-4 shadow-sm">
+        <h3 className="text-sm font-bold text-white uppercase tracking-wider font-sans">
           Concept Invariant Mastery Matrix
         </h3>
 
@@ -240,9 +240,9 @@ export default function ProgressPage() {
                 key={c.id}
                 className="p-4 rounded-xl bg-archaia-card border border-archaia-border space-y-2"
               >
-                <div className="flex items-center justify-between text-xs font-mono">
+                <div className="flex items-center justify-between text-xs font-sans">
                   <span className="text-white font-semibold">{c.name}</span>
-                  <span className="text-cyan-400 font-bold">{score}%</span>
+                  <span className="text-blue-400 font-bold font-mono">{score}%</span>
                 </div>
 
                 {/* Progress bar */}
@@ -255,7 +255,7 @@ export default function ProgressPage() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between text-[10px] font-mono text-archaia-muted pt-1">
+                <div className="flex items-center justify-between text-[10px] font-sans text-slate-400 pt-1">
                   <span>Status: {status}</span>
                   <span>{c.difficulty}</span>
                 </div>

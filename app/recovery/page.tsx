@@ -123,7 +123,7 @@ export default function RecoveryPage() {
 
   if (!intervention) {
     return (
-      <div className="h-64 flex items-center justify-center text-cyan-400 font-mono text-xs">
+      <div className="h-64 flex items-center justify-center text-blue-400 font-sans text-xs">
         Loading Recovery Lab Modules...
       </div>
     );
@@ -140,18 +140,18 @@ export default function RecoveryPage() {
         <div>
           <div className="flex items-center space-x-2">
             <HeartPulse className="w-5 h-5 text-amber-400" />
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">
-              Targeted Recovery Lab Studio (Module 5)
+            <h1 className="text-2xl font-bold text-white tracking-tight">
+              Targeted Recovery Lab Studio
             </h1>
           </div>
-          <p className="text-xs text-archaia-muted mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Targeting Isolated Root Gap: <strong className="text-amber-300">Call Stack & LIFO Frames</strong>. Repair the foundational mental model before returning to Graph Traversal.
           </p>
         </div>
 
         <button
           onClick={() => setActiveTab("retest")}
-          className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-500 hover:from-emerald-500 hover:to-cyan-400 text-white font-semibold text-xs shadow-glow transition-all"
+          className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-all"
         >
           <Sparkles className="w-4 h-4" />
           <span>Take Mandatory Re-Test →</span>
@@ -175,10 +175,10 @@ export default function RecoveryPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-mono transition-all ${
+              className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                 isSelected
-                  ? "bg-archaia-primary text-white shadow-glow"
-                  : "hover:bg-archaia-card text-archaia-muted hover:text-white"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "hover:bg-archaia-card text-slate-400 hover:text-white"
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -190,32 +190,32 @@ export default function RecoveryPage() {
 
       {/* TAB 1: VISUAL MEMORY SIMULATOR (Feature 20 & 23) */}
       {activeTab === "visualizer" && (
-        <div className="p-6 rounded-3xl bg-archaia-dark border border-indigo-500/40 shadow-glow space-y-6 animate-in fade-in">
+        <div className="p-6 rounded-2xl bg-archaia-dark border border-archaia-border shadow-sm space-y-6 animate-in fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-archaia-border pb-4">
             <div>
               <div className="flex items-center space-x-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase">
+                <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wider">
                   Interactive Memory Trace
                 </span>
                 <h3 className="text-base font-bold text-white">
                   {intervention.visualMemoryModel.title}
                 </h3>
               </div>
-              <p className="text-xs text-archaia-muted mt-0.5">
+              <p className="text-xs text-archaia-muted mt-0.5 font-sans">
                 {intervention.visualMemoryModel.description}
               </p>
             </div>
 
             {/* Stepper Controls */}
-            <div className="flex items-center space-x-2 font-mono text-xs">
+            <div className="flex items-center space-x-2 text-xs">
               <button
                 onClick={() => setVisualStep((s) => Math.max(0, s - 1))}
                 disabled={visualStep === 0}
-                className="px-3 py-1 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white disabled:opacity-40"
+                className="px-3 py-1.5 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white disabled:opacity-40"
               >
                 ← Prev Step
               </button>
-              <span className="text-cyan-400 px-2 font-bold">
+              <span className="text-blue-400 px-2 font-semibold font-mono">
                 Step {visualStep + 1} / {intervention.visualMemoryModel.frames.length}
               </span>
               <button
@@ -225,7 +225,7 @@ export default function RecoveryPage() {
                   )
                 }
                 disabled={visualStep === intervention.visualMemoryModel.frames.length - 1}
-                className="px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40"
+                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium disabled:opacity-40"
               >
                 Next Step →
               </button>
@@ -236,38 +236,38 @@ export default function RecoveryPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
             {/* Col 1: Code Trace with Active Line */}
             <div className="p-4 rounded-2xl bg-archaia-card border border-archaia-border space-y-2">
-              <div className="text-[11px] font-mono text-cyan-400 font-semibold flex items-center space-x-1">
-                <Terminal className="w-3.5 h-3.5" />
+              <div className="text-[11px] font-medium text-slate-300 flex items-center space-x-1.5">
+                <Terminal className="w-3.5 h-3.5 text-blue-400" />
                 <span>Runtime Code Trace</span>
               </div>
-              <div className="p-3 rounded-xl bg-black font-mono text-[11px] space-y-1">
-                <div className={currentFrame.activeLine === 1 ? "text-cyan-300 bg-cyan-950/60 px-1 rounded" : "text-slate-400"}>
+              <div className="p-3 rounded-xl bg-slate-950 font-mono text-[11px] space-y-1 border border-slate-800">
+                <div className={currentFrame.activeLine === 1 ? "text-blue-300 bg-blue-950/60 px-1.5 py-0.5 rounded" : "text-slate-400"}>
                   1: function dfs(node) &#123;
                 </div>
-                <div className={currentFrame.activeLine === 2 ? "text-cyan-300 bg-cyan-950/60 px-1 rounded" : "text-slate-400"}>
+                <div className={currentFrame.activeLine === 2 ? "text-blue-300 bg-blue-950/60 px-1.5 py-0.5 rounded" : "text-slate-400"}>
                   2:   visited.add(node);
                 </div>
-                <div className={currentFrame.activeLine === 3 ? "text-cyan-300 bg-cyan-950/60 px-1 rounded" : "text-slate-400"}>
+                <div className={currentFrame.activeLine === 3 ? "text-blue-300 bg-blue-950/60 px-1.5 py-0.5 rounded" : "text-slate-400"}>
                   3:   for (let n of neighbors) &#123;
                 </div>
-                <div className={currentFrame.activeLine === 6 ? "text-cyan-300 bg-cyan-950/60 px-1 rounded" : "text-slate-400"}>
+                <div className={currentFrame.activeLine === 6 ? "text-blue-300 bg-blue-950/60 px-1.5 py-0.5 rounded" : "text-slate-400"}>
                   4:     dfs(n); // RECURSIVE CALL
                 </div>
-                <div className={currentFrame.activeLine === 8 ? "text-cyan-300 bg-cyan-950/60 px-1 rounded" : "text-slate-400"}>
+                <div className={currentFrame.activeLine === 8 ? "text-blue-300 bg-blue-950/60 px-1.5 py-0.5 rounded" : "text-slate-400"}>
                   5:   &#125; // RESUMES LOOP HERE!
                 </div>
                 <div className="text-slate-400">
                   6: &#125;
                 </div>
               </div>
-              <div className="text-[10px] text-archaia-muted font-mono">
+              <div className="text-[10px] text-slate-400 font-sans">
                 Active Execution: Line {currentFrame.activeLine}
               </div>
             </div>
 
             {/* Col 2: The Physical Stack Tube */}
             <div className="p-4 rounded-2xl bg-archaia-card border border-archaia-border flex flex-col items-center space-y-3">
-              <div className="text-[11px] font-mono text-archaia-muted uppercase tracking-wider">
+              <div className="text-[11px] text-slate-400 uppercase tracking-wider font-medium">
                 Hardware Call Stack (LIFO)
               </div>
 
@@ -277,11 +277,11 @@ export default function RecoveryPage() {
                     key={idx}
                     className={`p-2.5 rounded-lg border text-xs font-mono font-semibold transition-all ${
                       idx === currentFrame.stackFrames.length - 1
-                        ? "bg-gradient-to-r from-indigo-900 to-cyan-900 border-cyan-400 text-white shadow-glow"
-                        : "bg-slate-900 border-slate-700 text-slate-400 opacity-70"
+                        ? "bg-slate-800 border-blue-500/80 text-white shadow-sm"
+                        : "bg-slate-900 border-slate-700/60 text-slate-400 opacity-70"
                     }`}
                   >
-                    <div className="flex items-center justify-between text-[10px] text-cyan-300">
+                    <div className="flex items-center justify-between text-[10px] text-blue-400 font-sans font-medium">
                       <span>{idx === currentFrame.stackFrames.length - 1 ? "TOP (ACTIVE)" : "SUSPENDED"}</span>
                       <span>LIFO</span>
                     </div>
@@ -290,27 +290,27 @@ export default function RecoveryPage() {
                 ))}
               </div>
 
-              <div className="text-[10px] font-mono text-cyan-400 text-center">
+              <div className="text-[11px] text-slate-400 text-center font-sans">
                 Bottom frames stay preserved; never overwritten!
               </div>
             </div>
 
             {/* Col 3: Explanation & Invariant Truth */}
             <div className="space-y-3">
-              <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 space-y-1.5">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-cyan-300 font-semibold">
+              <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1.5">
+                <span className="text-[10px] font-sans uppercase tracking-wider text-blue-400 font-semibold">
                   Step {currentFrame.step}: {currentFrame.label}
                 </span>
-                <p className="text-xs text-slate-200 leading-relaxed font-mono">
+                <p className="text-xs text-slate-200 leading-relaxed font-sans">
                   {currentFrame.explanation}
                 </p>
               </div>
 
               <div className="p-3 rounded-xl bg-archaia-card border border-archaia-border space-y-1 text-xs">
-                <div className="text-amber-300 font-mono text-[11px] font-semibold">
+                <div className="text-amber-400 font-sans text-[11px] font-semibold">
                   Counterexample Check:
                 </div>
-                <p className="text-[11px] text-archaia-muted leading-relaxed font-mono">
+                <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
                   {intervention.counterexample.mentalModelExplanation}
                 </p>
               </div>
@@ -323,20 +323,20 @@ export default function RecoveryPage() {
       {activeTab === "explain" && (
         <div className="p-6 rounded-3xl bg-archaia-dark border border-archaia-border space-y-4 animate-in fade-in">
           <div className="flex items-center space-x-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase">
+            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase tracking-wider">
               Pedagogical Deconstruction
             </span>
             <h3 className="text-lg font-bold text-white">{intervention.title}</h3>
           </div>
-          <p className="text-xs text-slate-300 leading-relaxed font-mono text-sm">
+          <p className="text-sm text-slate-300 leading-relaxed font-sans">
             {intervention.explanation}
           </p>
 
-          <div className="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-900/60 space-y-2 text-xs">
-            <span className="text-cyan-400 font-mono font-semibold uppercase text-[10px]">
+          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2 text-xs">
+            <span className="text-blue-400 font-semibold uppercase text-[11px] font-sans">
               Why this broke your Graph Traversal code:
             </span>
-            <p className="text-slate-300 leading-relaxed">
+            <p className="text-slate-300 leading-relaxed font-sans">
               In graph DFS, when visiting node neighbors in a loop `for (let neighbor of neighbors)`, calling `dfs(neighbor)` suspends the current loop frame. Once the branch explores depth 4 and returns, your stack frame resumes at the exact neighbor index it paused at. Without understanding stack frames, learners mistakenly write `return dfs(...)` or assume the loop terminated!
             </p>
           </div>
@@ -347,7 +347,7 @@ export default function RecoveryPage() {
       {activeTab === "puzzle" && (
         <div className="p-6 rounded-3xl bg-archaia-dark border border-archaia-border space-y-4 animate-in fade-in">
           <div>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
               Cognitive Disconfirmation Micro-Puzzle
             </span>
             <h3 className="text-base font-bold text-white mt-1">
@@ -356,7 +356,7 @@ export default function RecoveryPage() {
           </div>
 
           {intervention.microPuzzle.codeSnippet && (
-            <pre className="p-4 rounded-xl bg-black border border-archaia-border text-xs font-mono text-cyan-300">
+            <pre className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200">
               {intervention.microPuzzle.codeSnippet}
             </pre>
           )}
@@ -369,7 +369,7 @@ export default function RecoveryPage() {
                   setSelectedPuzzleIdx(idx);
                   setPuzzleSubmitted(true);
                 }}
-                className={`w-full text-left p-3 rounded-xl border text-xs font-mono transition-all flex items-center justify-between ${
+                className={`w-full text-left p-3.5 rounded-xl border text-xs font-sans transition-all flex items-center justify-between ${
                   selectedPuzzleIdx === idx
                     ? idx === intervention.microPuzzle.correctIndex
                       ? "bg-emerald-950/60 border-emerald-500 text-emerald-200"
@@ -379,7 +379,7 @@ export default function RecoveryPage() {
               >
                 <span>{opt}</span>
                 {selectedPuzzleIdx === idx && (
-                  <span>
+                  <span className="font-semibold">
                     {idx === intervention.microPuzzle.correctIndex ? "✓ Correct!" : "✗ Try again"}
                   </span>
                 )}
@@ -388,7 +388,7 @@ export default function RecoveryPage() {
           </div>
 
           {puzzleSubmitted && (
-            <div className="p-4 rounded-xl bg-archaia-card border border-cyan-500/30 text-xs font-mono text-cyan-300 leading-relaxed">
+            <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 leading-relaxed font-sans">
               {intervention.microPuzzle.explanation}
             </div>
           )}
@@ -400,12 +400,12 @@ export default function RecoveryPage() {
         <div className="p-6 rounded-3xl bg-archaia-dark border border-archaia-border space-y-4 animate-in fade-in">
           <div>
             <div className="flex items-center space-x-2">
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">
+              <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
                 Code Invariant Repair
               </span>
               <h3 className="text-base font-bold text-white">Interactive Recursive Code Fix</h3>
             </div>
-            <p className="text-xs text-archaia-muted mt-0.5">
+            <p className="text-xs text-archaia-muted mt-0.5 font-sans">
               {intervention.codeExercise.instructions}
             </p>
           </div>
@@ -415,14 +415,14 @@ export default function RecoveryPage() {
               rows={10}
               value={userCode}
               onChange={(e) => setUserCode(e.target.value)}
-              className="w-full p-4 rounded-xl bg-black border border-archaia-border text-xs font-mono text-emerald-400 focus:outline-none focus:border-cyan-400 leading-relaxed"
+              className="w-full p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-emerald-300 focus:outline-none focus:border-blue-500 leading-relaxed"
             />
           </div>
 
           <div className="flex items-center justify-between">
             <button
               onClick={handleCodeCheck}
-              className="flex items-center space-x-2 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-glow"
+              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm transition-all"
             >
               <Play className="w-3.5 h-3.5" />
               <span>Verify Recursive Invariant</span>
@@ -430,7 +430,7 @@ export default function RecoveryPage() {
 
             {codeTested && (
               <span
-                className={`text-xs font-mono font-semibold ${
+                className={`text-xs font-sans font-semibold ${
                   codeSuccess ? "text-emerald-400" : "text-rose-400"
                 }`}
               >
@@ -445,8 +445,8 @@ export default function RecoveryPage() {
 
       {/* TAB 5: INDUSTRY BLAST RADIUS (Feature 22, 36 & 37) */}
       {activeTab === "blast_radius" && (
-        <div className="p-6 rounded-3xl bg-archaia-dark border border-amber-500/40 shadow-glowWarning space-y-4 animate-in fade-in">
-          <div className="flex items-center space-x-2 text-amber-400 text-xs font-mono font-semibold">
+        <div className="p-6 rounded-3xl bg-archaia-dark border border-amber-500/30 shadow-sm space-y-4 animate-in fade-in">
+          <div className="flex items-center space-x-2 text-amber-400 text-xs font-semibold font-sans">
             <Flame className="w-4 h-4" />
             <span>Production Architecture & Blast Radius Case Study</span>
           </div>
@@ -454,24 +454,24 @@ export default function RecoveryPage() {
           <h3 className="text-lg font-bold text-white">
             {intervention.industryBlastRadius.incidentTitle}
           </h3>
-          <div className="text-xs font-mono text-cyan-400">
-            Organization Type: {intervention.industryBlastRadius.organizationType}
+          <div className="text-xs font-sans text-slate-400">
+            Organization Type: <span className="text-slate-200 font-medium">{intervention.industryBlastRadius.organizationType}</span>
           </div>
 
-          <p className="text-xs text-slate-300 leading-relaxed font-mono">
+          <p className="text-xs text-slate-300 leading-relaxed font-sans">
             {intervention.industryBlastRadius.outageDescription}
           </p>
 
-          <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-900/60 space-y-2 text-xs font-mono">
+          <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-900/40 space-y-2 text-xs font-sans">
             <span className="text-amber-400 font-semibold uppercase text-[10px]">
               How this Misconception Translates to Production Outages:
             </span>
-            <p className="text-amber-200 leading-relaxed">
+            <p className="text-amber-200/90 leading-relaxed">
               {intervention.industryBlastRadius.howMisconceptionCausesIt}
             </p>
           </div>
 
-          <div className="text-[11px] text-archaia-muted italic border-t border-archaia-border pt-2 font-mono">
+          <div className="text-[11px] text-slate-400 italic border-t border-slate-800 pt-2 font-sans">
             * {intervention.industryBlastRadius.illustrativeNote}
           </div>
         </div>
@@ -485,7 +485,7 @@ export default function RecoveryPage() {
               <h3 className="text-base font-bold text-white">
                 Multilingual Conceptual Bridge
               </h3>
-              <p className="text-xs text-archaia-muted mt-0.5">
+              <p className="text-xs text-archaia-muted mt-0.5 font-sans">
                 Preserves technical English terms (`Call Stack`, `LIFO`, `Stack Frame`) while adapting conceptual intuition into regional languages.
               </p>
             </div>
@@ -499,10 +499,10 @@ export default function RecoveryPage() {
                 <button
                   key={lang.code}
                   onClick={() => handleLanguageChange(lang.code)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-sans font-medium transition-all ${
                     selectedLanguage === lang.code
-                      ? "bg-archaia-primary text-white shadow-glow"
-                      : "bg-archaia-card hover:bg-archaia-cardHover text-archaia-muted"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "bg-archaia-card hover:bg-archaia-cardHover text-slate-400"
                   }`}
                 >
                   {lang.label}
@@ -512,33 +512,33 @@ export default function RecoveryPage() {
           </div>
 
           {loadingTranslation ? (
-            <div className="p-8 text-center text-xs font-mono text-cyan-400">
+            <div className="p-8 text-center text-xs font-sans text-slate-400">
               Generating contextual regional analogy with preserved terminology...
             </div>
           ) : (
             <div className="space-y-4">
               <div className="p-5 rounded-2xl bg-archaia-card border border-archaia-border space-y-3">
-                <span className="text-[10px] font-mono uppercase text-cyan-400 font-semibold">
+                <span className="text-[11px] font-sans uppercase text-blue-400 font-semibold">
                   Conceptual Translation
                 </span>
-                <p className="text-sm text-slate-100 leading-relaxed font-sans">
+                <p className="text-sm text-slate-200 leading-relaxed font-sans">
                   {localizedData?.explanation ||
                     "ஒரு function மற்றொரு function-ஐ அழைக்கும் போது, அது பழைய function-ஐ அழிக்காது. கணினியின் Call Stack-ல் ஒவ்வொரு function invocation-க்கும் ஒரு தனிப்பட்ட Stack Frame ஒதுக்கப்படுகிறது. அழைக்கப்பட்ட குழந்தை function முடியும் வரை, பெற்றோர் function-ன் local variables பாதுகாப்பாக suspend நிலையில் இருக்கும்."}
                 </p>
               </div>
 
-              <div className="p-5 rounded-2xl bg-indigo-950/40 border border-indigo-900/60 space-y-2">
-                <span className="text-[10px] font-mono uppercase text-indigo-300 font-semibold">
+              <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
+                <span className="text-[11px] font-sans uppercase text-amber-400 font-semibold">
                   Intuitive Cultural Analogy
                 </span>
-                <p className="text-xs text-indigo-100 leading-relaxed font-sans">
+                <p className="text-xs text-slate-300 leading-relaxed font-sans">
                   {localizedData?.analogy ||
                     "நீங்கள் ஒரு புத்தகத்தைப் படித்துக் கொண்டிருக்கும் போது ஒரு குறிப்பை சரிபார்க்க மற்றொரு குறிப்பேட்டைத் திறப்பது போல. நீங்கள் அசல் புத்தகத்தை தூக்கி எறிய மாட்டீர்கள்; குறிப்பேட்டை முடித்துவிட்டு, புத்தகத்தில் விட்ட இடத்திலிருந்தே தொடர்வீர்கள்."}
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2 pt-2 text-xs font-mono">
-                <span className="text-archaia-muted">Preserved Technical Terms:</span>
+              <div className="flex flex-wrap items-center gap-2 pt-2 text-xs">
+                <span className="text-slate-400 font-sans">Preserved Technical Terms:</span>
                 {(
                   localizedData?.preservedTechnicalTerms || [
                     "Call Stack",
@@ -550,7 +550,7 @@ export default function RecoveryPage() {
                 ).map((term: string) => (
                   <span
                     key={term}
-                    className="px-2 py-0.5 rounded bg-black border border-archaia-border text-cyan-400 text-[10px]"
+                    className="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-blue-300 text-[11px] font-mono"
                   >
                     {term}
                   </span>
@@ -563,16 +563,16 @@ export default function RecoveryPage() {
 
       {/* TAB 7: MANDATORY RE-TEST (Feature 27, 28, 29 & 30) */}
       {activeTab === "retest" && retest && (
-        <div className="p-6 rounded-3xl bg-archaia-dark border border-emerald-500/40 shadow-glowSuccess space-y-5 animate-in fade-in">
+        <div className="p-6 rounded-3xl bg-archaia-dark border border-emerald-500/30 shadow-sm space-y-5 animate-in fade-in">
           <div className="border-b border-archaia-border pb-3">
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
               Prerequisite Mastery Verification Assessment
             </span>
             <h3 className="text-base font-bold text-white mt-1">{retest.question}</h3>
           </div>
 
           {retest.codeSnippet && (
-            <pre className="p-4 rounded-xl bg-black border border-archaia-border text-xs font-mono text-cyan-300">
+            <pre className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-200">
               {retest.codeSnippet}
             </pre>
           )}
@@ -582,9 +582,9 @@ export default function RecoveryPage() {
               <label
                 key={opt.id}
                 onClick={() => setSelectedReTestOpt(opt.id)}
-                className={`block p-4 rounded-xl border text-xs font-mono cursor-pointer transition-all ${
+                className={`block p-4 rounded-xl border text-xs font-sans cursor-pointer transition-all ${
                   selectedReTestOpt === opt.id
-                    ? "bg-indigo-950/80 border-cyan-400 text-white shadow-glow"
+                    ? "bg-slate-800/90 border-blue-500 text-white shadow-sm"
                     : "bg-archaia-card hover:bg-archaia-cardHover border-archaia-border text-slate-300"
                 }`}
               >
@@ -594,7 +594,7 @@ export default function RecoveryPage() {
                     name="retest_choice"
                     checked={selectedReTestOpt === opt.id}
                     onChange={() => setSelectedReTestOpt(opt.id)}
-                    className="accent-cyan-400"
+                    className="accent-blue-600"
                   />
                   <span>{opt.text}</span>
                 </div>
@@ -606,7 +606,7 @@ export default function RecoveryPage() {
             <button
               onClick={handleReTestSubmit}
               disabled={!selectedReTestOpt || reTesting}
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-glowSuccess transition-all disabled:opacity-50"
+              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-all disabled:opacity-50"
             >
               <CheckCircle className="w-4 h-4" />
               <span>{reTesting ? "Evaluating Re-Assessment..." : "Submit Re-Test & Update Model"}</span>
@@ -629,22 +629,22 @@ export default function RecoveryPage() {
                     : "Cognitive Gap Unresolved — Remediation Logged."}
                 </span>
               </div>
-              <p className="text-xs font-mono leading-relaxed">{reTestResult.feedback}</p>
+              <p className="text-xs text-slate-200 leading-relaxed font-sans">{reTestResult.feedback}</p>
 
               {reTestResult.furtherDiagnosisNotes && (
-                <div className="p-3 rounded-xl bg-black/60 border border-rose-900 text-xs font-mono text-rose-300">
+                <div className="p-3 rounded-xl bg-slate-950/80 border border-rose-900/60 text-xs font-sans text-rose-300">
                   <strong>Diagnostic Guidance:</strong> {reTestResult.furtherDiagnosisNotes}
                 </div>
               )}
 
               {reTestResult.isCorrect && (
                 <div className="pt-2 border-t border-emerald-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <span className="text-xs font-mono text-cyan-300">
+                  <span className="text-xs font-sans text-slate-300">
                     Unlocked Downstream: Recursion 🟢, Tree Traversal 🔓, Graph Traversal 🔓
                   </span>
                   <Link
                     href="/progress"
-                    className="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition-colors"
+                    className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors shadow-sm"
                   >
                     <span>View Updated Adaptive Path →</span>
                   </Link>

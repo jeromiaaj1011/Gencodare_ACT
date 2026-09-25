@@ -106,12 +106,12 @@ export default function GraphPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
-            <Network className="w-5 h-5 text-cyan-400" />
-            <h1 className="text-2xl font-extrabold text-white tracking-tight">
+            <Network className="w-5 h-5 text-blue-400" />
+            <h1 className="text-2xl font-bold text-white tracking-tight">
               Causal Knowledge Dependency Graph
             </h1>
           </div>
-          <p className="text-xs text-archaia-muted mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Ontological Directed Acyclic Graph (DAG) modeling prerequisite causality. Nodes represent concepts; edges represent invariant dependency chains.
           </p>
         </div>
@@ -119,15 +119,15 @@ export default function GraphPage() {
         <div className="flex items-center space-x-3">
           <button
             onClick={() => setShowExtractor(!showExtractor)}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white text-xs font-mono transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white text-xs font-medium transition-colors"
           >
-            <Upload className="w-3.5 h-3.5 text-cyan-400" />
+            <Upload className="w-3.5 h-3.5 text-blue-400" />
             <span>{showExtractor ? "Hide Material Extractor" : "Extract From Course Material"}</span>
           </button>
 
           <button
             onClick={fetchGraph}
-            className="p-1.5 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-archaia-muted hover:text-white"
+            className="p-1.5 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-400 hover:text-white"
             title="Refresh graph"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -137,37 +137,37 @@ export default function GraphPage() {
 
       {/* Course Material Extraction Ingestion Form */}
       {showExtractor && (
-        <div className="p-5 rounded-2xl bg-archaia-card border border-indigo-500/40 shadow-glow space-y-4 animate-in fade-in">
-          <div className="flex items-center space-x-2 text-indigo-400 text-xs font-mono font-semibold">
+        <div className="p-5 rounded-2xl bg-archaia-card border border-archaia-border shadow-sm space-y-4 animate-in fade-in">
+          <div className="flex items-center space-x-2 text-blue-400 text-xs font-semibold">
             <FileText className="w-4 h-4" />
             <span>Course Material & Prerequisite Extraction Engine</span>
           </div>
-          <p className="text-xs text-archaia-muted">
+          <p className="text-xs text-slate-400">
             Paste lecture notes, syllabus modules, or textbook excerpts. ARCHAIA extracts key computing concepts, creates prerequisite relationships, and binds them to the DAG.
           </p>
 
           <form onSubmit={handleExtract} className="space-y-3">
             <div>
-              <label className="block text-xs font-mono text-archaia-muted mb-1">
+              <label className="block text-xs font-medium text-slate-300 mb-1">
                 Syllabus / Course Unit Title:
               </label>
               <input
                 type="text"
                 value={syllabusTitle}
                 onChange={(e) => setSyllabusTitle(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-archaia-dark border border-archaia-border text-xs text-white focus:outline-none focus:border-cyan-400 font-mono"
+                className="w-full px-3 py-2 rounded-lg bg-[#0D1017] border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-archaia-muted mb-1">
+              <label className="block text-xs font-medium text-slate-300 mb-1">
                 Instructional Text / Material Content:
               </label>
               <textarea
                 rows={3}
                 value={syllabusContent}
                 onChange={(e) => setSyllabusContent(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-archaia-dark border border-archaia-border text-xs text-white focus:outline-none focus:border-cyan-400 font-mono"
+                className="w-full px-3 py-2 rounded-lg bg-[#0D1017] border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans"
               />
             </div>
 
@@ -175,13 +175,13 @@ export default function GraphPage() {
               <button
                 type="submit"
                 disabled={extracting}
-                className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-glow flex items-center space-x-2"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm flex items-center space-x-2"
               >
                 <span>{extracting ? "Extracting Concepts..." : "Run Concept Extraction & Link DAG"}</span>
               </button>
 
               {extractMsg && (
-                <div className="flex items-center space-x-1.5 text-xs text-emerald-400 font-mono">
+                <div className="flex items-center space-x-1.5 text-xs text-emerald-400 font-medium">
                   <CheckCircle className="w-4 h-4" />
                   <span>{extractMsg}</span>
                 </div>
@@ -194,7 +194,7 @@ export default function GraphPage() {
       {/* Main Interactive Graph Canvas */}
       {loading ? (
         <div className="h-[480px] rounded-2xl bg-archaia-dark border border-archaia-border flex items-center justify-center">
-          <div className="flex items-center space-x-3 text-cyan-400 font-mono text-xs">
+          <div className="flex items-center space-x-3 text-blue-400 text-xs font-medium">
             <RefreshCw className="w-5 h-5 animate-spin" />
             <span>Computing Hierarchical DAG Layout & Learner Invariants...</span>
           </div>

@@ -173,14 +173,14 @@ export default function DetectorPage() {
         <div className="flex items-center space-x-2">
           <button
             onClick={() => loadPreset("dfs_replacement")}
-            className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 text-xs font-mono transition-colors"
+            className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-blue-600/15 hover:bg-blue-600/25 border border-blue-500/30 text-blue-300 text-xs font-medium transition-colors"
           >
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
             <span>Preset 1: DFS Replacement</span>
           </button>
           <button
             onClick={() => loadPreset("reference_aliasing")}
-            className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-300 text-xs font-mono transition-colors"
+            className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-300 text-xs font-medium transition-colors"
           >
             <span>Preset 2: Reference Aliasing</span>
           </button>
@@ -191,7 +191,7 @@ export default function DetectorPage() {
       <div className="p-6 rounded-2xl bg-archaia-dark border border-archaia-border space-y-4 shadow-xl">
         {/* Modality Selector Tabs */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-archaia-border pb-3">
-          <span className="text-xs font-mono text-archaia-muted">Input Modality:</span>
+          <span className="text-xs font-medium text-slate-400">Input Modality:</span>
           <div className="flex flex-wrap gap-1.5">
             {[
               { id: "written", label: "Written Text", icon: HelpCircle },
@@ -206,10 +206,10 @@ export default function DetectorPage() {
                 <button
                   key={tab.id}
                   onClick={() => setResponseType(tab.id as ResponseType)}
-                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
+                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     isSelected
-                      ? "bg-archaia-primary text-white shadow-glow"
-                      : "bg-archaia-card hover:bg-archaia-cardHover text-archaia-muted"
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "bg-archaia-card hover:bg-archaia-cardHover text-slate-400"
                   }`}
                 >
                   <Icon className="w-3 h-3" />
@@ -223,13 +223,13 @@ export default function DetectorPage() {
         <form onSubmit={handleAnalyze} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-mono text-archaia-muted mb-1">
+              <label className="block text-xs font-medium text-slate-300 mb-1">
                 Target Subject Concept:
               </label>
               <select
                 value={conceptId}
                 onChange={(e) => setConceptId(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-cyan-400 font-mono"
+                className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans"
               >
                 <option value="graph_traversal">Graph Traversal (DFS & BFS)</option>
                 <option value="tree_traversal">Binary Tree Traversal</option>
@@ -240,24 +240,24 @@ export default function DetectorPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-archaia-muted mb-1">
+              <label className="block text-xs font-medium text-slate-300 mb-1">
                 Diagnostic Strictness:
               </label>
-              <div className="px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-cyan-400 font-mono">
+              <div className="px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-blue-400 font-medium">
                 Invariant Root-Trace (Active)
               </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-mono text-archaia-muted mb-1">
+            <label className="block text-xs font-medium text-slate-300 mb-1">
               Assessment Prompt / Question:
             </label>
             <input
               type="text"
               value={questionText}
               onChange={(e) => setQuestionText(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-cyan-400 font-mono"
+              className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans"
             />
           </div>
 
@@ -266,14 +266,14 @@ export default function DetectorPage() {
           {/* 1. Written Explanation */}
           {responseType === "written" && (
             <div>
-              <label className="block text-xs font-mono text-archaia-muted mb-1">
+              <label className="block text-xs font-medium text-slate-300 mb-1">
                 Student Written Reasoning:
               </label>
               <textarea
                 rows={4}
                 value={writtenInput}
                 onChange={(e) => setWrittenInput(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-cyan-400 font-mono leading-relaxed"
+                className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans leading-relaxed"
               />
             </div>
           )}
@@ -281,14 +281,14 @@ export default function DetectorPage() {
           {/* 2. Code Snippet */}
           {responseType === "code" && (
             <div>
-              <label className="block text-xs font-mono text-archaia-muted mb-1">
+              <label className="block text-xs font-medium text-slate-300 mb-1">
                 Student Code Implementation:
               </label>
               <textarea
                 rows={8}
                 value={codeInput}
                 onChange={(e) => setCodeInput(e.target.value)}
-                className="w-full p-4 rounded-xl bg-black border border-archaia-border text-xs font-mono text-emerald-400 focus:outline-none focus:border-cyan-400 leading-relaxed"
+                className="w-full p-4 rounded-xl bg-black border border-archaia-border text-xs font-mono text-emerald-400 focus:outline-none focus:border-blue-500 leading-relaxed"
               />
             </div>
           )}
@@ -296,16 +296,16 @@ export default function DetectorPage() {
           {/* 3. Multiple Choice */}
           {responseType === "mcq" && (
             <div className="space-y-2">
-              <label className="block text-xs font-mono text-archaia-muted mb-1">
+              <label className="block text-xs font-medium text-slate-300 mb-1">
                 Select Student Choice (Distractor vs Invariant):
               </label>
               {mcqOptions.map((opt) => (
                 <label
                   key={opt.id}
                   onClick={() => setMcqSelected(opt.id)}
-                  className={`block p-3 rounded-xl border text-xs font-mono cursor-pointer transition-all ${
+                  className={`block p-3 rounded-xl border text-xs font-sans cursor-pointer transition-all ${
                     mcqSelected === opt.id
-                      ? "bg-indigo-950/80 border-cyan-400 text-white shadow-glow"
+                      ? "bg-blue-600/15 border-blue-500 text-white shadow-sm"
                       : "bg-archaia-card hover:bg-archaia-cardHover border-archaia-border text-slate-300"
                   }`}
                 >
@@ -315,12 +315,12 @@ export default function DetectorPage() {
                       name="mcq_choice"
                       checked={mcqSelected === opt.id}
                       onChange={() => setMcqSelected(opt.id)}
-                      className="mt-0.5 accent-cyan-400"
+                      className="mt-0.5 accent-blue-500"
                     />
                     <div>
                       <span>{opt.text}</span>
                       {opt.isDistractor && (
-                        <span className="block text-[10px] text-rose-400 mt-0.5">
+                        <span className="block text-[10px] text-rose-400 mt-0.5 font-medium">
                           [Cognitive Trap: {opt.misconception}]
                         </span>
                       )}
@@ -341,7 +341,7 @@ export default function DetectorPage() {
                 <button
                   type="button"
                   onClick={() => setSteps([...steps, `${steps.length + 1}. Next action`])}
-                  className="flex items-center space-x-1 text-xs text-cyan-400 hover:underline font-mono"
+                  className="flex items-center space-x-1 text-xs text-blue-400 hover:underline font-medium"
                 >
                   <Plus className="w-3 h-3" />
                   <span>Add Step</span>
@@ -358,12 +358,12 @@ export default function DetectorPage() {
                       updated[idx] = e.target.value;
                       setSteps(updated);
                     }}
-                    className="flex-1 px-3 py-1.5 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white font-mono"
+                    className="flex-1 px-3 py-1.5 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white font-sans"
                   />
                   <button
                     type="button"
                     onClick={() => setSteps(steps.filter((_, i) => i !== idx))}
-                    className="p-1.5 text-archaia-muted hover:text-rose-400"
+                    className="p-1.5 text-slate-400 hover:text-rose-400"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -374,15 +374,15 @@ export default function DetectorPage() {
 
           {/* 5. Quiz Response */}
           {responseType === "quiz" && (
-            <div className="space-y-3 p-4 rounded-xl bg-archaia-card border border-archaia-border text-xs font-mono">
+            <div className="space-y-3 p-4 rounded-xl bg-archaia-card border border-archaia-border text-xs font-sans">
               <div>
-                <p className="text-white mb-1">
+                <p className="text-white mb-1 font-medium">
                   1. What does a recursive call do to the caller's stack frame?
                 </p>
                 <select
                   value={quizAnswers.q1}
                   onChange={(e) => setQuizAnswers({ ...quizAnswers, q1: e.target.value })}
-                  className="w-full px-3 py-1.5 rounded-lg bg-archaia-dark border border-archaia-border text-cyan-300"
+                  className="w-full px-3 py-1.5 rounded-lg bg-archaia-dark border border-archaia-border text-blue-300 font-sans"
                 >
                   <option value="replaces">Replaces and overwrites caller frame</option>
                   <option value="pushes">Pushes new frame and pauses caller</option>
@@ -390,13 +390,13 @@ export default function DetectorPage() {
               </div>
 
               <div>
-                <p className="text-white mb-1">
+                <p className="text-white mb-1 font-medium">
                   2. What happens to local loop variables when child functions return?
                 </p>
                 <select
                   value={quizAnswers.q2}
                   onChange={(e) => setQuizAnswers({ ...quizAnswers, q2: e.target.value })}
-                  className="w-full px-3 py-1.5 rounded-lg bg-archaia-dark border border-archaia-border text-cyan-300"
+                  className="w-full px-3 py-1.5 rounded-lg bg-archaia-dark border border-archaia-border text-blue-300 font-sans"
                 >
                   <option value="destroys">Destroyed / Loop terminates</option>
                   <option value="restores">Safely preserved and loop resumes</option>
@@ -409,7 +409,7 @@ export default function DetectorPage() {
             <button
               type="submit"
               disabled={analyzing}
-              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 via-indigo-600 to-cyan-500 hover:from-rose-500 hover:to-cyan-400 text-white font-semibold text-xs shadow-glow transition-all hover:scale-105"
+              className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-sm transition-all"
             >
               <Sparkles className="w-4 h-4" />
               <span>{analyzing ? "Deconstructing Mental Model..." : "Analyze Learner Reasoning"}</span>
@@ -420,7 +420,7 @@ export default function DetectorPage() {
 
       {/* Misconception Detection Card Output */}
       {detectedMisconception && (
-        <div className="p-6 rounded-3xl bg-archaia-dark border border-rose-500/40 shadow-glowDanger space-y-5 animate-in slide-in-from-bottom-4">
+        <div className="p-6 rounded-2xl bg-archaia-dark border border-rose-500/40 shadow-sm space-y-5 animate-in slide-in-from-bottom-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-archaia-border pb-4">
             <div className="flex items-center space-x-3">
               <div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30">
@@ -428,10 +428,10 @@ export default function DetectorPage() {
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase">
                     Misconception Isolated
                   </span>
-                  <span className="text-xs font-mono text-cyan-400">
+                  <span className="text-xs font-semibold text-blue-400">
                     Confidence: {detectedMisconception.confidence}%
                   </span>
                 </div>
@@ -443,35 +443,35 @@ export default function DetectorPage() {
 
             <button
               onClick={() => router.push("/bisect")}
-              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold text-xs shadow-glowWarning transition-transform hover:scale-105"
+              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-sm transition-transform hover:scale-105"
             >
               <Split className="w-4 h-4" />
               <span>Execute Cognitive Bisect on DAG →</span>
             </button>
           </div>
 
-          <p className="text-xs text-archaia-muted leading-relaxed">
+          <p className="text-xs text-slate-400 leading-relaxed font-sans">
             {detectedMisconception.description}
           </p>
 
           {/* Student Assumption vs Formal Reality Side-by-Side (Feature 11) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-rose-950/30 border border-rose-900/60 space-y-2">
-              <div className="flex items-center space-x-2 text-rose-400 text-xs font-mono font-semibold">
+            <div className="p-4 rounded-xl bg-rose-950/30 border border-rose-900/60 space-y-2">
+              <div className="flex items-center space-x-2 text-rose-400 text-xs font-semibold">
                 <AlertTriangle className="w-4 h-4" />
                 <span>Student's Flawed Assumption</span>
               </div>
-              <p className="text-xs text-rose-200 leading-relaxed font-mono">
+              <p className="text-xs text-rose-200 leading-relaxed font-sans">
                 "{detectedMisconception.studentAssumption}"
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-900/60 space-y-2">
-              <div className="flex items-center space-x-2 text-emerald-400 text-xs font-mono font-semibold">
+            <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-900/60 space-y-2">
+              <div className="flex items-center space-x-2 text-emerald-400 text-xs font-semibold">
                 <Lightbulb className="w-4 h-4" />
                 <span>Formal Computing Reality</span>
               </div>
-              <p className="text-xs text-emerald-200 leading-relaxed font-mono">
+              <p className="text-xs text-emerald-200 leading-relaxed font-sans">
                 {detectedMisconception.formalReality}
               </p>
             </div>
@@ -479,13 +479,13 @@ export default function DetectorPage() {
 
           {/* Affected Concepts Identification (Feature 12) */}
           <div className="pt-2 border-t border-archaia-border flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex items-center space-x-2 font-mono">
-              <span className="text-archaia-muted">Affected Downstream Concepts:</span>
+            <div className="flex items-center space-x-2 font-sans">
+              <span className="text-slate-400">Affected Downstream Concepts:</span>
               <div className="flex flex-wrap gap-1.5">
                 {detectedMisconception.affectedConcepts.map((c) => (
                   <span
                     key={c}
-                    className="px-2 py-0.5 rounded bg-archaia-card border border-archaia-border text-cyan-300 text-[11px]"
+                    className="px-2 py-0.5 rounded bg-archaia-card border border-archaia-border text-blue-300 text-[11px] font-medium"
                   >
                     {c}
                   </span>
@@ -493,7 +493,7 @@ export default function DetectorPage() {
               </div>
             </div>
 
-            <div className="text-cyan-400 font-mono text-[11px]">
+            <div className="text-blue-400 font-medium text-[11px]">
               Ready for Cognitive Bisect Backtracking
             </div>
           </div>
