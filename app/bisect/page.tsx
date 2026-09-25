@@ -18,6 +18,7 @@ import {
   Terminal,
 } from "lucide-react";
 import { BisectSession, Concept } from "@/lib/types";
+import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
 
 export default function BisectPage() {
   const [session, setSession] = useState<BisectSession | null>(null);
@@ -29,20 +30,28 @@ export default function BisectPage() {
   const fetchSession = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/bisect");
+      const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+      const paramConceptId = params?.get("conceptId");
+      const paramMisconceptionId = params?.get("misconceptionId");
+
+      const queryUrl = paramConceptId
+        ? `/api/bisect?conceptId=${encodeURIComponent(paramConceptId)}${paramMisconceptionId ? `&misconceptionId=${encodeURIComponent(paramMisconceptionId)}` : ""}`
+        : "/api/bisect";
+
+      const res = await fetch(queryUrl);
       const data = await res.json();
       if (data.hasActiveSession) {
         setSession(data.session);
         setRootConcept(data.rootConcept);
       } else {
-        // Auto-initialize demo session if none is active
+        // Auto-initialize session if none is active
         const initRes = await fetch("/api/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            conceptId: "graph_traversal",
+            conceptId: paramConceptId || "graph_traversal",
             questionId: "q_dfs_recursive_1",
-            questionText: "What happens to the caller's state when dfs() is invoked recursively?",
+            questionText: "What happens to the caller's state when a recursive call or sub-procedure is invoked?",
             responseType: "written",
             content: "The recursive call replaces the parent function state and overwrites memory.",
           }),
@@ -89,17 +98,26 @@ export default function BisectPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
+      {/* 4-Step Cognitive Diagnostic Pipeline Stepper */}
+      <CognitivePipelineStepper
+        currentStep={2}
+        activeConceptName={session?.targetConceptId}
+        rootConceptName={session?.likelyRootGapId}
+        targetConceptId={session?.targetConceptId}
+        misconceptionId={session?.detectedMisconceptionId}
+      />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
             <Split className="w-5 h-5 text-amber-400" />
             <h1 className="text-2xl font-extrabold text-white tracking-tight">
-              Cognitive Bisect Investigation
+              Cognitive Bisect Investigation (Step 2)
             </h1>
           </div>
-          <p className="text-xs text-archaia-muted mt-1">
-            Algorithmic prerequisite fault isolation over the Causal Knowledge Graph (Features 13–18). Issues targeted invariant micro-probes to isolate the likely root learning gap.
+          <p className="text-xs text-slate-400 mt-1 font-sans">
+            Algorithmic prerequisite fault isolation over the Causal Knowledge Graph. Issues targeted invariant micro-probes to isolate the likely root learning gap.
           </p>
         </div>
 
@@ -121,7 +139,25 @@ export default function BisectPage() {
         </div>
       ) : session ? (
         <div className="space-y-6">
-          {/* Prerequisite Ancestor Traversal Chain (Feature 14) */}
+          {/* Active Case Context Banner */}
+          <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-between">
+            <div className="space-y-0.5">
+              <div className="text-xs font-bold text-blue-300 uppercase tracking-wider">
+                Investigating Target: {session.targetConceptId}
+              </div>
+              <div className="text-xs text-slate-300 font-sans">
+                Tracing ancestor chain to find which prerequisite invariant is missing or corrupted.
+              </div>
+            </div>
+            <Link
+              href={`/graph?highlight=${session.targetConceptId}`}
+              className="text-xs text-blue-400 hover:underline font-sans font-medium"
+            >
+              View on Causal DAG →
+            </Link>
+          </div>
+
+          {/* Prerequisite Ancestor Traversal Chain */}
           <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-3 shadow-sm">
             <div className="flex items-center justify-between text-xs font-medium">
               <span className="text-slate-400 flex items-center space-x-1.5">
@@ -207,7 +243,7 @@ export default function BisectPage() {
             </div>
           </div>
 
-          {/* Active Diagnostic Micro-Probe Card (Feature 15) */}
+          {/* Active Diagnostic Micro-Probe Card */}
           {session.status === "active" && session.currentProbe ? (
             <div className="p-6 rounded-2xl bg-archaia-dark border border-blue-500/30 shadow-sm space-y-4">
               <div className="flex items-center justify-between border-b border-archaia-border pb-3">
@@ -262,7 +298,7 @@ export default function BisectPage() {
 
           {/* Likely Root Gap Announcement Banner */}
           {session.status === "concluded" && (
-            <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-amber-950/50 via-[#141722] to-slate-900 border border-amber-500/40 shadow-sm space-y-5 animate-in zoom-in-95">
+            <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-amber-950/50 via-[#141722] to-slate-900 border border-amber-500/40 shadow-xl space-y-5 animate-in zoom-in-95">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-archaia-border pb-4">
                 <div className="flex items-center space-x-3">
                   <div className="p-3 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
@@ -270,7 +306,7 @@ export default function BisectPage() {
                   </div>
                   <div>
                     <span className="text-[10px] tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold">
-                      ROOT-GAP CONVERGENCE ISOLATED
+                      STEP 2 OF 4 COMPLETED: ROOT-GAP ISOLATED
                     </span>
                     <h2 className="text-xl sm:text-2xl font-bold text-white mt-1">
                       Likely Root Learning Gap: {rootConcept?.name || session.likelyRootGapId}
@@ -279,10 +315,10 @@ export default function BisectPage() {
                 </div>
 
                 <Link
-                  href="/recovery"
-                  className="flex items-center space-x-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-sm transition-transform hover:scale-105"
+                  href={`/recovery?conceptId=${session.likelyRootGapId || "call_stack"}&fromTarget=${session.targetConceptId}`}
+                  className="flex items-center space-x-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition-transform hover:scale-105"
                 >
-                  <span>Launch Targeted Recovery Lab →</span>
+                  <span>Proceed to Step 3: Targeted Recovery Lab →</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -291,8 +327,8 @@ export default function BisectPage() {
                 <p className="text-xs text-amber-200 leading-relaxed font-sans font-medium">
                   {session.conclusionReason}
                 </p>
-                <p className="text-xs text-slate-400 leading-relaxed font-sans">
-                  The learner attempted an advanced topic (<strong>Graph Traversal DFS</strong>), but the cognitive point of failure stems from earlier misunderstandings regarding physical LIFO activation frames in the <strong>Call Stack</strong>. Rather than reviewing graph algorithms, remediation must target the Call Stack first.
+                <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                  The error observed in your input regarding <strong>{session.targetConceptId}</strong> is not an algorithmic issue with {session.targetConceptId}, but stems from a missing invariant in prerequisite <strong>{rootConcept?.name || session.likelyRootGapId}</strong>. Remediation must now target this root concept.
                 </p>
               </div>
 

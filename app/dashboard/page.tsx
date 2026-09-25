@@ -25,6 +25,7 @@ export default function DashboardPage() {
     role: string;
     institution?: string;
   } | null>(null);
+  const [customTopic, setCustomTopic] = useState("");
 
   useEffect(() => {
     try {
@@ -113,6 +114,74 @@ export default function DashboardPage() {
             </p>
           </div>
           <span className="text-xs text-blue-400 font-medium font-sans">4 Core Interactive Engines</span>
+        </div>
+
+        {/* Dynamic Concept Pipeline Quick-Launcher */}
+        <div className="p-4 sm:p-5 rounded-xl bg-gradient-to-r from-blue-950/40 via-[#131722] to-slate-900 border border-blue-500/40 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <span className="text-xs font-bold text-white flex items-center space-x-1.5">
+                <Sparkles className="w-4 h-4 text-blue-400" />
+                <span>Enter Any Topic or Question for Dynamic Diagnosis:</span>
+              </span>
+              <p className="text-[11px] text-slate-400 font-sans mt-0.5">
+                Type any computer science topic or problem. ARCHAIA will deconstruct your mental model and trace prerequisites continuously across all 4 steps.
+              </p>
+            </div>
+            <span className="text-[10px] text-blue-400 font-medium px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/30 shrink-0">
+              Live Dynamic Pipeline
+            </span>
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (customTopic.trim()) {
+                window.location.href = `/detector?custom=true&concept=${encodeURIComponent(customTopic.trim())}`;
+              } else {
+                window.location.href = "/detector";
+              }
+            }}
+            className="flex flex-col sm:flex-row gap-2"
+          >
+            <input
+              type="text"
+              value={customTopic}
+              onChange={(e) => setCustomTopic(e.target.value)}
+              placeholder="e.g. Asynchronous Event Loop, Binary Search Trees, Dynamic Programming, Memory Pointers..."
+              className="flex-1 px-4 py-2.5 rounded-xl bg-black/60 border border-archaia-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-sans"
+            />
+            <button
+              type="submit"
+              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shadow-sm shrink-0 flex items-center justify-center space-x-1.5"
+            >
+              <span>Launch Pipeline →</span>
+            </button>
+          </form>
+
+          {/* Quick Starter Topics */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span className="text-[10px] text-slate-400">Popular Diagnostic Targets:</span>
+            {[
+              "Asynchronous Event Loop",
+              "Binary Tree Traversal",
+              "Recursion Base Invariants",
+              "Memory Pointer Aliasing",
+              "Dynamic Programming",
+            ].map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => {
+                  setCustomTopic(tag);
+                  window.location.href = `/detector?custom=true&concept=${encodeURIComponent(tag)}`;
+                }}
+                className="text-[10px] font-sans px-2.5 py-1 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-300 hover:text-white transition-colors"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">

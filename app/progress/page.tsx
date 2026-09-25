@@ -17,6 +17,7 @@ import {
   Milestone,
 } from "lucide-react";
 import { Concept, LearnerConceptState, LearningProgressMetrics } from "@/lib/types";
+import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
 
 export default function ProgressPage() {
   const [concepts, setConcepts] = useState<Concept[]>([]);
@@ -24,8 +25,18 @@ export default function ProgressPage() {
   const [adaptivePath, setAdaptivePath] = useState<any[]>([]);
   const [metrics, setMetrics] = useState<LearningProgressMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [recoveredConcept, setRecoveredConcept] = useState<string | null>(null);
+  const [fromTarget, setFromTarget] = useState<string | null>(null);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const rec = params.get("recoveredConcept");
+      const target = params.get("fromTarget");
+      if (rec) setRecoveredConcept(rec);
+      if (target) setFromTarget(target);
+    }
+
     Promise.all([
       fetch("/api/graph").then((r) => r.json()),
       fetch("/api/adaptive-path").then((r) => r.json()),
@@ -46,17 +57,55 @@ export default function ProgressPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
+      {/* 4-Step Cognitive Diagnostic Pipeline Stepper */}
+      <CognitivePipelineStepper
+        currentStep={4}
+        activeConceptName={fromTarget || recoveredConcept || undefined}
+        rootConceptName={recoveredConcept || undefined}
+      />
+
+      {/* Recovered Concept Completion Celebration */}
+      {recoveredConcept && (
+        <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-950/50 via-[#131b1e] to-slate-900 border border-emerald-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl animate-in zoom-in-95">
+          <div className="flex items-center space-x-3">
+            <div className="p-3 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <CheckCircle2 className="w-7 h-7" />
+            </div>
+            <div>
+              <span className="text-[10px] tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
+                STEP 4 OF 4: PIPELINE CONCLUDED • INVARIANT RESTORED
+              </span>
+              <h2 className="text-xl font-bold text-white mt-1">
+                Root Gap "{recoveredConcept}" Successfully Mastered
+              </h2>
+              <p className="text-xs text-slate-300 font-sans mt-0.5">
+                Downstream concepts are now unblocked. The personalized adaptive sequence has recalibrated based on your restored mental model.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2 shrink-0">
+            <Link
+              href={`/graph?highlight=${recoveredConcept}`}
+              className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-transform hover:scale-105 shadow-md flex items-center space-x-1.5"
+            >
+              <span>Inspect on Causal DAG →</span>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
             <LineChart className="w-5 h-5 text-blue-400" />
             <h1 className="text-2xl font-bold text-white tracking-tight">
-              Learning Progress & Adaptive Path (Module 6)
+              Learning Progress & Adaptive Path (Step 4)
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1 font-sans">
-            Longitudinal cognitive recovery analytics (Features 31–33 & 42). Recalibrates personalized sequences as prerequisite invariants are restored.
+            Longitudinal cognitive recovery analytics. Recalibrates personalized sequences as prerequisite invariants are restored.
           </p>
         </div>
 

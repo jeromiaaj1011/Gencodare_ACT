@@ -63,10 +63,17 @@ export default function KnowledgeGraphCanvas({
   const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const svgRef = useRef<SVGSVGElement | null>(null);
 
-  // Initialize node positions
+  // Initialize node positions & check highlight query param
   useEffect(() => {
     if (initialPositions && Object.keys(initialPositions).length > 0) {
       setNodePositions(initialPositions);
+    }
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const hl = params.get("highlight");
+      if (hl) {
+        setSelectedNodeId(hl);
+      }
     }
   }, [initialPositions]);
 
@@ -827,16 +834,24 @@ export default function KnowledgeGraphCanvas({
               {/* Action Buttons */}
               <div className="flex flex-col gap-2">
                 <Link
-                  href="/bisect"
+                  href={`/bisect?conceptId=${selectedConcept.id}`}
                   className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all flex items-center justify-center space-x-1.5 shadow-sm"
                 >
                   <Split className="w-3.5 h-3.5" />
-                  <span>Execute Cognitive Bisect on this Node</span>
+                  <span>Execute Cognitive Bisect on this Node →</span>
+                </Link>
+
+                <Link
+                  href={`/detector?custom=true&concept=${encodeURIComponent(selectedConcept.name)}`}
+                  className="w-full py-2.5 px-4 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 font-medium text-xs transition-all flex items-center justify-center space-x-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Diagnose Input for this Concept (Step 1) →</span>
                 </Link>
 
                 <Link
                   href={`/recovery?conceptId=${selectedConcept.id}`}
-                  className="w-full py-2.5 px-4 rounded-xl bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-white font-medium text-xs transition-all flex items-center justify-center space-x-1.5"
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white font-medium text-xs transition-all flex items-center justify-center space-x-1.5"
                 >
                   <HeartPulse className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Open Targeted Recovery Lab</span>

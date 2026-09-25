@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { store } from "@/lib/storage/store";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const dagEngine = store.getDagEngine();

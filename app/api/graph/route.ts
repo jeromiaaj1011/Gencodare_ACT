@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { store } from "@/lib/storage/store";
 import { computeHierarchicalLayout } from "@/lib/graph/layoutEngine";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const concepts = store.getConcepts();

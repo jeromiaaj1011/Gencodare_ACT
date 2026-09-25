@@ -22,6 +22,7 @@ import {
   Terminal,
 } from "lucide-react";
 import { InterventionContent, ReTestAssessment, Concept } from "@/lib/types";
+import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
 
 export default function RecoveryPage() {
   const router = useRouter();
@@ -54,6 +55,7 @@ export default function RecoveryPage() {
   const [reTestResult, setReTestResult] = useState<any>(null);
   const [reTesting, setReTesting] = useState(false);
   const [activeConceptId, setActiveConceptId] = useState("call_stack");
+  const [fromTarget, setFromTarget] = useState<string | null>(null);
 
   const loadConceptRecovery = (cId: string) => {
     setActiveConceptId(cId);
@@ -82,6 +84,8 @@ export default function RecoveryPage() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const initialConcept = params.get("conceptId") || "call_stack";
+      const targetParam = params.get("fromTarget");
+      if (targetParam) setFromTarget(targetParam);
       loadConceptRecovery(initialConcept);
     }
   }, []);
@@ -120,7 +124,9 @@ export default function RecoveryPage() {
         setCodeSuccess(isCorrect);
       } else {
         const isCorrect =
-          userCode.includes("return containsValue") || userCode.includes("return ");
+          userCode.includes("processItem") ||
+          userCode.includes("return") ||
+          !userCode.includes("return processItem");
         setCodeSuccess(isCorrect);
       }
     }
@@ -163,29 +169,72 @@ export default function RecoveryPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
+      {/* 4-Step Cognitive Diagnostic Pipeline Stepper */}
+      <CognitivePipelineStepper
+        currentStep={3}
+        activeConceptName={fromTarget || activeConceptId}
+        rootConceptName={activeConceptId}
+      />
+
+      {/* Continuation Context Banner */}
+      {fromTarget && (
+        <div className="p-4 rounded-xl bg-gradient-to-r from-blue-950/40 via-[#141722] to-slate-900 border border-blue-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40 uppercase">
+                Step 3 of 4: Active Remediation
+              </span>
+              <span className="text-xs font-semibold text-white">
+                Repairing Root Gap: {concept?.name || activeConceptId}
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 font-sans">
+              Isolating this gap resolves the conceptual failure previously detected in <strong>{fromTarget}</strong>. Complete the visual model and re-test to restore the runtime invariant.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setActiveTab("retest")}
+            className="shrink-0 flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition-all"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Go to Re-Test →</span>
+          </button>
+        </div>
+      )}
+
       {/* Concept Remediation Lab Selector Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 p-2 rounded-2xl bg-archaia-dark border border-archaia-border">
         <span className="text-xs text-slate-400 font-sans px-2 font-medium">
           Select Remediation Concept Lab:
         </span>
         <div className="flex flex-wrap gap-1.5">
-          {[
-            { id: "call_stack", label: "Call Stack & LIFO Frames (Root Gap)" },
-            { id: "memory_allocation", label: "Memory Allocation & Aliasing" },
-            { id: "recursion", label: "Recursion & Return Bubbling" },
-          ].map((c) => (
-            <button
-              key={c.id}
-              onClick={() => loadConceptRecovery(c.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all ${
-                activeConceptId === c.id
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-archaia-card hover:bg-archaia-cardHover text-slate-400"
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
+          {(() => {
+            const defaultLabs = [
+              { id: "call_stack", label: "Call Stack & LIFO Frames" },
+              { id: "memory_allocation", label: "Memory Allocation & Aliasing" },
+              { id: "recursion", label: "Recursion & Return Bubbling" },
+            ];
+            if (!defaultLabs.some((t) => t.id === activeConceptId)) {
+              defaultLabs.unshift({
+                id: activeConceptId,
+                label: `${concept?.name || activeConceptId} (Active Root Gap)`,
+              });
+            }
+            return defaultLabs.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => loadConceptRecovery(c.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all ${
+                  activeConceptId === c.id
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "bg-archaia-card hover:bg-archaia-cardHover text-slate-400"
+                }`}
+              >
+                {c.label}
+              </button>
+            ));
+          })()}
         </div>
       </div>
 
@@ -694,14 +743,22 @@ export default function RecoveryPage() {
               {reTestResult.isCorrect && (
                 <div className="pt-2 border-t border-emerald-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <span className="text-xs font-sans text-slate-300">
-                    Unlocked Downstream: Recursion 🟢, Tree Traversal 🔓, Graph Traversal 🔓
+                    Unlocked Downstream: {reTestResult.unlockedConcepts?.join(", ") || "Recursion, Tree Traversal, Graph Traversal"} 🔓
                   </span>
-                  <Link
-                    href="/progress"
-                    className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors shadow-sm"
-                  >
-                    <span>View Updated Adaptive Path →</span>
-                  </Link>
+                  <div className="flex items-center space-x-2">
+                    <Link
+                      href={`/progress?recoveredConcept=${activeConceptId}&fromTarget=${fromTarget || ""}`}
+                      className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors shadow-sm"
+                    >
+                      <span>Proceed to Step 4: Adaptive Roadmap →</span>
+                    </Link>
+                    <Link
+                      href={`/graph?highlight=${activeConceptId}`}
+                      className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors"
+                    >
+                      Inspect in DAG
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>

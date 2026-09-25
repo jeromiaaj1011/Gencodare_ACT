@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -18,13 +18,20 @@ import {
   Trash2,
   FileCheck2,
   CheckCircle2,
-  CheckCircle,
+  Edit3,
+  BookOpen,
 } from "lucide-react";
 import { ResponseType, Misconception } from "@/lib/types";
+import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
 
 export default function DetectorPage() {
   const router = useRouter();
   const [responseType, setResponseType] = useState<ResponseType>("written");
+
+  // Mode: Curated benchmarks vs Custom user input
+  const [isCustomMode, setIsCustomMode] = useState(false);
+  const [customConceptName, setCustomConceptName] = useState("Asynchronous Event Loop");
+
   const [conceptId, setConceptId] = useState("graph_traversal");
   const [questionText, setQuestionText] = useState(
     "In recursive Depth-First Search (DFS) on a graph, what happens to the execution state of the current node when dfs() is called on an unvisited neighbor?"
@@ -94,6 +101,29 @@ export default function DetectorPage() {
     normalizedReasoning?: string;
   } | null>(null);
 
+  // Read URL query params if user jumped from Dashboard launcher
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const urlCustom = params.get("custom");
+      const urlConcept = params.get("concept");
+      const urlPrompt = params.get("prompt");
+      const urlCode = params.get("code");
+
+      if (urlCustom === "true" || urlConcept || urlPrompt || urlCode) {
+        setIsCustomMode(true);
+        if (urlConcept) setCustomConceptName(urlConcept);
+        if (urlPrompt) setQuestionText(urlPrompt);
+        if (urlCode) {
+          setResponseType("code");
+          setCodeInput(urlCode);
+        } else if (urlPrompt) {
+          setWrittenInput(urlPrompt);
+        }
+      }
+    }
+  }, []);
+
   // Curated Diagnostic Problem Suite
   const PRACTICE_PROBLEMS = [
     {
@@ -110,7 +140,7 @@ export default function DetectorPage() {
     {
       id: "reference_aliasing",
       conceptId: "memory_allocation",
-      title: "Memory Allocation: Reference Aliasing vs Array Cloning",
+      title: "Memory: Reference Aliasing vs Array Cloning",
       question:
         "In Graph BFS/DFS, if you assign `let copy_visited = visited;`, what happens if you mutate `copy_visited`?",
       flawed:
@@ -132,6 +162,7 @@ export default function DetectorPage() {
   ];
 
   const loadProblem = (probId: string) => {
+    setIsCustomMode(false);
     const prob = PRACTICE_PROBLEMS.find((p) => p.id === probId);
     if (!prob) return;
     setConceptId(prob.conceptId);
@@ -140,6 +171,14 @@ export default function DetectorPage() {
     setWrittenInput(prob.flawed);
     setDetectedMisconception(null);
     setVerifiedResult(null);
+  };
+
+  const handleCustomModeToggle = () => {
+    setIsCustomMode(true);
+    setDetectedMisconception(null);
+    setVerifiedResult(null);
+    setWrittenInput("");
+    setQuestionText("Explain the runtime execution and memory behavior of this concept:");
   };
 
   const fillReasoning = (type: "flawed" | "sound") => {
@@ -170,12 +209,21 @@ export default function DetectorPage() {
     setDetectedMisconception(null);
     setVerifiedResult(null);
     try {
+      const activeId = isCustomMode && customConceptName.trim()
+        ? customConceptName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_")
+        : conceptId;
+
+      const activeName = isCustomMode && customConceptName.trim()
+        ? customConceptName.trim()
+        : undefined;
+
       const content = getPayloadContent();
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          conceptId,
+          conceptId: activeId,
+          conceptName: activeName,
           questionId: "q_" + responseType + "_" + Date.now(),
           questionText,
           responseType,
@@ -206,27 +254,52 @@ export default function DetectorPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-300">
+      {/* 4-Step Cognitive Diagnostic Pipeline Stepper */}
+      <CognitivePipelineStepper
+        currentStep={1}
+        activeConceptName={isCustomMode ? customConceptName : conceptId}
+        targetConceptId={detectedMisconception?.conceptId}
+        misconceptionId={detectedMisconception?.id}
+      />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2">
             <Bug className="w-5 h-5 text-rose-400" />
             <h1 className="text-2xl font-bold text-white tracking-tight">
-              Cognitive Bug Detector
+              Cognitive Bug Detector (Step 1)
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1 font-sans">
-            Multi-modal submission analyzer. Deconstructs mental models across written text, code, MCQs, problem steps, and quizzes.
+            Input any computer science concept, code snippet, or student explanation. The engine deconstructs mental model invariants against formal computing reality.
           </p>
         </div>
 
-        {/* Practice Challenge Switcher */}
+        {/* Input Mode Selector */}
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handleCustomModeToggle}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+              isCustomMode
+                ? "bg-blue-600 text-white border-blue-500 shadow-sm"
+                : "bg-archaia-card hover:bg-archaia-cardHover border-archaia-border text-slate-300"
+            }`}
+          >
+            <Edit3 className="w-3.5 h-3.5" />
+            <span>Enter Custom Input</span>
+          </button>
+
           {PRACTICE_PROBLEMS.map((prob) => (
             <button
               key={prob.id}
               onClick={() => loadProblem(prob.id)}
-              className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-300 text-xs font-medium transition-colors"
+              className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
+                !isCustomMode && conceptId === prob.conceptId
+                  ? "bg-slate-700 border-slate-500 text-white"
+                  : "bg-archaia-card hover:bg-archaia-cardHover border-archaia-border text-slate-300"
+              }`}
             >
               <span>{prob.title.split(":")[0]}</span>
             </button>
@@ -271,27 +344,43 @@ export default function DetectorPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
               <label className="block text-xs font-medium text-slate-300 mb-1">
-                Target Subject Concept:
+                {isCustomMode ? "Custom Subject / Concept Name:" : "Target Subject Concept:"}
               </label>
-              <select
-                value={conceptId}
-                onChange={(e) => setConceptId(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans"
-              >
-                <option value="graph_traversal">Graph Traversal (DFS & BFS)</option>
-                <option value="tree_traversal">Binary Tree Traversal</option>
-                <option value="recursion">Recursion & Base Invariants</option>
-                <option value="call_stack">Call Stack & LIFO Frames</option>
-                <option value="memory_allocation">Memory & Pointers</option>
-              </select>
+              {isCustomMode ? (
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={customConceptName}
+                    onChange={(e) => setCustomConceptName(e.target.value)}
+                    placeholder="e.g., Asynchronous Event Loop, Binary Search, SQL Locks"
+                    className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-blue-500/50 text-xs text-white focus:outline-none focus:border-blue-500 font-sans"
+                  />
+                  <span className="absolute right-2.5 top-2 text-[10px] text-blue-400 font-medium">
+                    Custom Concept
+                  </span>
+                </div>
+              ) : (
+                <select
+                  value={conceptId}
+                  onChange={(e) => setConceptId(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans"
+                >
+                  <option value="graph_traversal">Graph Traversal (DFS & BFS)</option>
+                  <option value="tree_traversal">Binary Tree Traversal</option>
+                  <option value="recursion">Recursion & Base Invariants</option>
+                  <option value="call_stack">Call Stack & LIFO Frames</option>
+                  <option value="memory_allocation">Memory & Pointers</option>
+                  <option value="dynamic_programming">Dynamic Programming & Memoization</option>
+                </select>
+              )}
             </div>
 
             <div>
               <label className="block text-xs font-medium text-slate-300 mb-1">
-                Diagnostic Strictness:
+                Diagnostic Pipeline Mode:
               </label>
               <div className="px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-blue-400 font-medium">
-                Invariant Root-Trace (Active)
+                End-to-End Dynamic Continuation
               </div>
             </div>
           </div>
@@ -304,6 +393,7 @@ export default function DetectorPage() {
               type="text"
               value={questionText}
               onChange={(e) => setQuestionText(e.target.value)}
+              placeholder="Enter the problem statement or question under test..."
               className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans"
             />
           </div>
@@ -315,30 +405,33 @@ export default function DetectorPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="block text-xs font-medium text-slate-300">
-                  Student Written Reasoning:
+                  {isCustomMode ? "Your Reasoning / Explanation to Diagnose:" : "Student Written Reasoning:"}
                 </label>
-                <div className="flex items-center space-x-1.5">
-                  <span className="text-[10px] text-slate-400 font-sans hidden sm:inline">Quick Test:</span>
-                  <button
-                    type="button"
-                    onClick={() => fillReasoning("flawed")}
-                    className="px-2 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-[10px] font-medium transition-colors"
-                  >
-                    Sample Flawed Model
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => fillReasoning("sound")}
-                    className="px-2 py-0.5 rounded bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-medium transition-colors"
-                  >
-                    Sample Sound Model
-                  </button>
-                </div>
+                {!isCustomMode && (
+                  <div className="flex items-center space-x-1.5">
+                    <span className="text-[10px] text-slate-400 font-sans hidden sm:inline">Quick Test:</span>
+                    <button
+                      type="button"
+                      onClick={() => fillReasoning("flawed")}
+                      className="px-2 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-[10px] font-medium transition-colors"
+                    >
+                      Sample Flawed Model
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => fillReasoning("sound")}
+                      className="px-2 py-0.5 rounded bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-medium transition-colors"
+                    >
+                      Sample Sound Model
+                    </button>
+                  </div>
+                )}
               </div>
               <textarea
                 rows={4}
                 value={writtenInput}
                 onChange={(e) => setWrittenInput(e.target.value)}
+                placeholder="Type or paste your mental model explanation or reasoning here..."
                 className="w-full px-3 py-2 rounded-lg bg-archaia-card border border-archaia-border text-xs text-white focus:outline-none focus:border-blue-500 font-sans leading-relaxed"
               />
             </div>
@@ -348,12 +441,13 @@ export default function DetectorPage() {
           {responseType === "code" && (
             <div>
               <label className="block text-xs font-medium text-slate-300 mb-1">
-                Student Code Implementation:
+                {isCustomMode ? "Your Custom Code Snippet:" : "Student Code Implementation:"}
               </label>
               <textarea
                 rows={8}
                 value={codeInput}
                 onChange={(e) => setCodeInput(e.target.value)}
+                placeholder="// Paste custom function implementation or test snippet..."
                 className="w-full p-4 rounded-xl bg-black border border-archaia-border text-xs font-mono text-emerald-400 focus:outline-none focus:border-blue-500 leading-relaxed"
               />
             </div>
@@ -443,7 +537,7 @@ export default function DetectorPage() {
             <div className="space-y-3 p-4 rounded-xl bg-archaia-card border border-archaia-border text-xs font-sans">
               <div>
                 <p className="text-white mb-1 font-medium">
-                  1. What does a recursive call do to the caller's stack frame?
+                  1. What does an invocation do to the caller's stack frame?
                 </p>
                 <select
                   value={quizAnswers.q1}
@@ -457,7 +551,7 @@ export default function DetectorPage() {
 
               <div>
                 <p className="text-white mb-1 font-medium">
-                  2. What happens to local loop variables when child functions return?
+                  2. What happens to local variables when child procedures return?
                 </p>
                 <select
                   value={quizAnswers.q2}
@@ -471,14 +565,19 @@ export default function DetectorPage() {
             </div>
           )}
 
-          <div className="flex items-center justify-end pt-2">
+          <div className="flex items-center justify-between pt-2">
+            <span className="text-[11px] text-slate-400 font-sans">
+              {isCustomMode
+                ? `Custom concept "${customConceptName}" will be dynamically mapped to Causal DAG.`
+                : "Continuous pipeline will forward active misconception directly into Cognitive Bisect."}
+            </span>
             <button
               type="submit"
               disabled={analyzing}
               className="flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-sm transition-all"
             >
               <Sparkles className="w-4 h-4" />
-              <span>{analyzing ? "Deconstructing Mental Model..." : "Analyze Learner Reasoning"}</span>
+              <span>{analyzing ? "Deconstructing Mental Model..." : "Analyze & Begin Investigation"}</span>
             </button>
           </div>
         </form>
@@ -487,6 +586,35 @@ export default function DetectorPage() {
       {/* Misconception Detection Card Output */}
       {detectedMisconception && (
         <div className="p-6 rounded-2xl bg-archaia-dark border border-rose-500/40 shadow-sm space-y-5 animate-in slide-in-from-bottom-4">
+          {/* STEP 1 CONTINUATION BANNER */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-amber-950/40 via-[#181a24] to-slate-900 border border-amber-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+            <div className="space-y-1">
+              <div className="flex items-center space-x-2">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase">
+                  Step 1 of 4 Completed
+                </span>
+                <span className="text-xs font-semibold text-white">
+                  Mental Model Deconstructed
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 font-sans">
+                A cognitive bug was isolated in <strong>{detectedMisconception.conceptId}</strong>. We must now trace the prerequisite ancestor chain on the Causal DAG to identify the root cause.
+              </p>
+            </div>
+
+            <button
+              onClick={() =>
+                router.push(
+                  `/bisect?conceptId=${detectedMisconception.conceptId}&misconceptionId=${detectedMisconception.id}`
+                )
+              }
+              className="shrink-0 flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition-transform hover:scale-105"
+            >
+              <Split className="w-4 h-4" />
+              <span>Proceed to Step 2: Cognitive Bisect →</span>
+            </button>
+          </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-archaia-border pb-4">
             <div className="flex items-center space-x-3">
               <div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30">
@@ -507,20 +635,19 @@ export default function DetectorPage() {
               </div>
             </div>
 
-            <button
-              onClick={() => router.push("/bisect")}
-              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-sm transition-transform hover:scale-105"
+            <Link
+              href={`/graph?highlight=${detectedMisconception.conceptId}`}
+              className="text-xs text-blue-400 hover:underline font-sans font-medium flex items-center space-x-1"
             >
-              <Split className="w-4 h-4" />
-              <span>Execute Cognitive Bisect on DAG →</span>
-            </button>
+              <span>View Target on Causal DAG →</span>
+            </Link>
           </div>
 
           <p className="text-xs text-slate-400 leading-relaxed font-sans">
             {detectedMisconception.description}
           </p>
 
-          {/* Student Assumption vs Formal Reality Side-by-Side (Feature 11) */}
+          {/* Student Assumption vs Formal Reality Side-by-Side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-rose-950/30 border border-rose-900/60 space-y-2">
               <div className="flex items-center space-x-2 text-rose-400 text-xs font-semibold">
@@ -543,7 +670,7 @@ export default function DetectorPage() {
             </div>
           </div>
 
-          {/* Affected Concepts Identification (Feature 12) */}
+          {/* Affected Concepts Identification */}
           <div className="pt-2 border-t border-archaia-border flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex items-center space-x-2 font-sans">
               <span className="text-slate-400">Affected Downstream Concepts:</span>
@@ -559,9 +686,16 @@ export default function DetectorPage() {
               </div>
             </div>
 
-            <div className="text-blue-400 font-medium text-[11px]">
-              Ready for Cognitive Bisect Backtracking
-            </div>
+            <button
+              onClick={() =>
+                router.push(
+                  `/bisect?conceptId=${detectedMisconception.conceptId}&misconceptionId=${detectedMisconception.id}`
+                )
+              }
+              className="text-amber-400 hover:text-amber-300 font-semibold text-xs flex items-center space-x-1"
+            >
+              <span>Launch Prerequisite Bisect Traversal →</span>
+            </button>
           </div>
         </div>
       )}
@@ -601,25 +735,8 @@ export default function DetectorPage() {
             {verifiedResult.message}
           </p>
 
-          <div className="p-4 rounded-xl bg-emerald-950/20 border border-emerald-900/40 space-y-2">
-            <div className="flex items-center space-x-2 text-emerald-400 text-xs font-semibold">
-              <CheckCircle className="w-4 h-4" />
-              <span>Diagnostic Assessment Feedback:</span>
-            </div>
-            <p className="text-xs text-emerald-200 leading-relaxed font-sans">
-              "{verifiedResult.normalizedReasoning}"
-            </p>
-          </div>
-
-          <div className="pt-2 border-t border-archaia-border flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="text-slate-400 font-sans">
-              Concept <strong className="text-white">{verifiedResult.conceptId || conceptId}</strong> status upgraded to <span className="text-emerald-400 font-medium">Mastered 🟢</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Link href="/progress" className="text-blue-400 hover:underline font-medium">
-                View Adaptive Path →
-              </Link>
-            </div>
+          <div className="p-4 rounded-xl bg-emerald-950/20 border border-emerald-900/40 text-xs font-sans text-emerald-200">
+            <strong>Normalized Formal Reasoning:</strong> {verifiedResult.normalizedReasoning}
           </div>
         </div>
       )}

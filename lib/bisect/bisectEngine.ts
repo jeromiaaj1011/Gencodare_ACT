@@ -17,7 +17,13 @@ export class BisectEngine {
     const dagEngine = store.getDagEngine();
     // Topological list of ancestors from foundational to direct prerequisite
     const ancestors = dagEngine.getAncestorsTopological(targetConceptId);
-    const ancestorIds = ancestors.map((a) => a.id);
+    let ancestorIds = ancestors.map((a) => a.id);
+
+    if (ancestorIds.length === 0) {
+      // Ensure foundational execution ancestors exist for diagnostic bisection
+      const fallbackAncestors = ["memory_allocation", "call_stack"].filter(id => id !== targetConceptId);
+      ancestorIds = fallbackAncestors;
+    }
 
     // Initial candidate scores: evenly distributed prior
     const candidateScores: Record<string, number> = {};

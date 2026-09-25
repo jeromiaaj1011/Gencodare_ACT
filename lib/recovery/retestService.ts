@@ -38,7 +38,21 @@ export class ReTestService {
         lastTestedAt: new Date().toISOString(),
       });
 
-      // 2. Cascade recovery: If Call Stack recovered, Recursion is now unblocked and mastered (Feature 31 & 32)
+      // 2. Cascade recovery: Dynamically unblock downstream dependent concepts in the DAG
+      const edges = dagEngine.getAllEdges();
+      const dependentIds = edges.filter((e) => e.from === conceptId).map((e) => e.to);
+
+      for (const depId of dependentIds) {
+        const depState = store.getLearnerState(depId);
+        if (!depState || depState.status === "untested" || depState.status === "misconception_detected") {
+          store.updateLearnerState(depId, {
+            status: "untested",
+            confidence: Math.max(70, depState?.confidence || 60),
+            activeMisconceptionId: undefined,
+          });
+        }
+      }
+
       if (conceptId === "call_stack") {
         store.updateLearnerState("recursion", {
           status: "mastered",
@@ -60,6 +74,7 @@ export class ReTestService {
         });
       }
 
+      const unlocked = dependentIds.length > 0 ? dependentIds : ["recursion", "tree_traversal", "graph_traversal"];
       const allStates = new Map(store.getAllLearnerStates().map((s) => [s.conceptId, s]));
       const adaptivePath = dagEngine.computeAdaptivePath(allStates);
 
@@ -68,7 +83,7 @@ export class ReTestService {
         status: "recovered",
         feedback,
         updatedMastery: 92,
-        unlockedConcepts: ["recursion", "tree_traversal", "graph_traversal"],
+        unlockedConcepts: unlocked,
         adaptivePath,
       };
     } else {

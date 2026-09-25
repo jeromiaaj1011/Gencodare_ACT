@@ -2,8 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/storage/store";
 import { BisectEngine } from "@/lib/bisect/bisectEngine";
 
-export async function GET() {
-  const session = store.getActiveBisectSession();
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const paramConceptId = searchParams.get("conceptId");
+  const paramMisconceptionId = searchParams.get("misconceptionId");
+
+  let session = store.getActiveBisectSession();
+
+  // If a specific concept was requested, start or sync session for that concept
+  if (paramConceptId && (!session || session.targetConceptId !== paramConceptId)) {
+    session = BisectEngine.startSession(
+      paramConceptId,
+      paramMisconceptionId || `misc_${paramConceptId}_active`
+    );
+  }
+
   if (!session) {
     return NextResponse.json({
       success: true,

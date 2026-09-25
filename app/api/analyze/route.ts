@@ -7,7 +7,7 @@ import { StudentSubmission } from "@/lib/types";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { conceptId, questionId, questionText, responseType, content } = body;
+    const { conceptId, questionId, questionText, responseType, content, conceptName, prerequisites } = body;
 
     if (!conceptId || !content) {
       return NextResponse.json(
@@ -16,12 +16,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Ensure concept exists in the Causal Knowledge Graph DAG
+    const conceptObj = store.ensureConcept(conceptId, conceptName, prerequisites);
+
     // Save student submission
     const submission: StudentSubmission = {
       id: "sub_" + Date.now(),
       conceptId,
       questionId: questionId || "q_default",
-      questionText: questionText || "Explain the recursive execution of DFS.",
+      questionText: questionText || `Explain the execution of ${conceptObj.name}.`,
       responseType: responseType || "written",
       content,
       timestamp: new Date().toISOString(),
