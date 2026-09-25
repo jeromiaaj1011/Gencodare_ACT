@@ -38,9 +38,9 @@ export default function DetectorPage() {
   const router = useRouter();
   const [responseType, setResponseType] = useState<ResponseType>("written");
 
-  // Mode: Curated benchmark demo vs Custom real user input
-  const [isDemo, setIsDemo] = useState(false);
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  // Mode: Curated benchmark demo by default, prefilled on first paint
+  const [isDemo, setIsDemo] = useState(true);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(SEED_DEMO_INVESTIGATION.sessionId);
   const [currentMode, setCurrentMode] = useState<AppContentMode>("demo");
   const [activeCourse, setActiveCourse] = useState<CourseMaterial | null>(null);
 
@@ -48,12 +48,12 @@ export default function DetectorPage() {
   const [showStagedScan, setShowStagedScan] = useState(false);
   const [pendingAnalysisData, setPendingAnalysisData] = useState<any>(null);
 
-  // Default fields start completely empty for real users, but hydrated with canonical seed in demo mode
-  const [customConceptName, setCustomConceptName] = useState("");
-  const [conceptId, setConceptId] = useState("");
-  const [questionText, setQuestionText] = useState("");
-  const [writtenInput, setWrittenInput] = useState("");
-  const [codeInput, setCodeInput] = useState("");
+  // Initial fields start prefilled with canonical benchmark seed so the demo is ready on first paint
+  const [customConceptName, setCustomConceptName] = useState(SEED_DEMO_INVESTIGATION.conceptName);
+  const [conceptId, setConceptId] = useState(SEED_DEMO_INVESTIGATION.conceptId);
+  const [questionText, setQuestionText] = useState(SEED_DEMO_INVESTIGATION.questionText);
+  const [writtenInput, setWrittenInput] = useState(SEED_DEMO_INVESTIGATION.writtenInput);
+  const [codeInput, setCodeInput] = useState(SEED_DEMO_INVESTIGATION.codeInput);
   const [mcqSelected, setMcqSelected] = useState<string>("");
   const [steps, setSteps] = useState<string[]>([]);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
