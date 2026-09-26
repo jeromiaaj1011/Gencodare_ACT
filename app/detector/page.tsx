@@ -1091,7 +1091,7 @@ export default function DetectorPage() {
       {detectedMisconception && (
         <div className="p-6 rounded-2xl bg-archaia-dark border border-rose-500/40 shadow-sm space-y-5 animate-in slide-in-from-bottom-4">
           {/* STEP 1 CONTINUATION BANNER */}
-          <div className="p-4 rounded-xl bg-gradient-to-r from-amber-950/40 via-[#181a24] to-slate-900 border border-amber-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+          <div className="p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-600 border border-amber-500/40 uppercase">

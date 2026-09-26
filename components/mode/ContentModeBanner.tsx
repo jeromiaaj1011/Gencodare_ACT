@@ -178,8 +178,8 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
       <div
         className={`p-3.5 sm:p-4 rounded-2xl border transition-all ${
           mode === "demo"
-            ? "bg-gradient-to-r from-amber-950/30 via-[#141824] to-[#0E1117] border-amber-500/40 text-amber-700"
-            : "bg-gradient-to-r from-blue-950/40 via-[#13192B] to-[#0E1117] border-blue-500/50 text-blue-700"
+            ? "bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200"
+            : "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200"
         } ${className}`}
       >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -205,7 +205,7 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
 
               {mode === "demo" ? (
                 <span className="text-[11px] text-slate-500 font-sans">
-                  Seeded Worked Example: <strong className="text-slate-900">DFS Context Replacement â†’ Call Stack</strong>
+                  Dataset: <strong className="text-slate-900">System Architecture (Pre-seeded)</strong> • <strong className="text-amber-600">7 Canonical Concepts</strong>
                 </span>
               ) : (
                 <span className="text-[11px] text-slate-500 font-sans">

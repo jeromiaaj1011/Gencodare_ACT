@@ -236,15 +236,33 @@ class DataStore {
       targetConceptId: "graph_traversal",
       detectedMisconceptionId: "rec_context_replace",
       ancestorChain: ["tree_traversal", "recursion", "call_stack"],
-      investigatedConcepts: [],
-      probesAnswered: [],
+      investigatedConcepts: ["tree_traversal", "call_stack"],
+      probesAnswered: [
+        {
+          probeId: "probe_tree_1",
+          conceptId: "tree_traversal",
+          selectedOptionId: "opt_tree_pass",
+          isCorrect: true,
+          evidenceWeight: -35,
+          timestamp: new Date().toISOString(),
+        },
+        {
+          probeId: "probe_stack_1",
+          conceptId: "call_stack",
+          selectedOptionId: "opt_stack_fail",
+          isCorrect: false,
+          evidenceWeight: 45,
+          timestamp: new Date().toISOString(),
+        }
+      ],
       candidateScores: {
-        tree_traversal: 50,
+        tree_traversal: 15,
         recursion: 50,
-        call_stack: 50,
+        call_stack: 95,
       },
-      currentProbe: SEED_DIAGNOSTIC_PROBES.find((p) => p.conceptId === "call_stack"),
-      status: "active",
+      status: "concluded",
+      likelyRootGapId: "call_stack",
+      conclusionReason: "Diagnostic micro-probes accumulated highest evidence weight on prerequisite concept 'Call Stack & LIFO Frames'."
     };
 
     this.currentMode = "demo";
@@ -281,7 +299,7 @@ class DataStore {
 
   public getDiagnosticSession(sessionId?: string): DiagnosticSession | undefined {
     if (!sessionId) return undefined;
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
       return this.getDemoSession();
     }
     let session = this.diagnosticSessions.get(sessionId);
@@ -298,7 +316,7 @@ class DataStore {
     sessionId: string,
     updates: Partial<DiagnosticSession>
   ): DiagnosticSession | undefined {
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
       const demoSession = this.getDemoSession();
       const updated = { ...demoSession, ...updates };
       try {
@@ -427,7 +445,7 @@ class DataStore {
   // --- Dynamic Causal DAG & Concept Methods (Unified Across Modes) ---
 
   public getConcepts(sessionId?: string, userId?: string): Concept[] {
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
       return this.demoConcepts;
     }
     if (sessionId) {
@@ -452,7 +470,7 @@ class DataStore {
   }
 
   public getEdges(sessionId?: string, userId?: string): ConceptEdge[] {
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
       return this.demoEdges;
     }
     if (sessionId) {
@@ -476,7 +494,7 @@ class DataStore {
   }
 
   public getAllLearnerStates(sessionId?: string, userId?: string): LearnerConceptState[] {
-    if (sessionId === "demo" || sessionId === "demo_dfs" || (!sessionId && this.currentMode === "demo")) {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs" || (!sessionId && this.currentMode === "demo")) {
       try {
         ensureSessionsDir();
         const demoStatesPath = path.join(SESSIONS_DIR, "demo_learner_states.json");
@@ -522,7 +540,7 @@ class DataStore {
   }
 
   public getLearnerState(conceptId: string, sessionId?: string, userId?: string): LearnerConceptState | undefined {
-    if (sessionId === "demo" || sessionId === "demo_dfs" || (!sessionId && this.currentMode === "demo")) {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs" || (!sessionId && this.currentMode === "demo")) {
       try {
         ensureSessionsDir();
         const demoStatesPath = path.join(SESSIONS_DIR, "demo_learner_states.json");
@@ -559,7 +577,7 @@ class DataStore {
     updates: Partial<LearnerConceptState>,
     sessionId?: string
   ): LearnerConceptState {
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
       try {
         ensureSessionsDir();
         const demoStatesPath = path.join(SESSIONS_DIR, "demo_learner_states.json");
@@ -648,7 +666,7 @@ class DataStore {
   // --- Bisect & Probes ---
 
   public getActiveBisectSession(sessionId?: string, userId?: string): BisectSession | undefined {
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
       try {
         ensureSessionsDir();
         const demoBisectPath = path.join(SESSIONS_DIR, "demo_bisect.json");
@@ -703,7 +721,7 @@ class DataStore {
   }
 
   public setActiveBisectSession(session: BisectSession, sessionId?: string): void {
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
       this.demoActiveBisect = session;
       try {
         ensureSessionsDir();
@@ -723,7 +741,7 @@ class DataStore {
   }
 
   public getProbesForConcept(conceptId: string, sessionId?: string): DiagnosticProbe[] {
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
       return Array.from(this.demoProbes.values()).filter((p) => p.conceptId === conceptId);
     }
     if (sessionId) {
@@ -744,7 +762,7 @@ class DataStore {
   }
 
   public getProbe(probeId: string, sessionId?: string): DiagnosticProbe | undefined {
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
       return this.demoProbes.get(probeId);
     }
     if (sessionId) {
@@ -766,7 +784,7 @@ class DataStore {
   // --- Recovery & Retest ---
 
   public getIntervention(conceptId: string, sessionId?: string, userId?: string): InterventionContent | undefined {
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
       return this.demoInterventions.get(conceptId) || this.demoInterventions.get("call_stack");
     }
     const diagSession = sessionId ? this.getDiagnosticSession(sessionId) : (userId ? this.getLatestSession(userId) : undefined);
@@ -788,7 +806,7 @@ class DataStore {
   }
 
   public getReTest(conceptId: string, sessionId?: string, userId?: string): ReTestAssessment | undefined {
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
       return this.demoReTests.get(conceptId) || this.demoReTests.get("call_stack");
     }
     const diagSession = sessionId ? this.getDiagnosticSession(sessionId) : (userId ? this.getLatestSession(userId) : undefined);
@@ -812,7 +830,7 @@ class DataStore {
   // --- Metrics Calculation ---
 
   public calculateMetrics(sessionId?: string, userId?: string): LearningProgressMetrics | null {
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
       return this.calculateMetricsFromStates(
         this.demoConcepts,
         this.getAllLearnerStates(sessionId),

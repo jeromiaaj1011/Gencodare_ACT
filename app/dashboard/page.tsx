@@ -99,8 +99,9 @@ export default function DashboardPage() {
 
   const fetchDashboardData = () => {
     setLoading(true);
+    const sessionId = sessionStorage.getItem("archaia_session_id") || "";
     Promise.all([
-      fetch("/api/graph").then((res) => res.json()),
+      fetch(`/api/graph${sessionId ? `?sessionId=${encodeURIComponent(sessionId)}` : ""}`).then((res) => res.json()),
       fetch("/api/course").then((res) => res.json()),
     ])
       .then(([graphData, courseData]) => {

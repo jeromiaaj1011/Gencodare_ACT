@@ -86,9 +86,13 @@ export const SEED_LEARNER_STATES: LearnerConceptState[] = [
   },
   {
     conceptId: "call_stack",
-    masteryScore: 50,
-    status: "untested",
-    confidence: 45,
+    masteryScore: 40,
+    status: "root_gap_identified",
+    confidence: 85,
+    diagnosticEvidence: [
+      "functions_context: Passed (+45%)",
+      "call_stack: Failed (+45%)"
+    ],
     recoveryAttempts: 0,
   },
   {
@@ -108,8 +112,9 @@ export const SEED_LEARNER_STATES: LearnerConceptState[] = [
   {
     conceptId: "graph_traversal",
     masteryScore: 40,
-    status: "untested",
-    confidence: 30,
+    status: "misconception_detected",
+    activeMisconceptionId: "rec_context_replace",
+    confidence: 94,
     recoveryAttempts: 0,
   },
   {

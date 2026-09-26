@@ -262,7 +262,7 @@ export default function ProgressPage() {
 
       {/* Recovered Concept Completion Celebration */}
       {effectiveRootGap && isRecovered && (
-        <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-950/50 via-[#131b1e] to-slate-900 border border-emerald-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl animate-in zoom-in-95 card-interactive">
+        <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl animate-in zoom-in-95 card-interactive">
           <div className="flex items-center space-x-3">
             <div className="p-3 rounded-2xl bg-emerald-500/20 text-emerald-600 border border-emerald-500/30">
               <CheckCircle2 className="w-7 h-7" />

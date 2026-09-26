@@ -377,7 +377,7 @@ export default function BisectPage() {
 
           {/* Likely Root Gap Announcement Banner */}
           {session.status === "concluded" && (
-            <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-amber-950/50 via-[#141722] to-slate-900 border border-amber-500/40 shadow-xl space-y-5 animate-in zoom-in-95 card-interactive">
+            <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 shadow-xl space-y-5 animate-in zoom-in-95 card-interactive">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-archaia-border pb-4">
                 <div className="flex items-center space-x-3">
                   <div className="p-3 rounded-2xl bg-amber-500/20 text-amber-600 border border-amber-500/30">

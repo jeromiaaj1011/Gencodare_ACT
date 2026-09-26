@@ -14,11 +14,16 @@ export async function GET(req: NextRequest) {
 
   // If a specific concept was requested and doesn't match active target, sync or start for that concept
   if (paramConceptId && (!session || session.targetConceptId !== paramConceptId)) {
-    session = BisectEngine.startSession(
-      paramConceptId,
-      paramMisconceptionId || `misc_${paramConceptId}_active`,
-      sessionId
-    );
+    // If it's a demo session, don't silently create a new empty session which bypasses probes.
+    if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
+      session = store.getDemoSession();
+    } else {
+      session = BisectEngine.startSession(
+        paramConceptId,
+        paramMisconceptionId || `misc_${paramConceptId}_active`,
+        sessionId
+      );
+    }
   }
 
   if (!session) {
