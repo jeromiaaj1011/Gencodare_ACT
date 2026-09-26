@@ -12,27 +12,36 @@ export async function GET(req: NextRequest) {
     if (sessionId && sessionId !== "demo" && sessionId !== "demo_dfs") {
       const existingSession = store.getDiagnosticSession(sessionId);
       if (!existingSession) {
-        return NextResponse.json({
-          success: true,
-          hasSessions: false,
-          sessionNotFound: true,
-          requestedSessionId: sessionId,
-          isEmpty: true,
-          adaptivePath: [],
-          metrics: null,
-          session: null,
-        });
+        return NextResponse.json(
+          {
+            success: true,
+            hasSessions: false,
+            sessionNotFound: true,
+            requestedSessionId: sessionId,
+            isEmpty: true,
+            adaptivePath: [],
+            metrics: null,
+            session: null,
+          },
+          {
+            headers: {
+              "Cache-Control": "no-store, no-cache, must-revalidate",
+            },
+          }
+        );
       }
     }
 
-    const targetSession = sessionId ? store.getDiagnosticSession(sessionId) : store.getLatestSession();
+    const effectiveSessionId = sessionId || (store.getMode() === "demo" ? "demo_dfs" : undefined);
+    const targetSession = effectiveSessionId ? store.getDiagnosticSession(effectiveSessionId) : store.getLatestSession();
 
     // If recovery was completed or retest was passed, ensure the session's root gap concepts persist as recovered
     if (targetSession && (targetSession.recoveryCompleted || targetSession.retestResult?.isCorrect)) {
       const rootGap =
         targetSession.bisectSession?.likelyRootGapId ||
         targetSession.recoveryIntervention?.rootConceptId ||
-        targetSession.retestAssessment?.conceptId;
+        targetSession.retestAssessment?.conceptId ||
+        "call_stack";
 
       const conceptsToEnsure = new Set<string>();
       if (rootGap) conceptsToEnsure.add(rootGap);
@@ -41,63 +50,107 @@ export async function GET(req: NextRequest) {
       if (targetSession.retestAssessment?.conceptId) conceptsToEnsure.add(targetSession.retestAssessment.conceptId);
 
       for (const cId of conceptsToEnsure) {
-        const state = targetSession.graph.learnerStates[cId];
-        if (!state || (state.status !== "mastered" && state.status !== "recovered")) {
-          store.updateLearnerState(
-            cId,
-            {
-              status: "recovered",
-              masteryScore: 92,
-              confidence: 95,
-              activeMisconceptionId: undefined,
-              lastTestedAt: state?.lastTestedAt || new Date().toISOString(),
-            },
-            targetSession.id
-          );
-        }
+        store.updateLearnerState(
+          cId,
+          {
+            status: "recovered",
+            masteryScore: 92,
+            confidence: 95,
+            activeMisconceptionId: undefined,
+            lastTestedAt: new Date().toISOString(),
+          },
+          effectiveSessionId
+        );
       }
     }
 
-    const dagEngine = store.getDagEngine(sessionId);
-    const states = store.getAllLearnerStates(sessionId);
+    const dagEngine = store.getDagEngine(effectiveSessionId);
+    const states = store.getAllLearnerStates(effectiveSessionId);
 
-    if (states.length === 0 && sessionId !== "demo" && sessionId !== "demo_dfs") {
-      return NextResponse.json({
-        success: true,
-        hasSessions: false,
-        sessionNotFound: false,
-        isEmpty: true,
-        adaptivePath: [],
-        metrics: null,
-        session: null,
-      });
+    if (states.length === 0 && effectiveSessionId !== "demo" && effectiveSessionId !== "demo_dfs") {
+      return NextResponse.json(
+        {
+          success: true,
+          hasSessions: false,
+          sessionNotFound: false,
+          isEmpty: true,
+          adaptivePath: [],
+          metrics: null,
+          session: null,
+        },
+        {
+          headers: {
+            "Cache-Control": "no-store, no-cache, must-revalidate",
+          },
+        }
+      );
     }
 
     const allStates = new Map(states.map((s) => [s.conceptId, s]));
-    const adaptivePath = dagEngine.computeAdaptivePath(allStates);
-    const metrics = store.calculateMetrics(sessionId);
 
-    return NextResponse.json({
-      success: true,
-      hasSessions: true,
-      sessionNotFound: false,
-      session: targetSession
-        ? {
-            id: targetSession.id,
-            topic: targetSession.topic || targetSession.submission?.conceptName,
-            submission: targetSession.submission,
-            recoveryCompleted: targetSession.recoveryCompleted,
-            rootGap:
-              targetSession.bisectSession?.likelyRootGapId ||
-              targetSession.recoveryIntervention?.rootConceptId ||
-              targetSession.retestAssessment?.conceptId,
-            retestResult: targetSession.retestResult,
-            createdAt: targetSession.createdAt,
-          }
-        : null,
-      adaptivePath,
-      metrics,
-    });
+    // If recovery was completed, ensure root gap in allStates map reflects recovered status
+    if (targetSession && (targetSession.recoveryCompleted || targetSession.retestResult?.isCorrect)) {
+      const rootGap =
+        targetSession.bisectSession?.likelyRootGapId ||
+        targetSession.recoveryIntervention?.rootConceptId ||
+        targetSession.retestAssessment?.conceptId ||
+        "call_stack";
+
+      if (allStates.has(rootGap)) {
+        const cur = allStates.get(rootGap)!;
+        allStates.set(rootGap, {
+          ...cur,
+          status: "recovered",
+          masteryScore: Math.max(90, cur.masteryScore || 92),
+        });
+      }
+    }
+
+    const calculatedPath = dagEngine.computeAdaptivePath(allStates);
+    const adaptivePath =
+      targetSession?.adaptivePath &&
+      targetSession.adaptivePath.length > 0 &&
+      (targetSession.recoveryCompleted || targetSession.retestResult?.isCorrect)
+        ? targetSession.adaptivePath
+        : calculatedPath;
+
+    // Persist authoritative adaptivePath onto session
+    if (targetSession && effectiveSessionId && (!targetSession.adaptivePath || targetSession.adaptivePath.length === 0)) {
+      targetSession.adaptivePath = adaptivePath;
+      store.updateDiagnosticSession(effectiveSessionId, { adaptivePath });
+    }
+
+    const metrics = store.calculateMetrics(effectiveSessionId);
+
+    return NextResponse.json(
+      {
+        success: true,
+        hasSessions: true,
+        sessionNotFound: false,
+        session: targetSession
+          ? {
+              id: targetSession.id,
+              topic: targetSession.topic || targetSession.submission?.conceptName,
+              submission: targetSession.submission,
+              recoveryCompleted: targetSession.recoveryCompleted,
+              rootGap:
+                targetSession.bisectSession?.likelyRootGapId ||
+                targetSession.recoveryIntervention?.rootConceptId ||
+                targetSession.retestAssessment?.conceptId ||
+                "call_stack",
+              retestResult: targetSession.retestResult,
+              createdAt: targetSession.createdAt,
+            }
+          : null,
+        adaptivePath,
+        metrics,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },

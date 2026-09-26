@@ -81,6 +81,10 @@ export class ReTestService {
         }
       }
 
+      const allStates = store.getAllLearnerStates(effectiveSessionId);
+      const statesMap = new Map(allStates.map((s) => [s.conceptId, s]));
+      const adaptivePath = dagEngine.computeAdaptivePath(statesMap);
+
       // Record in session
       if (effectiveSessionId) {
         store.updateDiagnosticSession(effectiveSessionId, {
@@ -91,12 +95,9 @@ export class ReTestService {
             unlockedConcepts: dependentIds,
             feedback,
           },
+          adaptivePath,
         });
       }
-
-      const allStates = store.getAllLearnerStates(effectiveSessionId);
-      const statesMap = new Map(allStates.map((s) => [s.conceptId, s]));
-      const adaptivePath = dagEngine.computeAdaptivePath(statesMap);
 
       return {
         isCorrect: true,

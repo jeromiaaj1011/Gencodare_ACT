@@ -245,5 +245,10 @@ export interface DiagnosticSession {
     unlockedConcepts: string[];
     feedback: string;
   };
+  adaptivePath?: {
+    conceptId: string;
+    status: "ready_to_learn" | "locked" | "needs_recovery" | "mastered";
+    blockingPrerequisite?: string;
+  }[];
 }
 

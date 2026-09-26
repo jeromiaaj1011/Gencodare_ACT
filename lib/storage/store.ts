@@ -255,6 +255,10 @@ class DataStore {
       if (fs.existsSync(demoStatesPath)) {
         fs.unlinkSync(demoStatesPath);
       }
+      const demoSessionPath = path.join(SESSIONS_DIR, "demo_session.json");
+      if (fs.existsSync(demoSessionPath)) {
+        fs.unlinkSync(demoSessionPath);
+      }
       fs.writeFileSync(
         path.join(SESSIONS_DIR, "demo_bisect.json"),
         JSON.stringify(this.demoActiveBisect),
@@ -295,7 +299,21 @@ class DataStore {
     updates: Partial<DiagnosticSession>
   ): DiagnosticSession | undefined {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
-      return this.getDemoSession();
+      const demoSession = this.getDemoSession();
+      const updated = { ...demoSession, ...updates };
+      try {
+        ensureSessionsDir();
+        fs.writeFileSync(
+          path.join(SESSIONS_DIR, "demo_session.json"),
+          JSON.stringify({
+            recoveryCompleted: updated.recoveryCompleted,
+            retestResult: updated.retestResult,
+            adaptivePath: updated.adaptivePath,
+          }),
+          "utf-8"
+        );
+      } catch (e) {}
+      return updated;
     }
     const session = this.getDiagnosticSession(sessionId);
     if (!session) return undefined;
@@ -314,7 +332,7 @@ class DataStore {
         ensureSessionsDir();
         const files = fs.readdirSync(SESSIONS_DIR).filter((f) => f.endsWith(".json"));
         for (const file of files) {
-          if (["mode.json", "courses.json", "active_course_id.json"].includes(file)) continue;
+          if (["mode.json", "courses.json", "active_course_id.json", "demo_learner_states.json", "demo_bisect.json", "demo_session.json"].includes(file)) continue;
           const s = loadSessionFromDisk(file.replace(".json", ""));
           if (s && !s.isDemo && (!userId || s.userId === userId)) {
             this.diagnosticSessions.set(s.id, s);
@@ -335,8 +353,14 @@ class DataStore {
   }
 
   public getDemoSession(): DiagnosticSession {
+    let persistedUpdates: Partial<DiagnosticSession> = {};
     try {
       ensureSessionsDir();
+      const demoSessionPath = path.join(SESSIONS_DIR, "demo_session.json");
+      if (fs.existsSync(demoSessionPath)) {
+        const raw = fs.readFileSync(demoSessionPath, "utf-8");
+        persistedUpdates = JSON.parse(raw);
+      }
       const demoStatesPath = path.join(SESSIONS_DIR, "demo_learner_states.json");
       if (fs.existsSync(demoStatesPath)) {
         const raw = fs.readFileSync(demoStatesPath, "utf-8");
@@ -394,6 +418,9 @@ class DataStore {
       bisectProbes: Array.from(this.demoProbes.values()),
       recoveryIntervention: this.demoInterventions.get("call_stack"),
       retestAssessment: this.demoReTests.get("call_stack"),
+      recoveryCompleted: persistedUpdates.recoveryCompleted,
+      retestResult: persistedUpdates.retestResult,
+      adaptivePath: persistedUpdates.adaptivePath,
     };
   }
 
@@ -449,7 +476,7 @@ class DataStore {
   }
 
   public getAllLearnerStates(sessionId?: string, userId?: string): LearnerConceptState[] {
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || (!sessionId && this.currentMode === "demo")) {
       try {
         ensureSessionsDir();
         const demoStatesPath = path.join(SESSIONS_DIR, "demo_learner_states.json");
@@ -495,7 +522,7 @@ class DataStore {
   }
 
   public getLearnerState(conceptId: string, sessionId?: string, userId?: string): LearnerConceptState | undefined {
-    if (sessionId === "demo" || sessionId === "demo_dfs") {
+    if (sessionId === "demo" || sessionId === "demo_dfs" || (!sessionId && this.currentMode === "demo")) {
       try {
         ensureSessionsDir();
         const demoStatesPath = path.join(SESSIONS_DIR, "demo_learner_states.json");
