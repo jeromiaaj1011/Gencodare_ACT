@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   if (paramConceptId && (!session || session.targetConceptId !== paramConceptId)) {
     // If it's a demo session, don't silently create a new empty session which bypasses probes.
     if (sessionId === "demo" || sessionId === "demo_dfs" || sessionId === "bisect_demo_dfs") {
-      session = store.getDemoSession();
+      session = store.getActiveBisectSession(sessionId);
     } else {
       session = BisectEngine.startSession(
         paramConceptId,

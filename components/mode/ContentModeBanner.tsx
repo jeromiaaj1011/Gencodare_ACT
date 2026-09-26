@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -205,11 +205,11 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
 
               {mode === "demo" ? (
                 <span className="text-[11px] text-slate-500 font-sans">
-                  Dataset: <strong className="text-slate-900">System Architecture (Pre-seeded)</strong> � <strong className="text-amber-600">7 Canonical Concepts</strong>
+                  Dataset: <strong className="text-slate-900">System Architecture (Pre-seeded)</strong> • <strong className="text-amber-600">7 Canonical Concepts</strong>
                 </span>
               ) : (
                 <span className="text-[11px] text-slate-500 font-sans">
-                  Subject: <strong className="text-slate-900">{activeCourse?.subject || "Computer Science"}</strong> •{" "}
+                  Subject: <strong className="text-slate-900">{activeCourse?.subject || "Computer Science"}</strong> â€¢{" "}
                   <strong className="text-blue-600">{activeCourse?.concepts?.length || 5} Concepts</strong> Active
                 </span>
               )}
