@@ -239,7 +239,7 @@ class DataStore {
       investigatedConcepts: ["tree_traversal", "call_stack"],
       probesAnswered: [
         {
-          probeId: "probe_tree_1",
+          probeId: "probe_tree_traversal_state",
           conceptId: "tree_traversal",
           selectedOptionId: "opt_tree_pass",
           isCorrect: true,
@@ -247,7 +247,7 @@ class DataStore {
           timestamp: new Date().toISOString(),
         }
       ],
-      currentProbe: SEED_DIAGNOSTIC_PROBES.find((p) => p.id === "probe_stack_1"),
+      currentProbe: SEED_DIAGNOSTIC_PROBES.find((p) => p.id === "probe_call_stack_frames"),
       candidateScores: {
         tree_traversal: 15,
         recursion: 50,
