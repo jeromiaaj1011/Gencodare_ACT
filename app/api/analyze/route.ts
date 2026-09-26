@@ -63,8 +63,7 @@ export async function POST(req: NextRequest) {
     const isBenchmarkDemo =
       requestedSessionId === "demo_dfs" ||
       requestedSessionId === "demo" ||
-      body.isDemo === true ||
-      (conceptId === "graph_traversal" && activeTopic.toLowerCase().includes("graph"));
+      body.isDemo === true;
 
     if (isBenchmarkDemo) {
       store.resetDemoData();

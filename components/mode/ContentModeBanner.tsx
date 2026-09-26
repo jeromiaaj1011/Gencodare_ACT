@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -73,6 +73,9 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
         setMode(data.mode || "demo");
         setActiveCourse(data.activeCourse || null);
         setCourses(data.courses || []);
+        if (onModeChange) {
+          onModeChange(data.mode || "demo", data.activeCourse || null);
+        }
       }
     } catch (e) {
       console.error(e);

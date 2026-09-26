@@ -410,8 +410,18 @@ export default function DetectorPage() {
           setActiveCourse(course || null);
           if (newMode === "demo") {
             setIsDemo(true);
+            setCustomConceptName(SEED_DEMO_INVESTIGATION.conceptName);
+            setConceptId(SEED_DEMO_INVESTIGATION.conceptId);
+            setQuestionText(SEED_DEMO_INVESTIGATION.questionText);
+            setWrittenInput(SEED_DEMO_INVESTIGATION.writtenInput);
+            setCodeInput(SEED_DEMO_INVESTIGATION.codeInput);
           } else {
             setIsDemo(false);
+            setCustomConceptName("");
+            setConceptId("");
+            setQuestionText("");
+            setWrittenInput("");
+            setCodeInput("");
           }
         }}
       />
