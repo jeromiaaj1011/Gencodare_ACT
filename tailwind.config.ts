@@ -11,11 +11,11 @@ const config: Config = {
     extend: {
       colors: {
         shades: {
-          obsidian: "#06070A",
-          dark: "#0C0E14",
-          card: "#11141E",
-          cardHover: "#181C29",
-          border: "rgba(255, 255, 255, 0.08)",
+          obsidian: "#F8FAFC",
+          dark: "#F1F5F9",
+          card: "#FFFFFF",
+          cardHover: "#F8FAFC",
+          border: "#E2E8F0",
           borderCoral: "rgba(244, 63, 94, 0.28)",
           coral: "#FF6484",
           rose: "#FB7185",
@@ -25,11 +25,11 @@ const config: Config = {
           peach: "#FFE4E6",
         },
         archaia: {
-          dark: "#0C0E14",
-          darker: "#06070A",
-          card: "#10131C",
-          cardHover: "#171B27",
-          border: "#1E2230",
+          dark: "#F1F5F9",
+          darker: "#F8FAFC",
+          card: "#FFFFFF",
+          cardHover: "#F8FAFC",
+          border: "#E2E8F0",
           borderGlow: "#F43F5E",
           accent: "#F43F5E",       // Shades vibrant coral rose
           primary: "#FB7185",      // Neon rose
@@ -37,8 +37,8 @@ const config: Config = {
           success: "#10B981",      // Natural emerald
           warning: "#F59E0B",      // Warm amber
           danger: "#E11D48",       // Refined crimson
-          text: "#F8FAFC",
-          muted: "#94A3B8",
+          text: "#0F172A",
+          muted: "#64748B",
         },
       },
       fontFamily: {

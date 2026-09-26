@@ -19,16 +19,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #06070a;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #181c28;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #282f42;
+  background: #94a3b8;
 }
 
 /* Editorial Serif & Presentation Typography */
@@ -40,7 +40,7 @@
   font-family: 'Playfair Display', Georgia, serif;
   font-weight: 500;
   letter-spacing: -0.01em;
-  color: #ffffff;
+  color: #0f172a;
 }
 
 .shades-subtitle {
@@ -48,7 +48,7 @@
   font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 /* 3D Organic Fluid Mesh Keyframes & Classes ("Shades That Inspire") */
@@ -114,10 +114,10 @@
 
 /* Presentation Deck Cards */
 .card-shades {
-  background: rgba(14, 17, 26, 0.88);
+  background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
               border-color 0.22s ease,
               box-shadow 0.22s ease;
@@ -126,7 +126,7 @@
 .card-shades:hover {
   transform: translateY(-2px);
   border-color: rgba(244, 63, 94, 0.35);
-  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.65), 0 0 20px -2px rgba(244, 63, 94, 0.2);
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.15), 0 0 20px -2px rgba(244, 63, 94, 0.2);
 }
 
 /* Interactive Coral / Rose Buttons */
@@ -150,16 +150,16 @@
 }
 
 .btn-shades-outline {
-  background: rgba(17, 20, 30, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: #334155;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-shades-outline:hover {
   background: rgba(244, 63, 94, 0.12);
   border-color: rgba(244, 63, 94, 0.4);
-  color: #ffffff;
+  color: #0f172a;
   transform: translateY(-1px);
 }
 

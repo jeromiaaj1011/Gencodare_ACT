@@ -46,26 +46,26 @@ export default function StagedScanSequence({
   const progressPercentage = Math.round(((currentStage + 1) / stages.length) * 100);
 
   return (
-    <div className="p-6 rounded-2xl bg-[#0E1117] border border-blue-500/40 shadow-2xl space-y-5 animate-in fade-in">
+    <div className="p-6 rounded-2xl bg-slate-50 border border-blue-500/40 shadow-2xl space-y-5 animate-in fade-in">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2.5">
-          <div className="p-2 rounded-xl bg-blue-500/15 text-blue-400 border border-blue-500/30">
+          <div className="p-2 rounded-xl bg-blue-500/15 text-blue-600 border border-blue-500/30">
             <Sparkles className="w-5 h-5 animate-spin" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white tracking-wide uppercase">
+            <h3 className="text-sm font-bold text-slate-900 tracking-wide uppercase">
               SCAN → ANALYZE → IDENTIFY
             </h3>
-            <p className="text-xs text-slate-400 font-sans">
+            <p className="text-xs text-slate-500 font-sans">
               Diagnosing conceptual invariants for <strong>{topic}</strong>
             </p>
           </div>
         </div>
-        <span className="text-xs font-mono font-bold text-blue-400">{progressPercentage}%</span>
+        <span className="text-xs font-mono font-bold text-blue-600">{progressPercentage}%</span>
       </div>
 
       {/* Animated Progress Bar */}
-      <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+      <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-blue-500 to-indigo-400 transition-all duration-300 ease-out"
           style={{ width: `${progressPercentage}%` }}
@@ -85,19 +85,19 @@ export default function StagedScanSequence({
               key={stage.label}
               className={`flex items-center space-x-3 p-2.5 rounded-xl border text-xs font-sans transition-all duration-200 ${
                 isDone
-                  ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                  ? "bg-emerald-50 border-emerald-500/30 text-emerald-600"
                   : isActive
-                  ? "bg-blue-950/30 border-blue-500/50 text-white font-medium shadow-sm"
+                  ? "bg-blue-50 border-blue-500/50 text-slate-900 font-medium shadow-sm"
                   : "bg-transparent border-transparent text-slate-500 opacity-50"
               }`}
             >
               <div className="shrink-0">
                 {isDone ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 ) : isActive ? (
                   <span className="w-4 h-4 rounded-full border-2 border-blue-400 border-t-transparent animate-spin block" />
                 ) : (
-                  <span className="w-3.5 h-3.5 rounded-full border border-slate-600 block" />
+                  <span className="w-3.5 h-3.5 rounded-full border border-slate-300 block" />
                 )}
               </div>
               <span className="flex-1 leading-snug">{stage.label}</span>

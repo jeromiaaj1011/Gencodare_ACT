@@ -86,23 +86,23 @@ export default function OverviewPage() {
 
       {/* Hero Section */}
       <div className="relative text-center space-y-4 max-w-3xl mx-auto pt-4">
-        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium">
-          <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 text-xs font-medium">
+          <Sparkles className="w-3.5 h-3.5 text-blue-600" />
           <span>ARCHAIA • Cognitive Misconception Detection & Recovery</span>
         </div>
 
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
           Debug the learning,{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-300">
             not just the answer.
           </span>
         </h1>
 
-        <p className="text-sm sm:text-base text-slate-400 leading-relaxed font-normal max-w-2xl mx-auto font-sans">
+        <p className="text-sm sm:text-base text-slate-500 leading-relaxed font-normal max-w-2xl mx-auto font-sans">
           Conventional platforms tell students if an answer is wrong.{" "}
-          <strong className="text-slate-200">ARCHAIA</strong> traces backward through an ontological{" "}
-          <strong className="text-slate-200">Causal Knowledge Graph</strong> using{" "}
-          <strong className="text-slate-200">Cognitive Bisect</strong> to isolate the foundational
+          <strong className="text-slate-700">ARCHAIA</strong> traces backward through an ontological{" "}
+          <strong className="text-slate-700">Causal Knowledge Graph</strong> using{" "}
+          <strong className="text-slate-700">Cognitive Bisect</strong> to isolate the foundational
           misconception that caused the mistake weeks earlier.
         </p>
 
@@ -116,9 +116,9 @@ export default function OverviewPage() {
           </Link>
           <Link
             href="/graph"
-            className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-white text-xs font-medium transition-colors btn-interactive-subtle"
+            className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border text-slate-900 text-xs font-medium transition-colors btn-interactive-subtle"
           >
-            <Network className="w-4 h-4 text-blue-400" />
+            <Network className="w-4 h-4 text-blue-600" />
             <span>Explore Knowledge DAG</span>
           </Link>
         </div>
@@ -127,29 +127,29 @@ export default function OverviewPage() {
       {/* 4 Staggered Diagnostic Analytical Panels (Feature 10: Strengths, Gaps, Recommendations, Next Steps) */}
       <div className="space-y-4 pt-2">
         <div className="flex items-center justify-between border-b border-archaia-border pb-2">
-          <h2 className="text-base font-bold text-white uppercase tracking-wider font-sans flex items-center space-x-2">
-            <Compass className="w-4 h-4 text-blue-400" />
+          <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider font-sans flex items-center space-x-2">
+            <Compass className="w-4 h-4 text-blue-600" />
             <span>Cognitive Diagnostic Overview</span>
           </h2>
-          <span className="text-xs text-slate-400 font-sans">Synthesized Pedagogical Telemetry</span>
+          <span className="text-xs text-slate-500 font-sans">Synthesized Pedagogical Telemetry</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* 1. Strengths & Verified Invariants (Stagger 1) */}
           <div className="p-5 rounded-2xl bg-archaia-dark border border-emerald-500/30 space-y-3 card-interactive stagger-1">
-            <div className="flex items-center space-x-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+            <div className="flex items-center space-x-2 text-emerald-600 text-xs font-bold uppercase tracking-wider">
               <CheckCircle2 className="w-4 h-4" />
               <span>1. Learner Strengths & Verified Invariants</span>
             </div>
-            <h3 className="text-sm font-bold text-white">Syntactic Reasoning & Graph Navigation</h3>
-            <p className="text-xs text-slate-300 leading-relaxed font-sans">
+            <h3 className="text-sm font-bold text-slate-900">Syntactic Reasoning & Graph Navigation</h3>
+            <p className="text-xs text-slate-600 leading-relaxed font-sans">
               Learner demonstrates proficient command over imperative syntax, loop conditions, and visited set collections. Foundations in discrete data relationships are sound.
             </p>
             <div className="flex flex-wrap gap-1.5 pt-1">
               {["Graph Topology", "Visited Invariants", "Loop Syntax"].map((tag) => (
                 <span
                   key={tag}
-                  className="px-2 py-0.5 rounded text-[10px] bg-emerald-950/60 text-emerald-300 border border-emerald-800 font-mono"
+                  className="px-2 py-0.5 rounded text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-800 font-mono"
                 >
                   ✓ {tag}
                 </span>
@@ -159,19 +159,19 @@ export default function OverviewPage() {
 
           {/* 2. Active Learning Gaps (Stagger 2) */}
           <div className="p-5 rounded-2xl bg-archaia-dark border border-rose-500/30 space-y-3 card-interactive stagger-2">
-            <div className="flex items-center space-x-2 text-rose-400 text-xs font-bold uppercase tracking-wider">
+            <div className="flex items-center space-x-2 text-rose-600 text-xs font-bold uppercase tracking-wider">
               <AlertTriangle className="w-4 h-4" />
               <span>2. Fragile Foundations & Learning Gaps</span>
             </div>
-            <h3 className="text-sm font-bold text-white">Execution Frame Lifecycle & LIFO Suspension</h3>
-            <p className="text-xs text-slate-300 leading-relaxed font-sans">
+            <h3 className="text-sm font-bold text-slate-900">Execution Frame Lifecycle & LIFO Suspension</h3>
+            <p className="text-xs text-slate-600 leading-relaxed font-sans">
               Identified a foundational gap regarding execution state suspension during recursive function calls. The mental model erroneously assumed child invocations replace parent scope.
             </p>
             <div className="flex flex-wrap gap-1.5 pt-1">
               {["Call Stack Invariants", "Frame Suspension", "Return Unwinding"].map((tag) => (
                 <span
                   key={tag}
-                  className="px-2 py-0.5 rounded text-[10px] bg-rose-950/60 text-rose-300 border border-rose-800 font-mono"
+                  className="px-2 py-0.5 rounded text-[10px] bg-rose-50 text-rose-600 border border-rose-800 font-mono"
                 >
                   ⚠ {tag}
                 </span>
@@ -181,15 +181,15 @@ export default function OverviewPage() {
 
           {/* 3. AI Pedagogical Recommendations (Stagger 3) */}
           <div className="p-5 rounded-2xl bg-archaia-dark border border-blue-500/30 space-y-3 card-interactive stagger-3">
-            <div className="flex items-center space-x-2 text-blue-400 text-xs font-bold uppercase tracking-wider">
+            <div className="flex items-center space-x-2 text-blue-600 text-xs font-bold uppercase tracking-wider">
               <Lightbulb className="w-4 h-4" />
               <span>3. AI Pedagogical Recommendations</span>
             </div>
-            <h3 className="text-sm font-bold text-white">Targeted Invariant Restructuring</h3>
-            <p className="text-xs text-slate-300 leading-relaxed font-sans">
+            <h3 className="text-sm font-bold text-slate-900">Targeted Invariant Restructuring</h3>
+            <p className="text-xs text-slate-600 leading-relaxed font-sans">
               Avoid repeated generic DFS coding drills. Instead, engage with the physical hardware stack simulator and complete disconfirmation micro-puzzles to permanently reset the mental model.
             </p>
-            <div className="text-[11px] text-blue-300 font-medium">
+            <div className="text-[11px] text-blue-600 font-medium">
               Recommendation: Run Cognitive Bisect → Target Call Stack recovery module.
             </div>
           </div>
@@ -200,23 +200,23 @@ export default function OverviewPage() {
               <Flame className="w-4 h-4" />
               <span>4. Concrete Next Steps</span>
             </div>
-            <h3 className="text-sm font-bold text-white">Diagnostic Learning Action Items</h3>
+            <h3 className="text-sm font-bold text-slate-900">Diagnostic Learning Action Items</h3>
             <div className="space-y-2 text-xs font-sans">
-              <div className="flex items-center justify-between p-2 rounded-lg bg-[#0C0E12] border border-slate-800 text-slate-300">
+              <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 text-slate-600">
                 <span>Step 1: Test Invariant in Cognitive Bug Detector</span>
-                <Link href="/detector" className="text-blue-400 hover:underline font-semibold">
+                <Link href="/detector" className="text-blue-600 hover:underline font-semibold">
                   Launch →
                 </Link>
               </div>
-              <div className="flex items-center justify-between p-2 rounded-lg bg-[#0C0E12] border border-slate-800 text-slate-300">
+              <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 text-slate-600">
                 <span>Step 2: Isolate Root Gap via Cognitive Bisect</span>
-                <Link href="/bisect" className="text-amber-400 hover:underline font-semibold">
+                <Link href="/bisect" className="text-amber-600 hover:underline font-semibold">
                   Launch →
                 </Link>
               </div>
-              <div className="flex items-center justify-between p-2 rounded-lg bg-[#0C0E12] border border-slate-800 text-slate-300">
+              <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-slate-200 text-slate-600">
                 <span>Step 3: Restructure Invariant in Recovery Lab</span>
-                <Link href="/recovery" className="text-emerald-400 hover:underline font-semibold">
+                <Link href="/recovery" className="text-emerald-600 hover:underline font-semibold">
                   Launch →
                 </Link>
               </div>
@@ -228,11 +228,11 @@ export default function OverviewPage() {
       {/* The 6 Core Modules Grid */}
       <div className="space-y-4">
         <div className="flex items-center justify-between border-b border-archaia-border pb-2">
-          <h2 className="text-base font-bold text-white uppercase tracking-wider font-sans flex items-center space-x-2">
-            <Cpu className="w-4 h-4 text-blue-400" />
+          <h2 className="text-base font-bold text-slate-900 uppercase tracking-wider font-sans flex items-center space-x-2">
+            <Cpu className="w-4 h-4 text-blue-600" />
             <span>The 6 Integrated Architectural Modules</span>
           </h2>
-          <span className="text-xs font-sans text-slate-400">
+          <span className="text-xs font-sans text-slate-500">
             Fully Implemented & Interactive
           </span>
         </div>
@@ -251,26 +251,26 @@ export default function OverviewPage() {
                     <span className="text-xs font-mono text-slate-500 font-semibold">
                       MODULE {m.number}
                     </span>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-sans bg-slate-900 border border-slate-700 text-slate-300">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-sans bg-slate-50 border border-slate-300 text-slate-600">
                       {m.badge}
                     </span>
                   </div>
 
                   <div className="flex items-center space-x-3">
-                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 group-hover:scale-105 transition-transform">
-                      <Icon className="w-5 h-5 text-slate-200" />
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 group-hover:scale-105 transition-transform">
+                      <Icon className="w-5 h-5 text-slate-700" />
                     </div>
-                    <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition-colors">
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                       {m.title}
                     </h3>
                   </div>
 
-                  <p className="text-xs text-slate-400 leading-relaxed font-sans">
+                  <p className="text-xs text-slate-500 leading-relaxed font-sans">
                     {m.description}
                   </p>
                 </div>
 
-                <div className="flex items-center text-xs font-sans font-medium text-blue-400 group-hover:translate-x-1 transition-transform">
+                <div className="flex items-center text-xs font-sans font-medium text-blue-600 group-hover:translate-x-1 transition-transform">
                   <span>Open Module →</span>
                 </div>
               </Link>

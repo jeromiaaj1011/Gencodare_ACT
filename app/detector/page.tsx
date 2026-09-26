@@ -419,12 +419,12 @@ export default function DetectorPage() {
       {/* Header with Editorial Presentation Typography */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <span className="shades-subtitle text-rose-300/80">01. STAGE ONE • INVARIANT SCAN</span>
-          <h1 className="font-editorial text-2xl sm:text-3xl lg:text-4xl font-medium text-white flex items-center space-x-2.5">
-            <Bug className="w-6 h-6 text-rose-400" />
+          <span className="shades-subtitle text-rose-600/80">01. STAGE ONE • INVARIANT SCAN</span>
+          <h1 className="font-editorial text-2xl sm:text-3xl lg:text-4xl font-medium text-slate-900 flex items-center space-x-2.5">
+            <Bug className="w-6 h-6 text-rose-600" />
             <span>Misconception Detector</span>
           </h1>
-          <p className="text-xs text-slate-300 font-sans">
+          <p className="text-xs text-slate-600 font-sans">
             Enter any computer science concept, question, and student reasoning. The engine isolates mental model invariants against formal computing reality.
           </p>
         </div>
@@ -447,12 +447,12 @@ export default function DetectorPage() {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={importingFile}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-rose-500/35 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-rose-500/35 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 text-xs font-medium transition-colors"
           >
             {importingFile ? (
-              <Sparkles className="w-3.5 h-3.5 animate-spin text-rose-400" />
+              <Sparkles className="w-3.5 h-3.5 animate-spin text-rose-600" />
             ) : (
-              <FolderOpen className="w-3.5 h-3.5 text-rose-400" />
+              <FolderOpen className="w-3.5 h-3.5 text-rose-600" />
             )}
             <span>{importingFile ? "Analyzing File..." : "Import File"}</span>
           </button>
@@ -460,7 +460,7 @@ export default function DetectorPage() {
           <button
             type="button"
             onClick={handleStartNewDiagnostic}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-white/[0.08] bg-[#11141e] hover:bg-[#181c28] text-slate-300 text-xs font-medium transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-100 text-slate-600 text-xs font-medium transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset Form</span>
@@ -471,8 +471,8 @@ export default function DetectorPage() {
             onClick={handleLoadDfsDemo}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
               isDemo
-                ? "bg-rose-500/20 border-rose-500 text-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.3)]"
-                : "border-white/[0.08] bg-[#11141e] hover:bg-[#181c28] text-slate-400 hover:text-white"
+                ? "bg-rose-500/20 border-rose-500 text-rose-600 shadow-[0_0_12px_rgba(244,63,94,0.3)]"
+                : "border-slate-200 bg-slate-100 hover:bg-slate-100 text-slate-500 hover:text-slate-900"
             }`}
           >
             <PlayCircle className="w-3.5 h-3.5" />
@@ -483,15 +483,15 @@ export default function DetectorPage() {
 
       {/* File Import Success Banner */}
       {importMessage && (
-        <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-between text-xs text-blue-200 animate-in fade-in">
+        <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-between text-xs text-blue-700 animate-in fade-in">
           <div className="flex items-center space-x-2">
-            <Sparkles className="w-4 h-4 text-blue-400 shrink-0" />
+            <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
             <span>{importMessage}</span>
           </div>
           <button
             type="button"
             onClick={() => setImportMessage(null)}
-            className="text-[11px] text-slate-400 hover:text-white"
+            className="text-[11px] text-slate-500 hover:text-slate-900"
           >
             Dismiss
           </button>
@@ -499,15 +499,15 @@ export default function DetectorPage() {
       )}
 
       {/* Primary Mode Selector: Custom User Input vs Demo Benchmark vs File Manager */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2.5 rounded-2xl bg-[#0c0e17] border border-white/[0.08] shadow-md">
-        <div className="flex items-center gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-200 shadow-md">
+        <div className="flex items-center gap-1.5 p-1 bg-white rounded-xl border border-slate-200">
           <button
             type="button"
             onClick={handleStartNewDiagnostic}
             className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
               !isDemo && !uploadedFileMeta
                 ? "bg-rose-600 text-white shadow-md"
-                : "text-slate-400 hover:text-white"
+                : "text-slate-500 hover:text-slate-900"
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -519,10 +519,10 @@ export default function DetectorPage() {
             className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
               uploadedFileMeta
                 ? "bg-rose-600 text-white shadow-md"
-                : "text-slate-400 hover:text-white"
+                : "text-slate-500 hover:text-slate-900"
             }`}
           >
-            <FolderOpen className="w-3.5 h-3.5 text-rose-400" />
+            <FolderOpen className="w-3.5 h-3.5 text-rose-600" />
             <span>📁 Upload from File Manager</span>
           </button>
           <button
@@ -531,7 +531,7 @@ export default function DetectorPage() {
             className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
               isDemo && !uploadedFileMeta
                 ? "bg-rose-600 text-white shadow-md"
-                : "text-slate-400 hover:text-white"
+                : "text-slate-500 hover:text-slate-900"
             }`}
           >
             <PlayCircle className="w-3.5 h-3.5" />
@@ -541,17 +541,17 @@ export default function DetectorPage() {
 
         <div className="px-2">
           {uploadedFileMeta ? (
-            <span className="text-[11px] text-blue-300 font-sans font-medium flex items-center space-x-1.5">
+            <span className="text-[11px] text-blue-600 font-sans font-medium flex items-center space-x-1.5">
               <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
               <span>File Manager: {uploadedFileMeta.name}</span>
             </span>
           ) : !isDemo ? (
-            <span className="text-[11px] text-emerald-400 font-sans font-medium flex items-center space-x-1.5">
+            <span className="text-[11px] text-emerald-600 font-sans font-medium flex items-center space-x-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Custom Input Mode Active • Ready for your code</span>
             </span>
           ) : (
-            <span className="text-[11px] text-rose-300 font-sans font-medium flex items-center space-x-1.5">
+            <span className="text-[11px] text-rose-600 font-sans font-medium flex items-center space-x-1.5">
               <span className="w-2 h-2 rounded-full bg-rose-400" />
               <span>Curated Demo • Click 'Custom User Input' or 'Upload File' to test your code</span>
             </span>
@@ -581,8 +581,8 @@ export default function DetectorPage() {
             isDragging
               ? "border-rose-500 bg-rose-500/15 scale-[1.01] shadow-[0_0_24px_rgba(244,63,94,0.35)]"
               : uploadedFileMeta
-              ? "border-emerald-500/40 bg-emerald-950/20"
-              : "border-dashed border-rose-500/30 bg-[#0d101a]/80 hover:border-rose-500/50 hover:bg-[#121522]"
+              ? "border-emerald-500/40 bg-emerald-50"
+              : "border-dashed border-rose-500/30 bg-white hover:border-rose-500/50 hover:bg-slate-50"
           }`}
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -590,8 +590,8 @@ export default function DetectorPage() {
               <div
                 className={`p-3 rounded-xl border ${
                   uploadedFileMeta
-                    ? "bg-emerald-500/20 border-emerald-500/35 text-emerald-400"
-                    : "bg-rose-500/15 border-rose-500/30 text-rose-400"
+                    ? "bg-emerald-500/20 border-emerald-500/35 text-emerald-600"
+                    : "bg-rose-500/15 border-rose-500/30 text-rose-600"
                 }`}
               >
                 {importingFile ? (
@@ -605,16 +605,16 @@ export default function DetectorPage() {
 
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs font-bold text-white uppercase tracking-wider font-sans">
+                  <span className="text-xs font-bold text-slate-900 uppercase tracking-wider font-sans">
                     {uploadedFileMeta ? "File Loaded from File Manager" : "Upload from File Manager"}
                   </span>
                   {uploadedFileMeta?.language && (
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-600 border border-rose-500/30">
                       {uploadedFileMeta.language}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-slate-300 font-sans mt-0.5">
+                <p className="text-xs text-slate-600 font-sans mt-0.5">
                   {uploadedFileMeta
                     ? `${uploadedFileMeta.name} (${(uploadedFileMeta.size / 1024).toFixed(1)} KB) — Invariants extracted & problem formulated`
                     : "Drag & drop any code file, SQL script, or notes from your computer, or click to browse your file manager."}
@@ -632,9 +632,9 @@ export default function DetectorPage() {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={importingFile}
-                    className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold transition-all flex items-center space-x-1.5"
+                    className="px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-semibold transition-all flex items-center space-x-1.5"
                   >
-                    <FolderOpen className="w-3.5 h-3.5 text-rose-400" />
+                    <FolderOpen className="w-3.5 h-3.5 text-rose-600" />
                     <span>Change File</span>
                   </button>
                   <button
@@ -643,7 +643,7 @@ export default function DetectorPage() {
                       setUploadedFileMeta(null);
                       setImportMessage(null);
                     }}
-                    className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                    className="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                     title="Clear file"
                   >
                     <X className="w-4 h-4" />
@@ -669,10 +669,10 @@ export default function DetectorPage() {
         </div>
         {/* Quick Concept Presets for Custom User Input Mode */}
         {!isDemo && (
-          <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-slate-300 flex items-center space-x-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-rose-400" />
+              <span className="font-semibold text-slate-600 flex items-center space-x-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-rose-600" />
                 <span>Quick Concept Presets (Click to autofill question &amp; code template):</span>
               </span>
               <span className="text-[10px] text-slate-500 font-sans">Or type any custom topic below</span>
@@ -717,7 +717,7 @@ export default function DetectorPage() {
                   className={`px-2.5 py-1 rounded-lg text-xs font-sans border transition-all ${
                     customConceptName === preset.name
                       ? "bg-rose-500 text-white border-rose-400 font-semibold shadow-sm"
-                      : "bg-[#11141e] hover:bg-[#181c28] border-white/[0.08] text-slate-300 hover:text-white"
+                      : "bg-slate-100 hover:bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   + {preset.name}
@@ -727,8 +727,8 @@ export default function DetectorPage() {
           </div>
         )}
         {/* Modality Selector Tabs */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
-          <span className="text-xs font-medium text-slate-300">Response Modality:</span>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+          <span className="text-xs font-medium text-slate-600">Response Modality:</span>
           <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Response Modalities">
             {[
               { id: "written", label: "Written Text", icon: HelpCircle },
@@ -750,7 +750,7 @@ export default function DetectorPage() {
                   className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     isSelected
                       ? "bg-rose-500 text-white shadow-[0_0_14px_rgba(244,63,94,0.35)]"
-                      : "bg-[#11141e] hover:bg-[#181c28] border border-white/[0.08] text-slate-400 hover:text-white"
+                      : "bg-slate-100 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900"
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -764,13 +764,13 @@ export default function DetectorPage() {
         <form id="detector-form" onSubmit={handleAnalyze} className="space-y-4">
           {/* Active Course Concepts Quick Selector */}
           {currentMode === "course" && activeCourse?.concepts && activeCourse.concepts.length > 0 && (
-            <div className="p-3.5 rounded-xl bg-purple-950/30 border border-purple-500/30 space-y-2">
+            <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-500/30 space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-purple-300 flex items-center space-x-1.5">
+                <span className="font-semibold text-purple-600 flex items-center space-x-1.5">
                   <BookOpen className="w-3.5 h-3.5 text-purple-400" />
                   <span>Active Course Concepts ({activeCourse.title}):</span>
                 </span>
-                <span className="text-[11px] text-slate-400 font-sans">Click to test concept invariant</span>
+                <span className="text-[11px] text-slate-500 font-sans">Click to test concept invariant</span>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {activeCourse.concepts.map((c) => (
@@ -787,7 +787,7 @@ export default function DetectorPage() {
                     className={`px-2.5 py-1 rounded-lg text-xs font-sans border transition-all ${
                       customConceptName === c.name
                         ? "bg-rose-500 text-white border-rose-400 font-semibold shadow-sm"
-                        : "bg-[#11141e] hover:bg-[#181c28] border-white/[0.08] text-slate-300 hover:text-white"
+                        : "bg-slate-100 hover:bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-900"
                     }`}
                   >
                     {c.name}
@@ -799,8 +799,8 @@ export default function DetectorPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label htmlFor="detector-concept" className="block text-xs font-medium text-slate-300 mb-1">
-                Topic / Concept Name: <span className="text-rose-400">*</span>
+              <label htmlFor="detector-concept" className="block text-xs font-medium text-slate-600 mb-1">
+                Topic / Concept Name: <span className="text-rose-600">*</span>
               </label>
               <input
                 id="detector-concept"
@@ -816,7 +816,7 @@ export default function DetectorPage() {
                   setValidationError(null);
                 }}
                 placeholder="e.g. Graph Traversal (DFS), Memory Pointer Aliasing..."
-                className="w-full px-3 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none input-focus-glow font-sans"
+                className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-500 focus:outline-none input-focus-glow font-sans"
               />
               <span id="detector-concept-desc" className="sr-only">
                 Enter the name of the concept or topic under diagnostic investigation.
@@ -824,7 +824,7 @@ export default function DetectorPage() {
             </div>
 
             <div>
-              <label htmlFor="detector-session-id" className="block text-xs font-medium text-slate-300 mb-1">
+              <label htmlFor="detector-session-id" className="block text-xs font-medium text-slate-600 mb-1">
                 Pipeline Session:
               </label>
               <input
@@ -833,14 +833,14 @@ export default function DetectorPage() {
                 type="text"
                 readOnly
                 value={activeSessionId || "New Diagnostic Session"}
-                className="w-full px-3 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-rose-300 font-mono truncate focus:outline-none"
+                className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-rose-600 font-mono truncate focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="detector-question" className="block text-xs font-medium text-slate-300 mb-1">
-              Assessment Prompt / Question: <span className="text-rose-400">*</span>
+            <label htmlFor="detector-question" className="block text-xs font-medium text-slate-600 mb-1">
+              Assessment Prompt / Question: <span className="text-rose-600">*</span>
             </label>
             <input
               id="detector-question"
@@ -856,7 +856,7 @@ export default function DetectorPage() {
                 setValidationError(null);
               }}
               placeholder="e.g. In recursive DFS, what happens to the execution state when a child returns?"
-              className="w-full px-3 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none input-focus-glow font-sans"
+              className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-500 focus:outline-none input-focus-glow font-sans"
             />
             <span id="detector-question-desc" className="sr-only">
               The specific question prompt or algorithmic problem scenario.
@@ -868,8 +868,8 @@ export default function DetectorPage() {
           {/* 1. Written Explanation */}
           {responseType === "written" && (
             <div className="space-y-1.5">
-              <label htmlFor="detector-written" className="block text-xs font-medium text-slate-300">
-                Your Answer / Reasoning to Diagnose: <span className="text-rose-400">*</span>
+              <label htmlFor="detector-written" className="block text-xs font-medium text-slate-600">
+                Your Answer / Reasoning to Diagnose: <span className="text-rose-600">*</span>
               </label>
               <textarea
                 id="detector-written"
@@ -885,7 +885,7 @@ export default function DetectorPage() {
                 }}
                 rows={4}
                 placeholder="Explain your understanding or reasoning..."
-                className="w-full p-3 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none input-focus-glow font-sans leading-relaxed resize-none"
+                className="w-full p-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-500 focus:outline-none input-focus-glow font-sans leading-relaxed resize-none"
               />
               <span id="detector-written-desc" className="sr-only">
                 Explain your mental model and reasoning for automated misconception analysis.
@@ -896,8 +896,8 @@ export default function DetectorPage() {
           {/* 2. Code Snippet */}
           {responseType === "code" && (
             <div className="space-y-1.5">
-              <label htmlFor="detector-code" className="block text-xs font-medium text-slate-300">
-                Code Snippet / Implementation: <span className="text-rose-400">*</span>
+              <label htmlFor="detector-code" className="block text-xs font-medium text-slate-600">
+                Code Snippet / Implementation: <span className="text-rose-600">*</span>
               </label>
               <textarea
                 id="detector-code"
@@ -912,7 +912,7 @@ export default function DetectorPage() {
                 }}
                 rows={6}
                 placeholder="Paste code snippet here..."
-                className="w-full p-3 rounded-xl bg-[#06070a] border border-white/[0.08] text-xs text-emerald-400 font-mono leading-relaxed resize-none focus:outline-none input-focus-glow"
+                className="w-full p-3 rounded-xl bg-white border border-slate-200 text-xs text-emerald-600 font-mono leading-relaxed resize-none focus:outline-none input-focus-glow"
               />
             </div>
           )}
@@ -920,8 +920,8 @@ export default function DetectorPage() {
           {/* 3. Multiple Choice */}
           {responseType === "mcq" && (
             <div className="space-y-1.5">
-              <label htmlFor="detector-mcq" className="block text-xs font-medium text-slate-300">
-                Your Selected Choice: <span className="text-rose-400">*</span>
+              <label htmlFor="detector-mcq" className="block text-xs font-medium text-slate-600">
+                Your Selected Choice: <span className="text-rose-600">*</span>
               </label>
               <input
                 id="detector-mcq"
@@ -936,7 +936,7 @@ export default function DetectorPage() {
                   setValidationError(null);
                 }}
                 placeholder="Enter choice or reasoning text..."
-                className="w-full px-3 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white focus:outline-none input-focus-glow font-sans"
+                className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 focus:outline-none input-focus-glow font-sans"
               />
             </div>
           )}
@@ -944,8 +944,8 @@ export default function DetectorPage() {
           {/* 4. Problem Steps */}
           {responseType === "steps" && (
             <div className="space-y-1.5">
-              <label htmlFor="detector-steps" className="block text-xs font-medium text-slate-300">
-                Execution Steps (one per line): <span className="text-rose-400">*</span>
+              <label htmlFor="detector-steps" className="block text-xs font-medium text-slate-600">
+                Execution Steps (one per line): <span className="text-rose-600">*</span>
               </label>
               <textarea
                 id="detector-steps"
@@ -959,7 +959,7 @@ export default function DetectorPage() {
                 }}
                 rows={4}
                 placeholder="1. Step one&#10;2. Step two&#10;3. Step three"
-                className="w-full p-3 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white focus:outline-none input-focus-glow font-sans resize-none"
+                className="w-full p-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 focus:outline-none input-focus-glow font-sans resize-none"
               />
             </div>
           )}
@@ -967,8 +967,8 @@ export default function DetectorPage() {
           {/* 5. Structured Quiz */}
           {responseType === "quiz" && (
             <div className="space-y-1.5">
-              <label htmlFor="detector-quiz" className="block text-xs font-medium text-slate-300">
-                Quiz Answers / Invariant Assertions: <span className="text-rose-400">*</span>
+              <label htmlFor="detector-quiz" className="block text-xs font-medium text-slate-600">
+                Quiz Answers / Invariant Assertions: <span className="text-rose-600">*</span>
               </label>
               <textarea
                 id="detector-quiz"
@@ -990,7 +990,7 @@ export default function DetectorPage() {
                 }}
                 rows={3}
                 placeholder="Q1: assertion 1&#10;Q2: assertion 2"
-                className="w-full p-3 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white focus:outline-none input-focus-glow font-sans resize-none"
+                className="w-full p-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 focus:outline-none input-focus-glow font-sans resize-none"
               />
             </div>
           )}
@@ -1003,7 +1003,7 @@ export default function DetectorPage() {
               id="detector-validation-error"
               ref={errorSummaryRef}
               tabIndex={-1}
-              className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center space-x-2 text-rose-300 text-xs focus:outline-none"
+              className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center space-x-2 text-rose-600 text-xs focus:outline-none"
             >
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{validationError}</span>
@@ -1016,10 +1016,10 @@ export default function DetectorPage() {
               role="alert"
               aria-live="assertive"
               id="detector-api-error"
-              className="p-4 rounded-xl bg-rose-950/40 border border-rose-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-rose-200"
+              className="p-4 rounded-xl bg-rose-50 border border-rose-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-rose-700"
             >
               <div className="flex items-center space-x-2">
-                <XCircle className="w-5 h-5 text-rose-400 shrink-0" />
+                <XCircle className="w-5 h-5 text-rose-600 shrink-0" />
                 <span>{apiError}</span>
               </div>
               <button
@@ -1033,7 +1033,7 @@ export default function DetectorPage() {
           )}
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-            <span className="text-[11px] text-slate-400 font-sans">
+            <span className="text-[11px] text-slate-500 font-sans">
               ARCHAIA analyzes submitted reasoning against formal domain specifications.
             </span>
             <button
@@ -1063,23 +1063,23 @@ export default function DetectorPage() {
 
       {/* Submitted Details Snapshot Display */}
       {submittedSnapshot && (
-        <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2 text-xs font-sans">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
-            <FileText className="w-3.5 h-3.5 text-blue-400" />
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs font-sans">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center space-x-1.5">
+            <FileText className="w-3.5 h-3.5 text-blue-600" />
             <span>Analyzed Diagnostic Submission</span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-600">
             <div>
               <span className="text-slate-500 font-medium">Topic:</span>{" "}
-              <strong className="text-white">{submittedSnapshot.topic}</strong>
+              <strong className="text-slate-900">{submittedSnapshot.topic}</strong>
             </div>
             <div>
               <span className="text-slate-500 font-medium">Question:</span>{" "}
-              <span className="text-slate-200">{submittedSnapshot.question}</span>
+              <span className="text-slate-700">{submittedSnapshot.question}</span>
             </div>
             <div className="md:col-span-2">
               <span className="text-slate-500 font-medium">Your Reasoning / Answer:</span>
-              <div className="mt-1 p-2.5 rounded-lg bg-black/40 border border-slate-800 text-slate-200 font-mono text-[11px] whitespace-pre-wrap">
+              <div className="mt-1 p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-mono text-[11px] whitespace-pre-wrap">
                 {submittedSnapshot.answer}
               </div>
             </div>
@@ -1094,14 +1094,14 @@ export default function DetectorPage() {
           <div className="p-4 rounded-xl bg-gradient-to-r from-amber-950/40 via-[#181a24] to-slate-900 border border-amber-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-600 border border-amber-500/40 uppercase">
                   Step 1 of 4 Completed
                 </span>
-                <span className="text-xs font-semibold text-white">
+                <span className="text-xs font-semibold text-slate-900">
                   Mental Model Deconstructed
                 </span>
               </div>
-              <p className="text-xs text-slate-300 font-sans">
+              <p className="text-xs text-slate-600 font-sans">
                 A cognitive gap was identified in <strong>{customConceptName || detectedMisconception.conceptId}</strong>. We must now trace the prerequisite ancestor chain on the Causal DAG to isolate the root cause.
               </p>
             </div>
@@ -1123,19 +1123,19 @@ export default function DetectorPage() {
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-archaia-border pb-4">
             <div className="flex items-center space-x-3">
-              <div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30">
+              <div className="p-2.5 rounded-xl bg-rose-500/20 text-rose-600 border border-rose-500/30">
                 <AlertTriangle className="w-6 h-6 animate-pulse" />
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-500/20 text-rose-600 border border-rose-500/30 uppercase">
                     Misconception Isolated
                   </span>
-                  <span className="text-xs font-semibold text-blue-400">
+                  <span className="text-xs font-semibold text-blue-600">
                     Confidence: {detectedMisconception.confidence}%
                   </span>
                 </div>
-                <h3 className="text-lg font-bold text-white mt-0.5">
+                <h3 className="text-lg font-bold text-slate-900 mt-0.5">
                   {detectedMisconception.name}
                 </h3>
               </div>
@@ -1143,34 +1143,34 @@ export default function DetectorPage() {
 
             <Link
               href={`/graph?sessionId=${activeSessionId || ""}&highlight=${detectedMisconception.conceptId}`}
-              className="text-xs text-blue-400 hover:underline font-sans font-medium flex items-center space-x-1"
+              className="text-xs text-blue-600 hover:underline font-sans font-medium flex items-center space-x-1"
             >
               <span>View Target on Causal DAG →</span>
             </Link>
           </div>
 
-          <p className="text-xs text-slate-300 leading-relaxed font-sans">
+          <p className="text-xs text-slate-600 leading-relaxed font-sans">
             {detectedMisconception.description}
           </p>
 
           {/* Student Assumption vs Formal Reality Side-by-Side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-rose-950/30 border border-rose-900/60 space-y-2">
-              <div className="flex items-center space-x-2 text-rose-400 text-xs font-semibold">
+            <div className="p-4 rounded-xl bg-rose-50 border border-rose-900/60 space-y-2">
+              <div className="flex items-center space-x-2 text-rose-600 text-xs font-semibold">
                 <AlertTriangle className="w-4 h-4" />
                 <span>Student's Flawed Assumption</span>
               </div>
-              <p className="text-xs text-rose-200 leading-relaxed font-sans">
+              <p className="text-xs text-rose-700 leading-relaxed font-sans">
                 "{detectedMisconception.studentAssumption}"
               </p>
             </div>
 
-            <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-900/60 space-y-2">
-              <div className="flex items-center space-x-2 text-emerald-400 text-xs font-semibold">
+            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-900/60 space-y-2">
+              <div className="flex items-center space-x-2 text-emerald-600 text-xs font-semibold">
                 <Lightbulb className="w-4 h-4" />
                 <span>Formal Computing Reality</span>
               </div>
-              <p className="text-xs text-emerald-200 leading-relaxed font-sans">
+              <p className="text-xs text-emerald-700 leading-relaxed font-sans">
                 {detectedMisconception.formalReality}
               </p>
             </div>
@@ -1178,9 +1178,9 @@ export default function DetectorPage() {
 
           {/* Evidence from Student Input */}
           {detectedMisconception.evidence && (
-            <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-sans text-slate-300 space-y-1">
-              <strong className="text-slate-400">Evidence from Response:</strong>
-              <div className="font-mono text-[11px] text-amber-300">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-sans text-slate-600 space-y-1">
+              <strong className="text-slate-500">Evidence from Response:</strong>
+              <div className="font-mono text-[11px] text-amber-600">
                 {detectedMisconception.evidence}
               </div>
             </div>
@@ -1189,12 +1189,12 @@ export default function DetectorPage() {
           {/* Affected Concepts Identification */}
           <div className="pt-2 border-t border-archaia-border flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex items-center space-x-2 font-sans">
-              <span className="text-slate-400">Prerequisite Ancestors to Probe:</span>
+              <span className="text-slate-500">Prerequisite Ancestors to Probe:</span>
               <div className="flex flex-wrap gap-1.5">
                 {detectedMisconception.affectedConcepts.map((c) => (
                   <span
                     key={c}
-                    className="px-2 py-0.5 rounded bg-archaia-card border border-archaia-border text-blue-300 text-[11px] font-medium"
+                    className="px-2 py-0.5 rounded bg-archaia-card border border-archaia-border text-blue-600 text-[11px] font-medium"
                   >
                     {c}
                   </span>
@@ -1212,7 +1212,7 @@ export default function DetectorPage() {
                 query.set("misconceptionId", detectedMisconception.id);
                 router.push(`/bisect?${query.toString()}`);
               }}
-              className="text-amber-400 hover:text-amber-300 font-semibold text-xs flex items-center space-x-1"
+              className="text-amber-600 hover:text-amber-600 font-semibold text-xs flex items-center space-x-1"
             >
               <span>Launch Prerequisite Bisect Traversal →</span>
             </button>
@@ -1225,19 +1225,19 @@ export default function DetectorPage() {
         <div className="p-6 rounded-2xl bg-archaia-dark border border-emerald-500/40 shadow-sm space-y-5 animate-in slide-in-from-bottom-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-archaia-border pb-4">
             <div className="flex items-center space-x-3">
-              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-600 border border-emerald-500/30">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase font-sans">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 uppercase font-sans">
                     Mental Model Invariant Verified
                   </span>
-                  <span className="text-xs font-semibold text-emerald-400 font-sans">
+                  <span className="text-xs font-semibold text-emerald-600 font-sans">
                     Mastery: {verifiedResult.masteryScore}%
                   </span>
                 </div>
-                <h3 className="text-lg font-bold text-white mt-0.5 font-sans">
+                <h3 className="text-lg font-bold text-slate-900 mt-0.5 font-sans">
                   No Cognitive Misconception Detected
                 </h3>
               </div>
@@ -1251,11 +1251,11 @@ export default function DetectorPage() {
             </Link>
           </div>
 
-          <p className="text-xs text-slate-300 leading-relaxed font-sans">
+          <p className="text-xs text-slate-600 leading-relaxed font-sans">
             {verifiedResult.message}
           </p>
 
-          <div className="p-4 rounded-xl bg-emerald-950/20 border border-emerald-900/40 text-xs font-sans text-emerald-200">
+          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-900/40 text-xs font-sans text-emerald-700">
             <strong>Normalized Formal Reasoning:</strong> {verifiedResult.normalizedReasoning}
           </div>
         </div>

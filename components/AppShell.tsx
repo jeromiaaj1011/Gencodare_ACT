@@ -2,7 +2,7 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
-import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
 import GlobalCursorSpotlight from "./motion/GlobalCursorSpotlight";
 import ShadesFluidBlob from "./decorations/ShadesFluidBlob";
 
@@ -12,7 +12,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   if (isLoginPage) {
     return (
-      <div className="min-h-screen w-full flex flex-col bg-shades-obsidian text-archaia-text font-sans relative overflow-hidden">
+      <div className="min-h-screen w-full flex flex-col bg-shades-obsidian text-slate-900 font-sans relative overflow-hidden">
         <GlobalCursorSpotlight />
         {/* Corner Organic 3D Fluid Accents (matching presentation theme) */}
         <ShadesFluidBlob variant="top-right" />
@@ -25,7 +25,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-shades-obsidian text-archaia-text font-sans relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-shades-obsidian text-slate-900 font-sans relative overflow-x-hidden">
       <GlobalCursorSpotlight />
 
       {/* Floating 3D Fluid Organic Corner Auras ("Shades That Inspire" signature) */}
@@ -47,15 +47,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <span>SYS.EDITION 2026 • SHADES THAT ILLUMINATE</span>
       </div>
 
-      <div className="relative z-10 flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-          {children}
-        </main>
-        <footer className="border-t border-white/[0.06] bg-[#06070a]/80 backdrop-blur-md py-4 text-center text-[11px] text-slate-500 font-sans tracking-wide">
-          <span className="font-editorial italic text-slate-400 mr-1.5 font-normal">Archaia</span>
-          • Cognitive Misconception Detection & Prerequisite Bisect • Problem Statement #5
-        </footer>
+      <div className="relative z-10 flex flex-row min-h-screen w-full">
+        <Sidebar />
+        <div className="flex-1 flex flex-col min-w-0">
+          <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+            {children}
+          </main>
+          <footer className="border-t border-slate-200 bg-white/80 backdrop-blur-md py-4 text-center text-[11px] text-slate-500 font-sans tracking-wide">
+            <span className="font-editorial italic text-slate-500 mr-1.5 font-normal">Archaia</span>
+            • Cognitive Misconception Detection & Prerequisite Bisect • Problem Statement #5
+          </footer>
+        </div>
       </div>
     </div>
   );

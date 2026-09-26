@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -23,7 +23,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="bg-shades-obsidian text-archaia-text min-h-screen font-sans antialiased selection:bg-shades-coral selection:text-white">
+      <body className="bg-shades-obsidian text-slate-900 min-h-screen font-sans antialiased selection:bg-shades-coral selection:text-slate-900">
         <AppShell>{children}</AppShell>
       </body>
     </html>

@@ -264,17 +264,17 @@ export default function ProgressPage() {
       {effectiveRootGap && isRecovered && (
         <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-950/50 via-[#131b1e] to-slate-900 border border-emerald-500/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl animate-in zoom-in-95 card-interactive">
           <div className="flex items-center space-x-3">
-            <div className="p-3 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            <div className="p-3 rounded-2xl bg-emerald-500/20 text-emerald-600 border border-emerald-500/30">
               <CheckCircle2 className="w-7 h-7" />
             </div>
             <div>
-              <span className="text-[10px] tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
+              <span className="text-[10px] tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 font-semibold">
                 STEP 4 OF 4: PIPELINE CONCLUDED • INVARIANT RESTORED
               </span>
-              <h2 className="text-xl font-bold text-white mt-1">
+              <h2 className="text-xl font-bold text-slate-900 mt-1">
                 Root Gap "{effectiveRootGap}" Successfully Mastered
               </h2>
-              <p className="text-xs text-slate-300 font-sans mt-0.5">
+              <p className="text-xs text-slate-600 font-sans mt-0.5">
                 Prerequisite invariant restored. Downstream dependencies are unblocked in the Causal Knowledge Graph. The personalized adaptive roadmap has recalculated based on your restored mental model.
               </p>
             </div>
@@ -298,19 +298,19 @@ export default function ProgressPage() {
       {/* Header with Editorial Presentation Typography */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <span className="shades-subtitle text-rose-300/80">04. STAGE FOUR • ADAPTIVE ROADMAP</span>
-          <h1 className="font-editorial text-2xl sm:text-3xl font-medium text-white flex items-center space-x-2.5">
-            <LineChart className="w-6 h-6 text-rose-400" />
+          <span className="shades-subtitle text-rose-600/80">04. STAGE FOUR • ADAPTIVE ROADMAP</span>
+          <h1 className="font-editorial text-2xl sm:text-3xl font-medium text-slate-900 flex items-center space-x-2.5">
+            <LineChart className="w-6 h-6 text-rose-600" />
             <span>Learning Progress & Adaptive Path</span>
           </h1>
-          <p className="text-xs text-slate-300 font-sans">
+          <p className="text-xs text-slate-600 font-sans">
             Longitudinal cognitive recovery analytics. Recalibrates personalized sequences as prerequisite invariants are restored.
           </p>
         </div>
 
         <div className="flex items-center space-x-2">
           {sessionId === "demo_dfs" && (
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/35">
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-600 border border-rose-500/35">
               Demo Session
             </span>
           )}
@@ -325,7 +325,7 @@ export default function ProgressPage() {
 
       {loading ? (
         <div className="h-64 rounded-2xl bg-archaia-dark border border-archaia-border flex items-center justify-center">
-          <div className="flex items-center space-x-3 text-blue-400 text-xs font-medium">
+          <div className="flex items-center space-x-3 text-blue-600 text-xs font-medium">
             <RotateCcw className="w-5 h-5 animate-spin" />
             <span>Loading Adaptive Roadmap & Learner Metrics...</span>
           </div>
@@ -333,12 +333,12 @@ export default function ProgressPage() {
       ) : sessionNotFound ? (
         /* Explicit "Session Not Found" State */
         <div className="p-8 rounded-2xl bg-archaia-dark border border-rose-500/30 flex flex-col items-center justify-center text-center space-y-4 card-interactive">
-          <div className="p-3.5 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+          <div className="p-3.5 rounded-2xl bg-rose-500/10 text-rose-600 border border-rose-500/20">
             <SearchX className="w-8 h-8" />
           </div>
           <div className="space-y-1.5 max-w-md">
-            <h3 className="text-base font-bold text-white">Diagnostic Session Not Found</h3>
-            <p className="text-xs text-slate-400 font-sans leading-relaxed">
+            <h3 className="text-base font-bold text-slate-900">Diagnostic Session Not Found</h3>
+            <p className="text-xs text-slate-500 font-sans leading-relaxed">
               The requested diagnostic session {sessionId ? `("${sessionId}")` : ""} could not be found or has expired. Please start a new diagnostic to begin tracking your progress.
             </p>
           </div>
@@ -356,9 +356,9 @@ export default function ProgressPage() {
                 setSessionId("demo_dfs");
                 fetchProgress("demo_dfs");
               }}
-              className="px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-700 text-slate-300 text-xs font-semibold transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
+              className="px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-300 text-slate-600 text-xs font-semibold transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+              <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
               <span>Try Demo Investigation</span>
             </button>
           </div>
@@ -366,12 +366,12 @@ export default function ProgressPage() {
       ) : !hasData ? (
         /* Explicit "No Diagnostic Sessions Yet" Empty State */
         <div className="p-8 rounded-2xl bg-archaia-dark border border-archaia-border flex flex-col items-center justify-center text-center space-y-4 card-interactive">
-          <div className="p-3.5 rounded-2xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+          <div className="p-3.5 rounded-2xl bg-blue-500/10 text-blue-600 border border-blue-500/20">
             <LineChart className="w-8 h-8" />
           </div>
           <div className="space-y-1.5 max-w-md">
-            <h3 className="text-base font-bold text-white">No Diagnostic Sessions Yet</h3>
-            <p className="text-xs text-slate-400 font-sans leading-relaxed">
+            <h3 className="text-base font-bold text-slate-900">No Diagnostic Sessions Yet</h3>
+            <p className="text-xs text-slate-500 font-sans leading-relaxed">
               No diagnostic sessions yet. Start a diagnostic to begin tracking your progress.
             </p>
           </div>
@@ -388,9 +388,9 @@ export default function ProgressPage() {
                 setSessionId("demo_dfs");
                 fetchProgress("demo_dfs");
               }}
-              className="px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-700 text-slate-300 text-xs font-semibold transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
+              className="px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-300 text-slate-600 text-xs font-semibold transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+              <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
               <span>Try Demo Investigation</span>
             </button>
           </div>
@@ -401,24 +401,24 @@ export default function ProgressPage() {
           <div className="p-5 rounded-2xl bg-archaia-card border border-blue-500/30 space-y-3 card-interactive">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-archaia-border pb-3">
               <div className="flex items-center space-x-2">
-                <Sparkles className="w-4 h-4 text-blue-400" />
-                <span className="text-xs font-semibold text-white tracking-wide uppercase">
+                <Sparkles className="w-4 h-4 text-blue-600" />
+                <span className="text-xs font-semibold text-slate-900 tracking-wide uppercase">
                   Active Diagnostic Session:
                 </span>
-                <span className="text-xs font-bold text-blue-300">
+                <span className="text-xs font-bold text-blue-600">
                   {effectiveTopic || "Computer Science Diagnostic"}
                 </span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-slate-900 border border-slate-700 text-slate-300">
+                <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-slate-50 border border-slate-300 text-slate-600">
                   ID: {sessionId || sessionData?.id || "Active Session"}
                 </span>
                 {isRecovered ? (
-                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 border border-emerald-500/30">
                     Recovery Status: Restructured & Mastered 🟢
                   </span>
                 ) : (
-                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 border border-amber-500/30">
                     Recovery Status: In Progress 🟡
                   </span>
                 )}
@@ -427,19 +427,19 @@ export default function ProgressPage() {
 
             {sessionData?.submission && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-sans">
-                <div className="p-3 rounded-xl bg-archaia-dark/80 border border-slate-800 space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 flex items-center space-x-1">
-                    <BookOpen className="w-3 h-3 text-blue-400" />
+                <div className="p-3 rounded-xl bg-archaia-dark/80 border border-slate-200 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 flex items-center space-x-1">
+                    <BookOpen className="w-3 h-3 text-blue-600" />
                     <span>Diagnosed Question</span>
                   </span>
-                  <p className="text-slate-200 line-clamp-2">{sessionData.submission.questionText}</p>
+                  <p className="text-slate-700 line-clamp-2">{sessionData.submission.questionText}</p>
                 </div>
-                <div className="p-3 rounded-xl bg-archaia-dark/80 border border-slate-800 space-y-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 flex items-center space-x-1">
-                    <Clock className="w-3 h-3 text-emerald-400" />
+                <div className="p-3 rounded-xl bg-archaia-dark/80 border border-slate-200 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 flex items-center space-x-1">
+                    <Clock className="w-3 h-3 text-emerald-600" />
                     <span>Analyzed Student Reasoning</span>
                   </span>
-                  <p className="text-slate-300 line-clamp-2 font-mono text-[11px]">
+                  <p className="text-slate-600 line-clamp-2 font-mono text-[11px]">
                     {sessionData.submission.content || sessionData.submission.code || "Written Reasoning"}
                   </p>
                 </div>
@@ -450,44 +450,44 @@ export default function ProgressPage() {
           {/* Analytics Metric Cards with Animated Number Counters */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1 card-interactive">
-              <div className="text-slate-400 text-xs font-sans flex items-center justify-between">
+              <div className="text-slate-500 text-xs font-sans flex items-center justify-between">
                 <span>Total Concepts</span>
-                <Layers className="w-3.5 h-3.5 text-blue-400" />
+                <Layers className="w-3.5 h-3.5 text-blue-600" />
               </div>
-              <div className="text-2xl sm:text-3xl font-bold font-sans text-white number-emphasis">
+              <div className="text-2xl sm:text-3xl font-bold font-sans text-slate-900 number-emphasis">
                 <CountUpNumber end={concepts.length} />
               </div>
               <div className="text-[10px] text-slate-500 font-sans">In Evaluated Curriculum</div>
             </div>
 
             <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1 card-interactive">
-              <div className="text-slate-400 text-xs font-sans flex items-center justify-between">
+              <div className="text-slate-500 text-xs font-sans flex items-center justify-between">
                 <span>Mastered & Recovered</span>
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
               </div>
-              <div className="text-2xl sm:text-3xl font-bold font-sans text-emerald-400 number-emphasis">
+              <div className="text-2xl sm:text-3xl font-bold font-sans text-emerald-600 number-emphasis">
                 <CountUpNumber end={metrics?.masteredCount ?? (isRecovered ? 1 : 0)} />
               </div>
               <div className="text-[10px] text-emerald-500/80 font-sans">Verified Mental Models</div>
             </div>
 
             <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1 card-interactive">
-              <div className="text-slate-400 text-xs font-sans flex items-center justify-between">
+              <div className="text-slate-500 text-xs font-sans flex items-center justify-between">
                 <span>Diagnosed Invariants</span>
-                <Activity className="w-3.5 h-3.5 text-blue-400" />
+                <Activity className="w-3.5 h-3.5 text-blue-600" />
               </div>
-              <div className="text-2xl sm:text-3xl font-bold font-sans text-blue-400 number-emphasis">
+              <div className="text-2xl sm:text-3xl font-bold font-sans text-blue-600 number-emphasis">
                 <CountUpNumber end={metrics?.diagnosedCount ?? 1} />
               </div>
               <div className="text-[10px] text-slate-500 font-sans">Via Cognitive Bisect</div>
             </div>
 
             <div className="p-5 rounded-2xl bg-archaia-dark border border-archaia-border space-y-1 card-interactive">
-              <div className="text-slate-400 text-xs font-sans flex items-center justify-between">
+              <div className="text-slate-500 text-xs font-sans flex items-center justify-between">
                 <span>Recovery Success</span>
-                <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
+                <TrendingUp className="w-3.5 h-3.5 text-amber-600" />
               </div>
-              <div className="text-2xl sm:text-3xl font-bold font-sans text-amber-400 number-emphasis">
+              <div className="text-2xl sm:text-3xl font-bold font-sans text-amber-600 number-emphasis">
                 <CountUpNumber
                   end={metrics?.recoveredCount ? metrics.recoverySuccessRate : (isRecovered ? 100 : 0)}
                   suffix="%"
@@ -501,12 +501,12 @@ export default function ProgressPage() {
           <div className="p-6 rounded-2xl bg-archaia-dark border border-archaia-border shadow-sm space-y-4 card-interactive">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-archaia-border pb-3">
               <div className="flex items-center space-x-2">
-                <TrendingUp className="w-4 h-4 text-emerald-400" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider font-sans">
+                <TrendingUp className="w-4 h-4 text-emerald-600" />
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-sans">
                   Longitudinal Mastery Progression Curve
                 </h3>
               </div>
-              <span className="text-xs font-mono text-emerald-400 font-semibold">
+              <span className="text-xs font-mono text-emerald-600 font-semibold">
                 Overall Invariant Mastery: {masteryPercent}%
               </span>
             </div>
@@ -564,7 +564,7 @@ export default function ProgressPage() {
           {/* Dynamic Personalized Recovery Path Milestone Banner */}
           {adaptivePath.length > 0 && (
             <div className="p-6 rounded-2xl bg-archaia-card border border-archaia-border shadow-sm space-y-4 card-interactive">
-              <div className="flex items-center space-x-2 text-blue-400 font-sans text-xs font-semibold">
+              <div className="flex items-center space-x-2 text-blue-600 font-sans text-xs font-semibold">
                 <Milestone className="w-4 h-4" />
                 <span>Personalized Prerequisite Remediation Journey</span>
               </div>
@@ -584,34 +584,34 @@ export default function ProgressPage() {
                           ? "border-emerald-500/30"
                           : isReady
                           ? "border-blue-500/30"
-                          : "border-slate-800 opacity-60"
+                          : "border-slate-200 opacity-60"
                       }`}
                     >
                       <span
                         className={`font-bold text-[11px] ${
                           isMastered
-                            ? "text-emerald-400"
+                            ? "text-emerald-600"
                             : isReady
-                            ? "text-blue-400"
-                            : "text-slate-400"
+                            ? "text-blue-600"
+                            : "text-slate-500"
                         }`}
                       >
                         {idx + 1}. {displayStatus}
                       </span>
-                      <div className="text-white text-xs font-semibold truncate">
+                      <div className="text-slate-900 text-xs font-semibold truncate">
                         {conceptInfo?.name || item.conceptId}
                       </div>
 
                       {/* Smooth Progress Bar */}
-                      <div className="w-full bg-slate-900 rounded-full h-1 overflow-hidden">
+                      <div className="w-full bg-slate-50 rounded-full h-1 overflow-hidden">
                         <div
                           className={`h-full transition-all duration-700 ease-out ${
-                            isMastered ? "bg-emerald-400 w-full" : isReady ? "bg-blue-400 w-1/2" : "bg-slate-700 w-0"
+                            isMastered ? "bg-emerald-400 w-full" : isReady ? "bg-blue-400 w-1/2" : "bg-slate-200 w-0"
                           }`}
                         />
                       </div>
 
-                      <p className="text-[10px] text-slate-300">
+                      <p className="text-[10px] text-slate-600">
                         {isMastered
                           ? "Invariant Mastered 🟢"
                           : isReady
@@ -630,12 +630,12 @@ export default function ProgressPage() {
             <div className="p-6 rounded-2xl bg-archaia-dark border border-archaia-border space-y-4 shadow-sm card-interactive">
               <div className="flex items-center justify-between border-b border-archaia-border pb-3">
                 <div className="flex items-center space-x-2">
-                  <Sparkles className="w-4 h-4 text-blue-400" />
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider font-sans">
+                  <Sparkles className="w-4 h-4 text-blue-600" />
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider font-sans">
                     Dynamic Adaptive Curriculum Roadmap
                   </h3>
                 </div>
-                <span className="text-xs font-sans text-slate-400">
+                <span className="text-xs font-sans text-slate-500">
                   Dynamically Recalculated Based on Verified Mastery
                 </span>
               </div>
@@ -655,24 +655,24 @@ export default function ProgressPage() {
                       key={item.conceptId}
                       className={`p-4 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                         isMastered
-                          ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-200"
+                          ? "bg-emerald-50 border-emerald-500/30 text-emerald-700"
                           : isReady
-                          ? "bg-blue-950/20 border-blue-500/40 text-blue-200 shadow-sm"
+                          ? "bg-blue-50 border-blue-500/40 text-blue-700 shadow-sm"
                           : needsRecovery
-                          ? "bg-amber-950/20 border-amber-500/30 text-amber-200 shadow-sm"
+                          ? "bg-amber-50 border-amber-500/30 text-amber-700 shadow-sm"
                           : "bg-archaia-card/50 border-archaia-border text-archaia-muted opacity-60"
                       }`}
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="w-7 h-7 rounded-full flex items-center justify-center font-sans text-xs font-bold shrink-0 bg-slate-900 border border-slate-700 text-slate-300">
+                        <div className="w-7 h-7 rounded-full flex items-center justify-center font-sans text-xs font-bold shrink-0 bg-slate-50 border border-slate-300 text-slate-600">
                           {idx + 1}
                         </div>
                         <div>
                           <div className="flex items-center space-x-2">
-                            <h4 className="text-sm font-bold text-white">
+                            <h4 className="text-sm font-bold text-slate-900">
                               {conceptInfo?.name || item.conceptId}
                             </h4>
-                            <span className="text-[10px] font-sans px-2 py-0.5 rounded uppercase border border-slate-700 bg-slate-900/60 text-slate-300">
+                            <span className="text-[10px] font-sans px-2 py-0.5 rounded uppercase border border-slate-300 bg-slate-50 text-slate-600">
                               {displayStatus}
                             </span>
                           </div>
@@ -685,19 +685,19 @@ export default function ProgressPage() {
                       <div className="flex flex-wrap items-center gap-2 shrink-0 text-xs font-sans">
                         {isMastered && (
                           <div className="flex items-center space-x-2">
-                            <span className="flex items-center space-x-1 text-emerald-400 font-semibold text-xs">
+                            <span className="flex items-center space-x-1 text-emerald-600 font-semibold text-xs">
                               <CheckCircle2 className="w-4 h-4" />
                               <span>Verified</span>
                             </span>
                             <Link
                               href={`/recovery?conceptId=${encodeURIComponent(item.conceptId)}`}
-                              className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-[11px] font-medium transition-colors"
+                              className="px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-600 text-[11px] font-medium transition-colors"
                             >
                               Review Lab
                             </Link>
                             <Link
                               href={`/detector?custom=true&concept=${encodeURIComponent(conceptInfo?.name || item.conceptId)}`}
-                              className="px-2.5 py-1 rounded-lg btn-shades-outline text-rose-300 text-[11px] font-medium transition-colors"
+                              className="px-2.5 py-1 rounded-lg btn-shades-outline text-rose-600 text-[11px] font-medium transition-colors"
                             >
                               Test Code
                             </Link>
@@ -733,7 +733,7 @@ export default function ProgressPage() {
                             </span>
                             <Link
                               href={`/detector?custom=true&concept=${encodeURIComponent(conceptInfo?.name || item.conceptId)}`}
-                              className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-rose-500/50 text-slate-300 text-[11px] font-medium transition-colors"
+                              className="px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-300 hover:border-rose-500/50 text-slate-600 text-[11px] font-medium transition-colors"
                             >
                               Test Anyway →
                             </Link>
@@ -748,28 +748,28 @@ export default function ProgressPage() {
           )}
 
           {/* Interactive User Input & Problem Diagnostic Console */}
-          <div className="p-6 rounded-3xl bg-gradient-to-br from-[#12141f] via-[#0c0e17] to-[#18111e] border border-rose-500/30 space-y-4 shadow-xl">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
+          <div className="p-6 rounded-3xl bg-gradient-to-br from-white via-slate-50 to-pink-50 border border-rose-500/30 space-y-4 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
               <div>
-                <div className="flex items-center space-x-2 text-rose-400 text-xs font-bold font-sans">
+                <div className="flex items-center space-x-2 text-rose-600 text-xs font-bold font-sans">
                   <Sparkles className="w-4 h-4" />
                   <span>Interactive User Input &amp; Diagnostic Console</span>
                 </div>
-                <h3 className="text-base font-bold text-white font-editorial mt-0.5">
+                <h3 className="text-base font-bold text-slate-900 font-editorial mt-0.5">
                   Input Your Own Code, Question, or Concept
                 </h3>
               </div>
-              <span className="text-xs text-slate-400 font-sans">
+              <span className="text-xs text-slate-500 font-sans">
                 Full User Input Access across the Diagnostic Pipeline
               </span>
             </div>
 
-            <p className="text-xs text-slate-300 font-sans leading-relaxed">
+            <p className="text-xs text-slate-600 font-sans leading-relaxed">
               Want to diagnose a new topic or test your own custom code implementation? Enter any computer science concept below to launch the <strong>Misconception Detector (Step 1)</strong> with your user input:
             </p>
 
             <div className="space-y-2">
-              <label htmlFor="progress_custom_topic" className="block text-xs font-medium text-slate-300">
+              <label htmlFor="progress_custom_topic" className="block text-xs font-medium text-slate-600">
                 Enter Concept or Programming Topic:
               </label>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
@@ -780,7 +780,7 @@ export default function ProgressPage() {
                   value={customTopicInput}
                   onChange={(e) => setCustomTopicInput(e.target.value)}
                   placeholder="e.g. Recursion & Base Invariants, Binary Trees, Dynamic Programming, Dijkstra..."
-                  className="flex-1 px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-rose-500 shadow-inner font-sans"
+                  className="flex-1 px-4 py-3 rounded-xl bg-white border border-slate-300 text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:border-rose-500 shadow-inner font-sans"
                 />
                 <input
                   ref={progressFileInputRef}
@@ -796,12 +796,12 @@ export default function ProgressPage() {
                   type="button"
                   onClick={() => progressFileInputRef.current?.click()}
                   disabled={progressImporting}
-                  className="px-4 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-rose-500/50 text-slate-200 text-xs font-semibold flex items-center justify-center space-x-2 shrink-0 transition-colors"
+                  className="px-4 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-300 hover:border-rose-500/50 text-slate-700 text-xs font-semibold flex items-center justify-center space-x-2 shrink-0 transition-colors"
                 >
                   {progressImporting ? (
-                    <RotateCcw className="w-4 h-4 animate-spin text-rose-400" />
+                    <RotateCcw className="w-4 h-4 animate-spin text-rose-600" />
                   ) : (
-                    <FolderOpen className="w-4 h-4 text-rose-400" />
+                    <FolderOpen className="w-4 h-4 text-rose-600" />
                   )}
                   <span>{progressImporting ? "Analyzing File..." : "Upload File"}</span>
                 </button>
@@ -821,7 +821,7 @@ export default function ProgressPage() {
 
             {/* Quick Concept Preset Chips */}
             <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-              <span className="text-slate-400 font-sans text-[11px]">Quick Launch Concepts:</span>
+              <span className="text-slate-500 font-sans text-[11px]">Quick Launch Concepts:</span>
               {[
                 "Recursion & Base Invariants",
                 "Binary Tree Traversal",
@@ -832,7 +832,7 @@ export default function ProgressPage() {
                 <Link
                   key={topic}
                   href={`/detector?custom=true&concept=${encodeURIComponent(topic)}`}
-                  className="px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-rose-500/50 text-slate-200 text-[11px] font-sans transition-all hover:text-white"
+                  className="px-3 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-300 hover:border-rose-500/50 text-slate-700 text-[11px] font-sans transition-all hover:text-white"
                 >
                   + {topic}
                 </Link>

@@ -152,25 +152,25 @@ export default function BisectPage() {
       {/* Header with Editorial Presentation Typography */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <span className="shades-subtitle text-rose-300/80">02. STAGE TWO • PREREQUISITE BISECT</span>
-          <h1 className="font-editorial text-2xl sm:text-3xl font-medium text-white flex items-center space-x-2.5">
-            <Split className="w-6 h-6 text-amber-400" />
+          <span className="shades-subtitle text-rose-600/80">02. STAGE TWO • PREREQUISITE BISECT</span>
+          <h1 className="font-editorial text-2xl sm:text-3xl font-medium text-slate-900 flex items-center space-x-2.5">
+            <Split className="w-6 h-6 text-amber-600" />
             <span>Cognitive Bisect Investigation</span>
           </h1>
-          <p className="text-xs text-slate-300 font-sans">
+          <p className="text-xs text-slate-600 font-sans">
             Algorithmic prerequisite fault isolation over the Causal Knowledge Graph. Issues targeted invariant micro-probes to isolate the Likely Root Gap.
           </p>
         </div>
 
         <div className="flex items-center space-x-2">
           {sessionId === "demo_dfs" && (
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/35">
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-600 border border-rose-500/35">
               Demo Investigation
             </span>
           )}
           <button
             onClick={() => fetchSession()}
-            className="p-2 rounded-lg bg-[#11141e] hover:bg-[#181c28] border border-white/[0.08] text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-lg bg-slate-100 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 transition-colors"
             title="Refresh Bisect Session"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -179,31 +179,31 @@ export default function BisectPage() {
       </div>
 
       {/* ARCHAIA Signature Interaction Visual Workflow Ribbon */}
-      <div className="p-3.5 rounded-2xl bg-[#0E1117] border border-[#282E3D] shadow-sm">
+      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-sans">
-          <span className="text-slate-400 font-medium">Bisection Diagnostic Sequence:</span>
+          <span className="text-slate-500 font-medium">Bisection Diagnostic Sequence:</span>
           <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-semibold">
-            <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/30">
+            <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-600 border border-blue-500/30">
               Candidate Concepts
             </span>
             <span className="text-slate-600">→</span>
-            <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/30">
+            <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-600 border border-blue-500/30">
               Diagnostic Probe
             </span>
             <span className="text-slate-600">→</span>
-            <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">
+            <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 border border-amber-500/30">
               Student Response
             </span>
             <span className="text-slate-600">→</span>
-            <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/30">
+            <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 border border-purple-500/30">
               Evidence
             </span>
             <span className="text-slate-600">→</span>
-            <span className="px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/30">
+            <span className="px-2 py-0.5 rounded bg-rose-500/10 text-rose-600 border border-rose-500/30">
               Candidate Narrowing
             </span>
             <span className="text-slate-600">→</span>
-            <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/40">
+            <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 border border-emerald-500/40">
               Likely Root Gap
             </span>
           </div>
@@ -212,7 +212,7 @@ export default function BisectPage() {
 
       {loading ? (
         <div className="h-64 rounded-2xl bg-archaia-dark border border-archaia-border flex items-center justify-center">
-          <div className="flex items-center space-x-3 text-amber-400 text-xs font-medium">
+          <div className="flex items-center space-x-3 text-amber-600 text-xs font-medium">
             <RefreshCw className="w-5 h-5 animate-spin" />
             <span>Computing Topological Prerequisite Ancestor Bisection...</span>
           </div>
@@ -220,12 +220,12 @@ export default function BisectPage() {
       ) : !session ? (
         /* Clean Empty State when No Active Session exists */
         <div className="p-8 rounded-2xl bg-archaia-dark border border-archaia-border flex flex-col items-center justify-center text-center space-y-4 card-interactive">
-          <div className="p-3.5 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+          <div className="p-3.5 rounded-2xl bg-amber-500/10 text-amber-600 border border-amber-500/20">
             <Split className="w-8 h-8" />
           </div>
           <div className="space-y-1.5 max-w-md">
-            <h3 className="text-base font-bold text-white">No Active Cognitive Bisect Session</h3>
-            <p className="text-xs text-slate-400 font-sans leading-relaxed">
+            <h3 className="text-base font-bold text-slate-900">No Active Cognitive Bisect Session</h3>
+            <p className="text-xs text-slate-500 font-sans leading-relaxed">
               Cognitive Bisect traverses the causal ancestors of an identified misconception. Submit a response in the Cognitive Bug Detector or launch the benchmark demo investigation.
             </p>
           </div>
@@ -239,9 +239,9 @@ export default function BisectPage() {
             </Link>
             <button
               onClick={handleLoadDemo}
-              className="px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-700 text-slate-300 text-xs font-semibold transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
+              className="px-4 py-2.5 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-slate-300 text-slate-600 text-xs font-semibold transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
             >
-              <PlayCircle className="w-3.5 h-3.5 text-amber-400" />
+              <PlayCircle className="w-3.5 h-3.5 text-amber-600" />
               <span>Try Demo Investigation</span>
             </button>
           </div>
@@ -251,11 +251,11 @@ export default function BisectPage() {
           {/* Active Ancestor Bisection Chain & Dynamic Candidate Narrowing */}
           <div className="p-5 rounded-2xl bg-archaia-card border border-archaia-border space-y-4 shadow-md card-interactive">
             <div className="flex items-center justify-between text-xs font-medium border-b border-archaia-border pb-3">
-              <span className="text-slate-300 font-semibold flex items-center space-x-1.5">
-                <Layers className="w-4 h-4 text-blue-400" />
+              <span className="text-slate-600 font-semibold flex items-center space-x-1.5">
+                <Layers className="w-4 h-4 text-blue-600" />
                 <span>Topological Prerequisite Ancestor Chain (Foundations → Target)</span>
               </span>
-              <span className="text-amber-400 font-mono text-[11px]">
+              <span className="text-amber-600 font-mono text-[11px]">
                 {session.investigatedConcepts.length} / {session.ancestorChain.length} Investigated
               </span>
             </div>
@@ -272,28 +272,28 @@ export default function BisectPage() {
                     key={cId}
                     className={`p-3 rounded-xl border text-xs font-sans transition-all duration-300 flex flex-col justify-between space-y-2 ${
                       isRootCandidate
-                        ? "bg-rose-950/80 border-rose-500 text-rose-200 shadow-md ring-1 ring-rose-500/50"
+                        ? "bg-rose-50 border-rose-500 text-rose-700 shadow-md ring-1 ring-rose-500/50"
                         : isCurrentProbe
-                        ? "bg-amber-950/70 border-amber-500 text-amber-200 animate-pulse font-semibold shadow-md"
+                        ? "bg-amber-50 border-amber-500 text-amber-700 animate-pulse font-semibold shadow-md"
                         : isInvestigated && probeResult?.isCorrect
-                        ? "bg-emerald-950/40 border-emerald-500/50 text-emerald-300 opacity-80"
+                        ? "bg-emerald-50 border-emerald-500/50 text-emerald-600 opacity-80"
                         : isInvestigated
-                        ? "bg-slate-900 border-slate-700 text-slate-300"
-                        : "bg-archaia-dark border-archaia-border text-slate-400 opacity-60"
+                        ? "bg-slate-50 border-slate-300 text-slate-600"
+                        : "bg-archaia-dark border-archaia-border text-slate-500 opacity-60"
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono text-slate-400">Step {idx + 1}</span>
+                      <span className="text-[10px] font-mono text-slate-500">Step {idx + 1}</span>
                       {isRootCandidate ? (
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500/25 text-rose-300 uppercase">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500/25 text-rose-600 uppercase">
                           Root Candidate
                         </span>
                       ) : isCurrentProbe ? (
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/25 text-amber-300 uppercase">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/25 text-amber-600 uppercase">
                           Active Probe
                         </span>
                       ) : isInvestigated && probeResult?.isCorrect ? (
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-emerald-500/20 text-emerald-300">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-emerald-500/20 text-emerald-600">
                           Preserved ✓
                         </span>
                       ) : (
@@ -301,10 +301,10 @@ export default function BisectPage() {
                       )}
                     </div>
 
-                    <div className="font-semibold text-white truncate text-xs">{cId}</div>
+                    <div className="font-semibold text-slate-900 truncate text-xs">{cId}</div>
 
                     {/* Candidate Support Bar */}
-                    <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
+                    <div className="w-full bg-white rounded-full h-1.5 overflow-hidden">
                       <div
                         className={`h-full transition-all duration-500 ${
                           isRootCandidate
@@ -328,23 +328,23 @@ export default function BisectPage() {
             <div className="p-6 rounded-2xl bg-archaia-dark border border-blue-500/40 shadow-xl space-y-5 animate-in slide-in-from-bottom-4 card-interactive">
               <div className="flex items-center justify-between border-b border-archaia-border pb-3">
                 <div className="flex items-center space-x-2">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/20 text-amber-600 border border-amber-500/30 uppercase">
                     MICRO-PROBE IN PROGRESS
                   </span>
-                  <span className="text-xs text-slate-400">
-                    Probing Prerequisite: <strong className="text-white">{session.currentProbe.conceptId}</strong>
+                  <span className="text-xs text-slate-500">
+                    Probing Prerequisite: <strong className="text-slate-900">{session.currentProbe.conceptId}</strong>
                   </span>
                 </div>
-                <span className="text-[11px] text-blue-400 font-mono">
+                <span className="text-[11px] text-blue-600 font-mono">
                   Invariant: {session.currentProbe.invariantTested}
                 </span>
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-base sm:text-lg font-bold text-white leading-snug">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
                   {session.currentProbe.question}
                 </h3>
-                <p className="text-xs text-slate-400 font-sans">
+                <p className="text-xs text-slate-500 font-sans">
                   {session.currentProbe.rationale}
                 </p>
               </div>
@@ -357,10 +357,10 @@ export default function BisectPage() {
                     disabled={submittingOptionId !== null}
                     className="w-full text-left p-4 rounded-xl bg-archaia-card hover:bg-archaia-cardHover border border-archaia-border hover:border-blue-500/50 transition-all flex items-start space-x-3 group btn-interactive"
                   >
-                    <span className="w-5 h-5 rounded-full border border-archaia-border group-hover:border-blue-400 flex items-center justify-center shrink-0 mt-0.5 text-xs font-medium text-slate-400">
+                    <span className="w-5 h-5 rounded-full border border-archaia-border group-hover:border-blue-400 flex items-center justify-center shrink-0 mt-0.5 text-xs font-medium text-slate-500">
                       {submittingOptionId === opt.id ? "…" : "•"}
                     </span>
-                    <span className="text-xs text-slate-200 group-hover:text-white leading-relaxed font-sans">
+                    <span className="text-xs text-slate-700 group-hover:text-slate-900 leading-relaxed font-sans">
                       {opt.text}
                     </span>
                   </button>
@@ -368,7 +368,7 @@ export default function BisectPage() {
               </div>
 
               {feedback && (
-                <div className="p-3 rounded-xl bg-archaia-card border border-blue-500/30 text-xs font-sans text-blue-300 animate-in fade-in">
+                <div className="p-3 rounded-xl bg-archaia-card border border-blue-500/30 text-xs font-sans text-blue-600 animate-in fade-in">
                   {feedback}
                 </div>
               )}
@@ -380,14 +380,14 @@ export default function BisectPage() {
             <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-amber-950/50 via-[#141722] to-slate-900 border border-amber-500/40 shadow-xl space-y-5 animate-in zoom-in-95 card-interactive">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-archaia-border pb-4">
                 <div className="flex items-center space-x-3">
-                  <div className="p-3 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  <div className="p-3 rounded-2xl bg-amber-500/20 text-amber-600 border border-amber-500/30">
                     <Flame className="w-8 h-8 animate-pulse" />
                   </div>
                   <div>
-                    <span className="text-[10px] tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold">
+                    <span className="text-[10px] tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-600 border border-amber-500/30 font-semibold">
                       STEP 2 OF 4 COMPLETED: LIKELY ROOT GAP ISOLATED
                     </span>
-                    <h2 className="text-xl sm:text-2xl font-bold text-white mt-1">
+                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
                       Likely Root Gap: {rootConcept?.name || session.likelyRootGapId}
                     </h2>
                   </div>
@@ -403,28 +403,28 @@ export default function BisectPage() {
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs text-amber-200 leading-relaxed font-sans font-medium">
+                <p className="text-xs text-amber-700 leading-relaxed font-sans font-medium">
                   {session.conclusionReason}
                 </p>
-                <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                <p className="text-xs text-slate-600 leading-relaxed font-sans">
                   The error observed in your input regarding <strong>{session.targetConceptId}</strong> is rooted in an unverified invariant in prerequisite <strong>{rootConcept?.name || session.likelyRootGapId}</strong>. Remediation must now target this root concept.
                 </p>
               </div>
 
               {/* Diagnostic Evidence Trail */}
               <div className="p-4 rounded-xl bg-archaia-card border border-archaia-border space-y-2">
-                <div className="text-xs font-semibold text-white flex items-center space-x-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <div className="text-xs font-semibold text-slate-900 flex items-center space-x-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   <span>Collected Diagnostic Evidence Trail:</span>
                 </div>
                 <div className="space-y-1.5 text-xs font-sans">
                   {session.probesAnswered.map((p, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between p-2 rounded-lg bg-archaia-dark/60 text-slate-400"
+                      className="flex items-center justify-between p-2 rounded-lg bg-archaia-dark/60 text-slate-500"
                     >
                       <span className="font-medium">Concept: {p.conceptId}</span>
-                      <span className={p.isCorrect ? "text-emerald-400 font-semibold" : "text-rose-400 font-semibold"}>
+                      <span className={p.isCorrect ? "text-emerald-600 font-semibold" : "text-rose-600 font-semibold"}>
                         {p.isCorrect ? "Invariant Preserved (Passed)" : "Invariant Broken (Gap Confirmed)"}
                       </span>
                     </div>

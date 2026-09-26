@@ -99,27 +99,27 @@ export default function CognitivePipelineStepper({
   return (
     <div className="card-shades rounded-2xl p-4 sm:p-5 space-y-3.5 relative overflow-hidden">
       {/* Top status indicator matching presentation theme */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
         <div className="flex items-center space-x-2.5">
           <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-          <span className="font-editorial text-sm font-medium tracking-normal text-white">
+          <span className="font-editorial text-sm font-medium tracking-normal text-slate-900">
             Cognitive Diagnostic Pipeline
           </span>
-          <span className="text-[11px] text-slate-400 font-sans tracking-wide">
+          <span className="text-[11px] text-slate-500 font-sans tracking-wide">
             (Stage {currentStep} of 4)
           </span>
         </div>
 
         {activeConceptName && (
           <div className="flex items-center space-x-2 text-xs font-sans">
-            <span className="text-slate-400">Current Node:</span>
-            <span className="px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-300 font-medium">
+            <span className="text-slate-500">Current Node:</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-600 font-medium">
               {activeConceptName}
             </span>
             {rootConceptName && rootConceptName !== activeConceptName && (
               <>
                 <span className="text-slate-500">→ Root Gap:</span>
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-medium">
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-600 font-medium">
                   {rootConceptName}
                 </span>
               </>
@@ -143,8 +143,8 @@ export default function CognitivePipelineStepper({
                 isCurrent
                   ? "bg-rose-500/15 border-rose-500 text-white shadow-[0_0_20px_rgba(244,63,94,0.22)] ring-1 ring-rose-500/35"
                   : isCompleted
-                  ? "bg-[#11141e]/90 hover:bg-[#181c28] border-emerald-500/30 text-emerald-300"
-                  : "bg-[#0c0e15]/70 border-white/[0.06] text-slate-500 opacity-70 hover:opacity-100 hover:border-white/[0.12]"
+                  ? "bg-slate-100/90 hover:bg-slate-100 border-emerald-500/30 text-emerald-600"
+                  : "bg-slate-50/70 border-slate-200 text-slate-500 opacity-70 hover:opacity-100 hover:border-slate-300"
               }`}
             >
               <div className="flex items-center justify-between">
@@ -154,8 +154,8 @@ export default function CognitivePipelineStepper({
                       isCurrent
                         ? "bg-rose-500 border-rose-400 text-white shadow-sm"
                         : isCompleted
-                        ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
-                        : "bg-white/[0.04] border-white/[0.08] text-slate-400"
+                        ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-600"
+                        : "bg-white/[0.04] border-slate-200 text-slate-500"
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -163,7 +163,7 @@ export default function CognitivePipelineStepper({
                   <div>
                     <span
                       className={`text-xs font-serif font-bold ${
-                        isCurrent ? "text-rose-300" : isCompleted ? "text-emerald-400" : "text-slate-400"
+                        isCurrent ? "text-rose-600" : isCompleted ? "text-emerald-600" : "text-slate-500"
                       }`}
                     >
                       {st.num}
@@ -173,7 +173,7 @@ export default function CognitivePipelineStepper({
                 </div>
 
                 {isCompleted ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                 ) : isCurrent ? (
                   <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500 text-white uppercase tracking-wider">
                     Active
@@ -182,7 +182,7 @@ export default function CognitivePipelineStepper({
                   <span className="text-[10px] text-slate-500 font-mono">Stage {st.step}</span>
                 )}
               </div>
-              <p className="text-[10px] text-slate-400 font-sans mt-2 line-clamp-1">
+              <p className="text-[10px] text-slate-500 font-sans mt-2 line-clamp-1">
                 {st.description}
               </p>
             </Link>

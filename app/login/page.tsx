@@ -302,39 +302,39 @@ void process_packet(size_t size) {
           <Link href="/dashboard" className="flex items-center space-x-3.5 group cursor-pointer">
             <ArchaiaLogo size={42} className="w-10 h-10 group-hover:scale-105 transition-transform" />
             <div className="flex flex-col">
-              <span className="text-2xl font-bold tracking-[0.16em] text-white uppercase font-editorial logo-shimmer">
+              <span className="text-2xl font-bold tracking-[0.16em] text-slate-900 uppercase font-editorial logo-shimmer">
                 ARCHAIA
               </span>
-              <span className="text-[10px] tracking-widest text-rose-300/80 uppercase font-sans -mt-0.5">
+              <span className="text-[10px] tracking-widest text-rose-600/80 uppercase font-sans -mt-0.5">
                 Shades That Illuminate • Cognitive Diagnostics
               </span>
             </div>
           </Link>
 
           {/* Sample Accounts Quick Fill */}
-          <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-xl bg-[#10131c]/90 border border-white/[0.08] text-xs backdrop-blur-md">
-            <span className="text-slate-400 px-2 flex items-center space-x-1.5 font-medium font-sans">
-              <KeyRound className="w-3.5 h-3.5 text-rose-400" />
+          <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-xl bg-slate-50/90 border border-slate-200 text-xs backdrop-blur-md">
+            <span className="text-slate-500 px-2 flex items-center space-x-1.5 font-medium font-sans">
+              <KeyRound className="w-3.5 h-3.5 text-rose-600" />
               <span>Sample Profiles:</span>
             </span>
             <button
               type="button"
               onClick={() => fillCredentials("student")}
-              className="px-2.5 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/35 text-rose-300 text-[11px] font-medium transition-colors"
+              className="px-2.5 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/35 text-rose-600 text-[11px] font-medium transition-colors"
             >
               Student
             </button>
             <button
               type="button"
               onClick={() => fillCredentials("instructor")}
-              className="px-2.5 py-1 rounded-lg bg-[#181c28] hover:bg-[#202533] border border-white/[0.08] text-purple-300 text-[11px] font-medium transition-colors"
+              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-purple-600 text-[11px] font-medium transition-colors"
             >
               Instructor
             </button>
             <button
               type="button"
               onClick={() => fillCredentials("researcher")}
-              className="px-2.5 py-1 rounded-lg bg-[#181c28] hover:bg-[#202533] border border-white/[0.08] text-emerald-300 text-[11px] font-medium transition-colors"
+              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-emerald-600 text-[11px] font-medium transition-colors"
             >
               Researcher
             </button>
@@ -350,15 +350,15 @@ void process_packet(size_t size) {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2.5">
                   <ArchaiaLogo size={24} className="w-6 h-6" />
-                  <span className="text-xs text-rose-300/80 font-sans tracking-wide">
+                  <span className="text-xs text-rose-600/80 font-sans tracking-wide">
                     {isRegisterMode ? "Create your profile on" : "Welcome to"}
                   </span>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold tracking-[0.14em] text-white uppercase font-editorial">
+                  <h2 className="text-2xl font-bold tracking-[0.14em] text-slate-900 uppercase font-editorial">
                     ARCHAIA
                   </h2>
-                  <p className="text-xs text-slate-400 mt-1 font-sans">
+                  <p className="text-xs text-slate-500 mt-1 font-sans">
                     {isRegisterMode
                       ? "Register your student profile for personalized cognitive diagnostics."
                       : "Sign in to activate your diagnostic learning workspace."}
@@ -367,7 +367,7 @@ void process_packet(size_t size) {
               </div>
 
               {/* Pipeline Mode Switcher Tabs */}
-              <div className="flex rounded-xl bg-[#090b10] p-1 border border-white/[0.08]">
+              <div className="flex rounded-xl bg-white p-1 border border-slate-200">
                 <button
                   type="button"
                   onClick={() => {
@@ -378,7 +378,7 @@ void process_packet(size_t size) {
                   className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold font-sans flex items-center justify-center space-x-1.5 transition-all ${
                     pipelineMode === "credentials"
                       ? "bg-rose-500 text-white shadow-[0_0_14px_rgba(244,63,94,0.35)]"
-                      : "text-slate-400 hover:text-white"
+                      : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
                   <KeyRound className="w-3.5 h-3.5" />
@@ -394,12 +394,12 @@ void process_packet(size_t size) {
                   className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold font-sans flex items-center justify-center space-x-1.5 transition-all ${
                     pipelineMode === "file_upload"
                       ? "bg-rose-500 text-white shadow-[0_0_14px_rgba(244,63,94,0.35)]"
-                      : "text-slate-400 hover:text-white"
+                      : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
                   <FolderOpen className="w-3.5 h-3.5" />
                   <span>File Intake</span>
-                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-[9px] bg-white/20 text-white font-medium">
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-[9px] bg-white/20 text-slate-900 font-medium">
                     Analysis
                   </span>
                 </button>
@@ -420,26 +420,26 @@ void process_packet(size_t size) {
                   />
 
                   {/* Header info */}
-                  <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-200 space-y-1">
-                    <div className="font-semibold flex items-center space-x-1.5 text-blue-300">
+                  <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-700 space-y-1">
+                    <div className="font-semibold flex items-center space-x-1.5 text-blue-600">
                       <FolderOpen className="w-4 h-4" />
                       <span>Local File Manager Analysis Pipeline</span>
                     </div>
-                    <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-                      Select any code file, SQL script, or assignment from your computer. The engine will inspect the code, extract its domain invariants, and synthesize the exact <span className="text-white font-medium">Problem Statement</span>.
+                    <p className="text-[11px] text-slate-500 leading-relaxed font-sans">
+                      Select any code file, SQL script, or assignment from your computer. The engine will inspect the code, extract its domain invariants, and synthesize the exact <span className="text-slate-900 font-medium">Problem Statement</span>.
                     </p>
                   </div>
 
                   {/* Error Notification */}
                   {fileError && (
-                    <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/50 text-rose-200 text-xs font-sans flex items-start space-x-2 animate-in fade-in">
-                      <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-500/50 text-rose-700 text-xs font-sans flex items-start space-x-2 animate-in fade-in">
+                      <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                       <div className="flex-1 space-y-1">
                         <div>{fileError}</div>
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="text-[11px] text-rose-300 underline hover:text-white font-medium"
+                          className="text-[11px] text-rose-600 underline hover:text-slate-900 font-medium"
                         >
                           Select another file from file manager
                         </button>
@@ -451,13 +451,13 @@ void process_packet(size_t size) {
                   {analyzingFile && (
                     <div className="p-6 rounded-xl bg-[#0D1017] border border-blue-500/30 text-center space-y-3 animate-pulse">
                       <div className="flex justify-center">
-                        <Sparkles className="w-8 h-8 text-blue-400 animate-spin" />
+                        <Sparkles className="w-8 h-8 text-blue-600 animate-spin" />
                       </div>
                       <div className="space-y-1">
-                        <div className="text-xs font-semibold text-white">
+                        <div className="text-xs font-semibold text-slate-900">
                           Analyzing File & Formulating Problem Statement...
                         </div>
-                        <div className="text-[11px] text-slate-400">
+                        <div className="text-[11px] text-slate-500">
                           Detecting language, isolating conceptual invariants, synthesizing diagnostic challenge.
                         </div>
                       </div>
@@ -471,14 +471,14 @@ void process_packet(size_t size) {
                         onClick={() => fileInputRef.current?.click()}
                         className="group border-2 border-dashed border-blue-500/30 hover:border-blue-400/70 rounded-2xl p-6 text-center cursor-pointer bg-blue-500/5 hover:bg-blue-500/10 transition-all duration-200 space-y-3"
                       >
-                        <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 mx-auto flex items-center justify-center group-hover:scale-105 group-hover:bg-blue-500/20 transition-all">
+                        <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 mx-auto flex items-center justify-center group-hover:scale-105 group-hover:bg-blue-500/20 transition-all">
                           <UploadCloud className="w-6 h-6" />
                         </div>
                         <div className="space-y-1">
-                          <div className="text-xs font-semibold text-white">
+                          <div className="text-xs font-semibold text-slate-900">
                             Choose File from Local File Manager
                           </div>
-                          <div className="text-[11px] text-slate-400">
+                          <div className="text-[11px] text-slate-500">
                             Supports .sql, .py, .java, .cpp, .c, .js, .ts, .txt, .md
                           </div>
                         </div>
@@ -496,28 +496,28 @@ void process_packet(size_t size) {
                       </div>
 
                       {/* Fast Sample File Chips */}
-                      <div className="pt-2 border-t border-[#282E3D]/80 space-y-1.5">
-                        <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+                      <div className="pt-2 border-t border-slate-200/80 space-y-1.5">
+                        <div className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
                           Or test immediately with a sample file:
                         </div>
                         <div className="flex flex-col gap-1.5">
                           <button
                             type="button"
                             onClick={() => handleLoadSampleFile("sql")}
-                            className="w-full text-left p-2 rounded-lg bg-[#0D1017] hover:bg-[#181C26] border border-[#282E3D] text-xs text-slate-300 hover:text-white transition-colors flex items-center justify-between group"
+                            className="w-full text-left p-2 rounded-lg bg-[#0D1017] hover:bg-slate-100 border border-slate-200 text-xs text-slate-600 hover:text-slate-900 transition-colors flex items-center justify-between group"
                           >
                             <div className="flex items-center space-x-2">
-                              <FileCode className="w-3.5 h-3.5 text-blue-400" />
+                              <FileCode className="w-3.5 h-3.5 text-blue-600" />
                               <span className="font-mono text-[11px]">payment_reconciliation.sql</span>
                             </div>
-                            <span className="text-[10px] text-slate-500 group-hover:text-blue-400">
+                            <span className="text-[10px] text-slate-500 group-hover:text-blue-600">
                               SQL Isolation
                             </span>
                           </button>
                           <button
                             type="button"
                             onClick={() => handleLoadSampleFile("dfs")}
-                            className="w-full text-left p-2 rounded-lg bg-[#0D1017] hover:bg-[#181C26] border border-[#282E3D] text-xs text-slate-300 hover:text-white transition-colors flex items-center justify-between group"
+                            className="w-full text-left p-2 rounded-lg bg-[#0D1017] hover:bg-slate-100 border border-slate-200 text-xs text-slate-600 hover:text-slate-900 transition-colors flex items-center justify-between group"
                           >
                             <div className="flex items-center space-x-2">
                               <FileCode className="w-3.5 h-3.5 text-indigo-400" />
@@ -530,13 +530,13 @@ void process_packet(size_t size) {
                           <button
                             type="button"
                             onClick={() => handleLoadSampleFile("memory")}
-                            className="w-full text-left p-2 rounded-lg bg-[#0D1017] hover:bg-[#181C26] border border-[#282E3D] text-xs text-slate-300 hover:text-white transition-colors flex items-center justify-between group"
+                            className="w-full text-left p-2 rounded-lg bg-[#0D1017] hover:bg-slate-100 border border-slate-200 text-xs text-slate-600 hover:text-slate-900 transition-colors flex items-center justify-between group"
                           >
                             <div className="flex items-center space-x-2">
-                              <FileCode className="w-3.5 h-3.5 text-emerald-400" />
+                              <FileCode className="w-3.5 h-3.5 text-emerald-600" />
                               <span className="font-mono text-[11px]">buffer_allocation.cpp</span>
                             </div>
-                            <span className="text-[10px] text-slate-500 group-hover:text-emerald-400">
+                            <span className="text-[10px] text-slate-500 group-hover:text-emerald-600">
                               Memory Safety
                             </span>
                           </button>
@@ -549,15 +549,15 @@ void process_packet(size_t size) {
                   {fileAnalysis && !analyzingFile && (
                     <div className="space-y-3.5 animate-in fade-in">
                       {/* File Metadata Pill */}
-                      <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0D1017] border border-[#282E3D]">
+                      <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0D1017] border border-slate-200">
                         <div className="flex items-center space-x-2 truncate">
-                          <FileCode className="w-4 h-4 text-blue-400 shrink-0" />
-                          <span className="font-mono text-xs text-white truncate">
+                          <FileCode className="w-4 h-4 text-blue-600 shrink-0" />
+                          <span className="font-mono text-xs text-slate-900 truncate">
                             {fileAnalysis.fileName}
                           </span>
                         </div>
                         <div className="flex items-center space-x-1.5 shrink-0">
-                          <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 text-[10px] font-semibold border border-blue-500/30">
+                          <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-600 text-[10px] font-semibold border border-blue-500/30">
                             {fileAnalysis.detectedLanguage}
                           </span>
                           <span className="text-[10px] text-slate-500">
@@ -569,11 +569,11 @@ void process_packet(size_t size) {
                       </div>
 
                       {/* Topic Identification */}
-                      <div className="p-2.5 rounded-xl bg-[#181C26] border border-[#282E3D] space-y-1">
-                        <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+                      <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-200 space-y-1">
+                        <div className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
                           Identified Topic
                         </div>
-                        <div className="text-xs font-semibold text-white">
+                        <div className="text-xs font-semibold text-slate-900">
                           {fileAnalysis.topic}
                         </div>
                       </div>
@@ -581,8 +581,8 @@ void process_packet(size_t size) {
                       {/* PROBLEM STATEMENT: PRIMARY HIGHLIGHT */}
                       <div className="p-3.5 rounded-xl bg-gradient-to-br from-blue-950/40 to-indigo-950/30 border border-blue-500/40 space-y-2 shadow-inner">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-1.5 text-blue-300">
-                            <Sparkles className="w-4 h-4 text-blue-400" />
+                          <div className="flex items-center space-x-1.5 text-blue-600">
+                            <Sparkles className="w-4 h-4 text-blue-600" />
                             <span className="text-xs font-bold uppercase tracking-wider">
                               Problem Statement
                             </span>
@@ -590,12 +590,12 @@ void process_packet(size_t size) {
                           <button
                             type="button"
                             onClick={handleCopyProblem}
-                            className="flex items-center space-x-1 px-2 py-0.5 rounded bg-blue-500/20 hover:bg-blue-500/30 text-[11px] text-blue-200 transition-colors"
+                            className="flex items-center space-x-1 px-2 py-0.5 rounded bg-blue-500/20 hover:bg-blue-500/30 text-[11px] text-blue-700 transition-colors"
                           >
                             {copiedProblem ? (
                               <>
-                                <Check className="w-3 h-3 text-emerald-400" />
-                                <span className="text-emerald-300">Copied!</span>
+                                <Check className="w-3 h-3 text-emerald-600" />
+                                <span className="text-emerald-600">Copied!</span>
                               </>
                             ) : (
                               <>
@@ -606,7 +606,7 @@ void process_packet(size_t size) {
                           </button>
                         </div>
 
-                        <p className="text-xs text-slate-200 leading-relaxed font-sans font-medium">
+                        <p className="text-xs text-slate-700 leading-relaxed font-sans font-medium">
                           {fileAnalysis.problemStatement}
                         </p>
                       </div>
@@ -614,14 +614,14 @@ void process_packet(size_t size) {
                       {/* Key Concepts Tags */}
                       {fileAnalysis.keyConcepts && fileAnalysis.keyConcepts.length > 0 && (
                         <div className="space-y-1.5">
-                          <div className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+                          <div className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">
                             Key Invariants & Concepts
                           </div>
                           <div className="flex flex-wrap gap-1">
                             {fileAnalysis.keyConcepts.map((c: string, idx: number) => (
                               <span
                                 key={idx}
-                                className="px-2 py-0.5 rounded-md bg-[#0D1017] border border-[#282E3D] text-[10px] text-slate-300"
+                                className="px-2 py-0.5 rounded-md bg-[#0D1017] border border-slate-200 text-[10px] text-slate-600"
                               >
                                 {c}
                               </span>
@@ -633,11 +633,11 @@ void process_packet(size_t size) {
                       {/* Naive Student Assumption / Trap Warning */}
                       {fileAnalysis.potentialMisconceptions && fileAnalysis.potentialMisconceptions.length > 0 && (
                         <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs space-y-1">
-                          <div className="text-[10px] uppercase font-semibold text-amber-300 tracking-wider flex items-center space-x-1">
+                          <div className="text-[10px] uppercase font-semibold text-amber-600 tracking-wider flex items-center space-x-1">
                             <AlertTriangle className="w-3 h-3" />
                             <span>Potential Mental Model Misconception</span>
                           </div>
-                          <p className="text-[11px] text-amber-200/90 leading-relaxed font-sans">
+                          <p className="text-[11px] text-amber-700/90 leading-relaxed font-sans">
                             {fileAnalysis.potentialMisconceptions[0]}
                           </p>
                         </div>
@@ -650,7 +650,7 @@ void process_packet(size_t size) {
                         disabled={isSubmitting}
                         className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs flex items-center justify-center space-x-2 shadow-md transition-all border border-blue-400/40 cursor-pointer disabled:opacity-75"
                       >
-                        <Sparkles className="w-4 h-4 text-blue-200" />
+                        <Sparkles className="w-4 h-4 text-blue-700" />
                         <span>Launch Cognitive Diagnostic with this Problem Statement →</span>
                       </button>
 
@@ -662,9 +662,9 @@ void process_packet(size_t size) {
                           setFileError(null);
                           fileInputRef.current?.click();
                         }}
-                        className="w-full py-2 px-3 rounded-lg border border-[#282E3D] bg-[#0D1017] hover:bg-[#181C26] text-slate-300 text-xs font-medium transition-colors flex items-center justify-center space-x-1.5"
+                        className="w-full py-2 px-3 rounded-lg border border-slate-200 bg-[#0D1017] hover:bg-slate-100 text-slate-600 text-xs font-medium transition-colors flex items-center justify-center space-x-1.5"
                       >
-                        <FolderOpen className="w-3.5 h-3.5 text-slate-400" />
+                        <FolderOpen className="w-3.5 h-3.5 text-slate-500" />
                         <span>Choose another file from File Manager</span>
                       </button>
                     </div>
@@ -679,13 +679,13 @@ void process_packet(size_t size) {
                     disabled={isSubmitting}
                     className="w-full py-2.5 px-4 rounded-xl btn-shades-primary font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-75"
                   >
-                    <Sparkles className="w-4 h-4 text-white" />
+                    <Sparkles className="w-4 h-4 text-slate-900" />
                     <span>Activate Student Workspace (1-Click)</span>
                   </button>
 
                   <div className="relative flex items-center justify-center">
-                    <div className="border-t border-white/[0.08] w-full" />
-                    <span className="bg-[#10131c] px-2 text-[10px] uppercase text-slate-400 font-semibold font-sans absolute">
+                    <div className="border-t border-slate-200 w-full" />
+                    <span className="bg-slate-50 px-2 text-[10px] uppercase text-slate-500 font-semibold font-sans absolute">
                       or sign in with credentials
                     </span>
                   </div>
@@ -696,13 +696,13 @@ void process_packet(size_t size) {
                       id="login-error-alert"
                       role="alert"
                       aria-live="assertive"
-                      className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/50 text-rose-200 text-xs font-sans flex items-start space-x-2 animate-in fade-in"
+                      className="p-3 rounded-xl bg-rose-50 border border-rose-500/50 text-rose-700 text-xs font-sans flex items-start space-x-2 animate-in fade-in"
                     >
-                      <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                      <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                       <div className="space-y-0.5">
                         <div>{errorMessage}</div>
                         {attemptsLeft !== null && attemptsLeft > 0 && (
-                          <div className="text-[10px] text-rose-300 font-medium">
+                          <div className="text-[10px] text-rose-600 font-medium">
                             Security Enforcement: {attemptsLeft} attempts left.
                           </div>
                         )}
@@ -715,9 +715,9 @@ void process_packet(size_t size) {
                       id="login-success-alert"
                       role="status"
                       aria-live="polite"
-                      className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-200 text-xs font-sans flex items-center space-x-2 animate-in fade-in"
+                      className="p-3 rounded-xl bg-emerald-50 border border-emerald-500/50 text-emerald-700 text-xs font-sans flex items-center space-x-2 animate-in fade-in"
                     >
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                       <span>{successMessage}</span>
                     </div>
                   )}
@@ -731,11 +731,11 @@ void process_packet(size_t size) {
                     {/* Full Name (Registration Mode Only) */}
                     {isRegisterMode && (
                       <div className="space-y-1">
-                        <label htmlFor="login-full-name" className="block text-xs font-sans text-slate-300">
+                        <label htmlFor="login-full-name" className="block text-xs font-sans text-slate-600">
                           Full Name
                         </label>
                         <div className="relative flex items-center">
-                          <div className="absolute left-3.5 text-slate-400 pointer-events-none">
+                          <div className="absolute left-3.5 text-slate-500 pointer-events-none">
                             <User className="w-4 h-4" />
                           </div>
                           <input
@@ -747,7 +747,7 @@ void process_packet(size_t size) {
                             placeholder="Alex Chen"
                             required
                             aria-required="true"
-                            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white placeholder-slate-500 transition-colors font-sans input-focus-glow"
+                            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-500 transition-colors font-sans input-focus-glow"
                           />
                         </div>
                       </div>
@@ -755,11 +755,11 @@ void process_packet(size_t size) {
 
                     {/* Email Address */}
                     <div className="space-y-1">
-                      <label htmlFor="login-email" className="block text-xs font-sans text-slate-300">
+                      <label htmlFor="login-email" className="block text-xs font-sans text-slate-600">
                         Email Address
                       </label>
                       <div className="relative flex items-center">
-                        <div className="absolute left-3.5 text-slate-400 pointer-events-none">
+                        <div className="absolute left-3.5 text-slate-500 pointer-events-none">
                           <Mail className="w-4 h-4" />
                         </div>
                         <input
@@ -772,7 +772,7 @@ void process_packet(size_t size) {
                           required
                           aria-required="true"
                           aria-invalid={!!errorMessage}
-                          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white placeholder-slate-500 transition-colors font-sans input-focus-glow"
+                          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-500 transition-colors font-sans input-focus-glow"
                         />
                       </div>
                     </div>
@@ -780,17 +780,17 @@ void process_packet(size_t size) {
                     {/* Password */}
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <label htmlFor="login-password" className="block text-xs font-sans text-slate-300">
+                        <label htmlFor="login-password" className="block text-xs font-sans text-slate-600">
                           Password
                         </label>
                         {isRegisterMode && (
-                          <span className="text-[10px] text-slate-400 font-medium">
+                          <span className="text-[10px] text-slate-500 font-medium">
                             Min 8 chars, 1 uppercase, 1 number
                           </span>
                         )}
                       </div>
                       <div className="relative flex items-center">
-                        <div className="absolute left-3.5 text-slate-400 pointer-events-none">
+                        <div className="absolute left-3.5 text-slate-500 pointer-events-none">
                           <Lock className="w-4 h-4" />
                         </div>
                         <input
@@ -803,13 +803,13 @@ void process_packet(size_t size) {
                           required
                           aria-required="true"
                           aria-invalid={!!errorMessage}
-                          className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#090b10] border border-white/[0.08] text-xs text-white placeholder-slate-500 transition-colors font-sans input-focus-glow"
+                          className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-500 transition-colors font-sans input-focus-glow"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
                           aria-label={showPassword ? "Hide password" : "Show password"}
-                          className="absolute right-3.5 text-slate-400 hover:text-slate-200 transition-colors"
+                          className="absolute right-3.5 text-slate-500 hover:text-slate-700 transition-colors"
                         >
                           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -835,11 +835,11 @@ void process_packet(size_t size) {
 
                   {/* Or Divider */}
                   <div className="relative flex items-center justify-center pt-1">
-                    <div className="border-t border-white/[0.08] w-full" />
-                    <span className="bg-[#10131c] px-3 text-[11px] font-sans text-slate-400 uppercase tracking-wider relative z-10">
+                    <div className="border-t border-slate-200 w-full" />
+                    <span className="bg-slate-50 px-3 text-[11px] font-sans text-slate-500 uppercase tracking-wider relative z-10">
                       Or
                     </span>
-                    <div className="border-t border-white/[0.08] w-full" />
+                    <div className="border-t border-slate-200 w-full" />
                   </div>
 
                   {/* Toggle Between Sign In and Register Profile Button */}
@@ -850,9 +850,9 @@ void process_packet(size_t size) {
                       setErrorMessage(null);
                       setSuccessMessage(null);
                     }}
-                    className="w-full py-2.5 px-4 rounded-xl bg-[#141824] hover:bg-[#1c2233] border border-white/[0.08] text-xs text-slate-200 font-sans transition-all flex items-center justify-center space-x-2"
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs text-slate-700 font-sans transition-all flex items-center justify-center space-x-2"
                   >
-                    <GraduationCap className="w-4 h-4 text-rose-400" />
+                    <GraduationCap className="w-4 h-4 text-rose-600" />
                     <span>
                       {isRegisterMode
                         ? "Back to Existing Account Sign In"
@@ -870,7 +870,7 @@ void process_packet(size_t size) {
                             "Security Protocol: Temporary reset token sent to your institutional email. Check inbox."
                           )
                         }
-                        className="text-xs text-rose-400 hover:text-rose-300 transition-colors font-sans hover:underline"
+                        className="text-xs text-rose-600 hover:text-rose-600 transition-colors font-sans hover:underline"
                       >
                         Forgot password?
                       </button>
@@ -880,8 +880,8 @@ void process_packet(size_t size) {
               )}
 
               {/* Card Footer Badge */}
-              <div className="pt-2 border-t border-white/[0.08] flex items-center justify-center space-x-1.5 text-[11px] text-slate-400 font-sans">
-                <Shield className="w-3.5 h-3.5 text-rose-400/80" />
+              <div className="pt-2 border-t border-slate-200 flex items-center justify-center space-x-1.5 text-[11px] text-slate-500 font-sans">
+                <Shield className="w-3.5 h-3.5 text-rose-600/80" />
                 <span>PBKDF2 Salting • Rate Limited • Built for Learners</span>
               </div>
             </div>
@@ -890,10 +890,10 @@ void process_packet(size_t size) {
             <div className="text-center pt-3">
               <Link
                 href="/dashboard"
-                className="text-xs text-slate-400 hover:text-rose-300 transition-colors inline-flex items-center space-x-1 group font-sans"
+                className="text-xs text-slate-500 hover:text-rose-600 transition-colors inline-flex items-center space-x-1 group font-sans"
               >
                 <span>Continue into Platform as Guest Student</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-rose-400" />
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-rose-600" />
               </Link>
             </div>
           </div>
@@ -906,15 +906,15 @@ void process_packet(size_t size) {
               
               {/* Overlayed Editorial Title & Subtitle */}
               <div className="relative z-10 text-center sm:text-left space-y-2.5 pt-2">
-                <span className="shades-subtitle text-rose-300/90 font-medium">
+                <span className="shades-subtitle text-rose-600/90 font-medium">
                   C O G N I T I V E &nbsp; D I A G N O S T I C S
                 </span>
 
-                <h1 className="font-editorial text-4xl sm:text-5xl lg:text-[54px] font-medium tracking-tight text-white leading-[1.12]">
-                  Shades That <span className="italic text-rose-300 font-normal">Illuminate.</span>
+                <h1 className="font-editorial text-4xl sm:text-5xl lg:text-[54px] font-medium tracking-tight text-slate-900 leading-[1.12]">
+                  Shades That <span className="italic text-rose-600 font-normal">Illuminate.</span>
                 </h1>
 
-                <p className="text-xs sm:text-sm text-slate-300 max-w-lg leading-relaxed font-sans pt-0.5">
+                <p className="text-xs sm:text-sm text-slate-600 max-w-lg leading-relaxed font-sans pt-0.5">
                   Debugging the invisible root-cause gaps in human learning through Causal Knowledge Graphs and Binary Cognitive Bisect.
                 </p>
               </div>
@@ -926,37 +926,37 @@ void process_packet(size_t size) {
             </div>
 
             {/* Slide 2 / 3 Style 4 Pillars */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 border-t border-white/[0.08]">
-              <div className="p-2.5 rounded-xl bg-[#0c0e15]/80 border border-white/[0.06] space-y-1">
-                <div className="flex items-center space-x-1.5 text-rose-300">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 border-t border-slate-200">
+              <div className="p-2.5 rounded-xl bg-slate-50/80 border border-slate-200 space-y-1">
+                <div className="flex items-center space-x-1.5 text-rose-600">
                   <Brain className="w-3.5 h-3.5" />
                   <span className="text-[11px] font-serif font-bold">01. Scan</span>
                 </div>
-                <p className="text-[10px] text-slate-400 font-sans">Misconception Detection</p>
+                <p className="text-[10px] text-slate-500 font-sans">Misconception Detection</p>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-[#0c0e15]/80 border border-white/[0.06] space-y-1">
-                <div className="flex items-center space-x-1.5 text-rose-300">
+              <div className="p-2.5 rounded-xl bg-slate-50/80 border border-slate-200 space-y-1">
+                <div className="flex items-center space-x-1.5 text-rose-600">
                   <BarChart3 className="w-3.5 h-3.5" />
                   <span className="text-[11px] font-serif font-bold">02. Bisect</span>
                 </div>
-                <p className="text-[10px] text-slate-400 font-sans">Prerequisite Isolation</p>
+                <p className="text-[10px] text-slate-500 font-sans">Prerequisite Isolation</p>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-[#0c0e15]/80 border border-white/[0.06] space-y-1">
-                <div className="flex items-center space-x-1.5 text-rose-300">
+              <div className="p-2.5 rounded-xl bg-slate-50/80 border border-slate-200 space-y-1">
+                <div className="flex items-center space-x-1.5 text-rose-600">
                   <Target className="w-3.5 h-3.5" />
                   <span className="text-[11px] font-serif font-bold">03. Recover</span>
                 </div>
-                <p className="text-[10px] text-slate-400 font-sans">Physical Memory Lab</p>
+                <p className="text-[10px] text-slate-500 font-sans">Physical Memory Lab</p>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-[#0c0e15]/80 border border-white/[0.06] space-y-1">
-                <div className="flex items-center space-x-1.5 text-purple-300">
+              <div className="p-2.5 rounded-xl bg-slate-50/80 border border-slate-200 space-y-1">
+                <div className="flex items-center space-x-1.5 text-purple-600">
                   <FolderOpen className="w-3.5 h-3.5" />
                   <span className="text-[11px] font-serif font-bold">04. Roadmap</span>
                 </div>
-                <p className="text-[10px] text-slate-400 font-sans">Adaptive Mastery DAG</p>
+                <p className="text-[10px] text-slate-500 font-sans">Adaptive Mastery DAG</p>
               </div>
             </div>
           </div>

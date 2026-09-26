@@ -178,8 +178,8 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
       <div
         className={`p-3.5 sm:p-4 rounded-2xl border transition-all ${
           mode === "demo"
-            ? "bg-gradient-to-r from-amber-950/30 via-[#141824] to-[#0E1117] border-amber-500/40 text-amber-200"
-            : "bg-gradient-to-r from-blue-950/40 via-[#13192B] to-[#0E1117] border-blue-500/50 text-blue-200"
+            ? "bg-gradient-to-r from-amber-950/30 via-[#141824] to-[#0E1117] border-amber-500/40 text-amber-700"
+            : "bg-gradient-to-r from-blue-950/40 via-[#13192B] to-[#0E1117] border-blue-500/50 text-blue-700"
         } ${className}`}
       >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -189,8 +189,8 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
               <span
                 className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold tracking-wider uppercase flex items-center space-x-1.5 border ${
                   mode === "demo"
-                    ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                    : "bg-blue-600/20 text-blue-300 border-blue-500/40"
+                    ? "bg-amber-500/20 text-amber-600 border-amber-500/40"
+                    : "bg-blue-600/20 text-blue-600 border-blue-500/40"
                 }`}
               >
                 <span
@@ -204,18 +204,18 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
               </span>
 
               {mode === "demo" ? (
-                <span className="text-[11px] text-slate-400 font-sans">
-                  Seeded Worked Example: <strong className="text-white">DFS Context Replacement → Call Stack</strong>
+                <span className="text-[11px] text-slate-500 font-sans">
+                  Seeded Worked Example: <strong className="text-slate-900">DFS Context Replacement → Call Stack</strong>
                 </span>
               ) : (
-                <span className="text-[11px] text-slate-400 font-sans">
-                  Subject: <strong className="text-white">{activeCourse?.subject || "Computer Science"}</strong> •{" "}
-                  <strong className="text-blue-400">{activeCourse?.concepts?.length || 5} Concepts</strong> Active
+                <span className="text-[11px] text-slate-500 font-sans">
+                  Subject: <strong className="text-slate-900">{activeCourse?.subject || "Computer Science"}</strong> •{" "}
+                  <strong className="text-blue-600">{activeCourse?.concepts?.length || 5} Concepts</strong> Active
                 </span>
               )}
             </div>
 
-            <p className="text-xs text-slate-300 font-sans leading-relaxed">
+            <p className="text-xs text-slate-600 font-sans leading-relaxed">
               {mode === "demo"
                 ? "Demonstrating end-to-end cognitive diagnosis, causal prerequisite bisection, and visual stack frame remediation on recursive call stack invariants."
                 : `Universal diagnostic engine running on ingested course material "${activeCourse?.title}". Knowledge Graph and micro-probes generated dynamically.`}
@@ -230,9 +230,9 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                   <button
                     type="button"
                     onClick={() => handleSwitchMode("course")}
-                    className="px-3 py-1.5 rounded-lg bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-blue-300 hover:text-white text-xs font-medium transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
+                    className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-blue-600 hover:text-slate-900 text-xs font-medium transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
                   >
-                    <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+                    <BookOpen className="w-3.5 h-3.5 text-blue-600" />
                     <span>Switch to Course Mode</span>
                   </button>
                 )}
@@ -250,9 +250,9 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                 <button
                   type="button"
                   onClick={() => handleSwitchMode("demo")}
-                  className="px-3 py-1.5 rounded-lg bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-amber-300 hover:text-white text-xs font-medium transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
+                  className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-amber-600 hover:text-slate-900 text-xs font-medium transition-colors flex items-center space-x-1.5 btn-interactive-subtle"
                 >
-                  <PlayCircle className="w-3.5 h-3.5 text-amber-400" />
+                  <PlayCircle className="w-3.5 h-3.5 text-amber-600" />
                   <span>Switch to Demo Mode</span>
                 </button>
                 <button
@@ -271,24 +271,24 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
 
       {/* Course Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-2xl bg-[#0E1117] border border-[#282E3D] rounded-2xl p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#282E3D] pb-3">
-              <div className="flex items-center space-x-2 text-white font-bold text-base">
-                <UploadCloud className="w-5 h-5 text-blue-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-50 backdrop-blur-sm animate-in fade-in">
+          <div className="relative w-full max-w-2xl bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <div className="flex items-center space-x-2 text-slate-900 font-bold text-base">
+                <UploadCloud className="w-5 h-5 text-blue-600" />
                 <span>Ingest Course Material into Knowledge Graph</span>
               </div>
               <button
                 type="button"
                 onClick={() => setShowUploadModal(false)}
                 aria-label="Close upload dialog"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-slate-300 leading-relaxed font-sans">
+            <p className="text-xs text-slate-600 leading-relaxed font-sans">
               Paste lecture notes, syllabus modules, or textbook excerpts. ARCHAIA extracts key computing concepts, identifies prerequisite dependency chains, and automatically synthesizes diagnostic micro-probes for the entire platform.
             </p>
 
@@ -313,8 +313,8 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                   isCourseDragging
                     ? "border-blue-500 bg-blue-500/15"
                     : courseFileMeta
-                    ? "border-emerald-500/40 bg-emerald-950/20"
-                    : "border-dashed border-[#282E3D] hover:border-blue-500/50 bg-[#141722]/60"
+                    ? "border-emerald-500/40 bg-emerald-50"
+                    : "border-dashed border-slate-200 hover:border-blue-500/50 bg-slate-50/60"
                 } flex flex-col sm:flex-row items-center justify-between gap-3 text-xs`}
               >
                 <input
@@ -331,15 +331,15 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                   <div
                     className={`p-2 rounded-lg border ${
                       courseFileMeta
-                        ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
-                        : "bg-blue-500/10 border-blue-500/20 text-blue-400"
+                        ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-600"
+                        : "bg-blue-500/10 border-blue-500/20 text-blue-600"
                     }`}
                   >
                     <FolderOpen className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-semibold text-white">Upload from File Manager</span>
-                    <p className="text-[11px] text-slate-400 font-sans">
+                    <span className="font-semibold text-slate-900">Upload from File Manager</span>
+                    <p className="text-[11px] text-slate-500 font-sans">
                       {courseFileMeta
                         ? `Loaded: ${courseFileMeta.name} (${(courseFileMeta.size / 1024).toFixed(1)} KB)`
                         : "Drag & drop syllabus or lecture notes file, or browse files from your computer"}
@@ -350,9 +350,9 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                   <button
                     type="button"
                     onClick={() => courseFileInputRef.current?.click()}
-                    className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors flex items-center space-x-1.5"
+                    className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium border border-slate-300 transition-colors flex items-center space-x-1.5"
                   >
-                    <FolderOpen className="w-3.5 h-3.5 text-blue-400" />
+                    <FolderOpen className="w-3.5 h-3.5 text-blue-600" />
                     <span>{courseFileMeta ? "Change File" : "Browse File Manager"}</span>
                   </button>
                   {courseFileMeta && (
@@ -363,7 +363,7 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                         setUploadContent("");
                         setUploadTitle("");
                       }}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-white"
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900"
                       title="Clear course file"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -374,8 +374,8 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="sm:col-span-2">
-                  <label htmlFor="course-upload-title" className="block text-xs font-medium text-slate-300 mb-1">
-                    Course / Topic Title: <span className="text-rose-400">*</span>
+                  <label htmlFor="course-upload-title" className="block text-xs font-medium text-slate-600 mb-1">
+                    Course / Topic Title: <span className="text-rose-600">*</span>
                   </label>
                   <input
                     id="course-upload-title"
@@ -384,12 +384,12 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                     value={uploadTitle}
                     onChange={(e) => setUploadTitle(e.target.value)}
                     placeholder="e.g. Operating Systems: Synchronization & Concurrency"
-                    className="w-full px-3 py-2 rounded-lg bg-[#141722] border border-[#282E3D] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-sans"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:border-blue-500 font-sans"
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="course-upload-subject" className="block text-xs font-medium text-slate-300 mb-1">Subject Area:</label>
+                  <label htmlFor="course-upload-subject" className="block text-xs font-medium text-slate-600 mb-1">Subject Area:</label>
                   <input
                     id="course-upload-subject"
                     name="subject"
@@ -397,14 +397,14 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                     value={uploadSubject}
                     onChange={(e) => setUploadSubject(e.target.value)}
                     placeholder="e.g. Systems"
-                    className="w-full px-3 py-2 rounded-lg bg-[#141722] border border-[#282E3D] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-sans"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:border-blue-500 font-sans"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="course-upload-content" className="block text-xs font-medium text-slate-300 mb-1">
-                  Course Material Content (Text, Markdown, or Notes): <span className="text-rose-400">*</span>
+                <label htmlFor="course-upload-content" className="block text-xs font-medium text-slate-600 mb-1">
+                  Course Material Content (Text, Markdown, or Notes): <span className="text-rose-600">*</span>
                 </label>
                 <textarea
                   id="course-upload-content"
@@ -413,14 +413,14 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                   value={uploadContent}
                   onChange={(e) => setUploadContent(e.target.value)}
                   placeholder="Paste syllabus, notes, or concepts here:&#10;e.g. CPU Scheduling context switching enables multi-threading. Thread concurrency requires mutual exclusion primitives like Semaphores to prevent race conditions in critical sections. Acquiring multiple mutexes without ordering creates circular wait deadlocks."
-                  className="w-full p-3 rounded-xl bg-[#141722] border border-[#282E3D] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-sans leading-relaxed resize-none"
+                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:border-blue-500 font-sans leading-relaxed resize-none"
                   required
                 />
               </div>
 
               {/* Quick Preset Samples for Easy Testing */}
               <div className="space-y-1.5 pt-1">
-                <span className="text-[11px] text-slate-400 font-medium">Quick Preset Material:</span>
+                <span className="text-[11px] text-slate-500 font-medium">Quick Preset Material:</span>
                 <div className="flex flex-wrap gap-2">
                   {[
                     {
@@ -453,7 +453,7 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
                         setUploadSubject(preset.subject);
                         setUploadContent(preset.content);
                       }}
-                      className="px-2.5 py-1 rounded-md text-[11px] font-sans bg-[#181C26] hover:bg-[#222838] border border-[#282E3D] text-slate-300 hover:text-white transition-colors"
+                      className="px-2.5 py-1 rounded-md text-[11px] font-sans bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 hover:text-slate-900 transition-colors"
                     >
                       {preset.label}
                     </button>
@@ -462,23 +462,23 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
               </div>
 
               {uploadError && (
-                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 text-xs">
                   {uploadError}
                 </div>
               )}
 
               {uploadSuccess && (
-                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center space-x-1.5">
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 text-xs flex items-center space-x-1.5">
                   <CheckCircle className="w-4 h-4" />
                   <span>{uploadSuccess}</span>
                 </div>
               )}
 
-              <div className="flex items-center justify-end space-x-2 pt-2 border-t border-[#282E3D]">
+              <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                  className="px-4 py-2 rounded-xl text-xs text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                 >
                   Cancel
                 </button>

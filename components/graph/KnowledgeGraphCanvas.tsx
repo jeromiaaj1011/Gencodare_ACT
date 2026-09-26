@@ -114,46 +114,46 @@ export default function KnowledgeGraphCanvas({
     switch (status) {
       case "mastered":
         return {
-          bg: "bg-[#0E1F18]/95",
+          bg: "bg-emerald-50",
           border: "border-emerald-600/70",
-          text: "text-emerald-300",
-          badge: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+          text: "text-emerald-600",
+          badge: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
           halo: "#10B981",
           label: "Mastered Invariant",
         };
       case "misconception_detected":
         return {
-          bg: "bg-[#201216]/95",
+          bg: "bg-rose-50",
           border: "border-rose-600/80",
-          text: "text-rose-300",
-          badge: "bg-rose-500/15 text-rose-300 border-rose-500/30",
+          text: "text-rose-600",
+          badge: "bg-rose-500/15 text-rose-600 border-rose-500/30",
           halo: "#E11D48",
           label: "Observed Bug",
         };
       case "root_gap_identified":
         return {
-          bg: "bg-[#22180E]/95",
+          bg: "bg-amber-50",
           border: "border-amber-500/80",
-          text: "text-amber-200",
-          badge: "bg-amber-500/15 text-amber-200 border-amber-500/30",
+          text: "text-amber-700",
+          badge: "bg-amber-500/15 text-amber-700 border-amber-500/30",
           halo: "#F59E0B",
           label: "Likely Root Gap",
         };
       case "in_causal_path":
         return {
-          bg: "bg-[#121828]/95",
+          bg: "bg-blue-50",
           border: "border-blue-500/60",
-          text: "text-blue-300",
-          badge: "bg-blue-500/15 text-blue-300 border-blue-500/30",
+          text: "text-blue-600",
+          badge: "bg-blue-500/15 text-blue-600 border-blue-500/30",
           halo: "#3B82F6",
           label: "Causal Pre-req",
         };
       default:
         return {
-          bg: "bg-[#181C26]/95",
-          border: "border-[#282E3D]",
-          text: "text-slate-300",
-          badge: "bg-slate-800 text-slate-400 border-slate-700",
+          bg: "bg-slate-100/95",
+          border: "border-slate-200",
+          text: "text-slate-600",
+          badge: "bg-slate-100 text-slate-500 border-slate-300",
           halo: "#64748B",
           label: "Untested",
         };
@@ -250,33 +250,33 @@ export default function KnowledgeGraphCanvas({
   const nodeHeight = 84;
 
   return (
-    <div className="relative w-full rounded-2xl bg-[#0E1117] border border-[#282E3D] overflow-hidden shadow-2xl space-y-0">
+    <div className="relative w-full rounded-2xl bg-slate-50 border border-slate-200 overflow-hidden shadow-2xl space-y-0">
       {/* 1. TOP DIAGNOSTIC ANALYSIS COCKPIT RIBBON */}
-      <div className="p-4 sm:p-5 bg-[#141722] border-b border-[#282E3D] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 bg-slate-50 border-b border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Left: Active Analysis Summary */}
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-blue-600/15 text-blue-300 border border-blue-500/30 flex items-center space-x-1.5">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium tracking-wide bg-blue-600/15 text-blue-600 border border-blue-500/30 flex items-center space-x-1.5">
               <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
               <span>Interactive Knowledge Graph</span>
             </span>
-            <span className="text-xs text-slate-300 font-medium font-sans">
-              Nodes: <strong className="text-white">{concepts.length} Concepts</strong> • Causal Edges: <strong className="text-white">{edges.length} Invariant Dependencies</strong>
+            <span className="text-xs text-slate-600 font-medium font-sans">
+              Nodes: <strong className="text-slate-900">{concepts.length} Concepts</strong> • Causal Edges: <strong className="text-slate-900">{edges.length} Invariant Dependencies</strong>
             </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 text-xs font-sans">
-            <span className="text-slate-400 font-medium">Active Target:</span>
-            <span className="px-2 py-0.5 rounded bg-rose-950/60 border border-rose-800 text-rose-200 text-[11px] font-medium">
+            <span className="text-slate-500 font-medium">Active Target:</span>
+            <span className="px-2 py-0.5 rounded bg-rose-50 border border-rose-800 text-rose-700 text-[11px] font-medium">
               {observedErrorNodeId}
             </span>
             <ArrowRight className="w-3 h-3 text-slate-500" />
-            <span className="px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-200 text-[11px] font-medium">
+            <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-300 text-slate-700 text-[11px] font-medium">
               {ancestorChain.length} Invariant Hops
             </span>
             <ArrowRight className="w-3 h-3 text-slate-500" />
-            <span className="px-2 py-0.5 rounded bg-amber-950/70 border border-amber-600/70 text-amber-200 text-[11px] font-semibold flex items-center space-x-1">
-              <Flame className="w-3 h-3 text-amber-400" />
+            <span className="px-2 py-0.5 rounded bg-amber-50 border border-amber-600/70 text-amber-700 text-[11px] font-semibold flex items-center space-x-1">
+              <Flame className="w-3 h-3 text-amber-600" />
               <span>Root Gap: {likelyRootGapId}</span>
             </span>
           </div>
@@ -298,7 +298,7 @@ export default function KnowledgeGraphCanvas({
 
           <Link
             href="/bisect"
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-amber-300 font-medium transition-colors btn-interactive-subtle"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-amber-600 font-medium transition-colors btn-interactive-subtle"
           >
             <Split className="w-3.5 h-3.5" />
             <span>Open Bisect</span>
@@ -306,7 +306,7 @@ export default function KnowledgeGraphCanvas({
 
           <Link
             href="/recovery"
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-emerald-300 font-medium transition-colors btn-interactive-subtle"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-emerald-600 font-medium transition-colors btn-interactive-subtle"
           >
             <HeartPulse className="w-3.5 h-3.5" />
             <span>Recovery Lab</span>
@@ -315,10 +315,10 @@ export default function KnowledgeGraphCanvas({
       </div>
 
       {/* 2. SUB-BAR: FILTERS, ZOOM & LEGEND */}
-      <div className="flex flex-wrap items-center justify-between px-4 py-2 border-b border-[#282E3D] bg-[#12151C] text-xs font-sans gap-3">
+      <div className="flex flex-wrap items-center justify-between px-4 py-2 border-b border-slate-200 bg-slate-100 text-xs font-sans gap-3">
         {/* View Mode Filters */}
         <div className="flex items-center space-x-1">
-          <span className="text-slate-400 mr-2 text-[11px] font-medium">View Mode:</span>
+          <span className="text-slate-500 mr-2 text-[11px] font-medium">View Mode:</span>
           {[
             { id: "all", label: "Full DAG" },
             { id: "causal_trace", label: "Causal Analysis Trace" },
@@ -329,8 +329,8 @@ export default function KnowledgeGraphCanvas({
               onClick={() => setViewFilter(tab.id as any)}
               className={`px-2.5 py-1 rounded-md text-[11px] transition-all font-medium ${
                 viewFilter === tab.id
-                  ? "bg-blue-600/15 text-blue-400 border border-blue-500/30 font-semibold"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                  ? "bg-blue-600/15 text-blue-600 border border-blue-500/30 font-semibold"
+                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
               }`}
             >
               {tab.label}
@@ -342,19 +342,19 @@ export default function KnowledgeGraphCanvas({
         <div className="hidden md:flex items-center space-x-3 text-[11px] font-medium">
           <div className="flex items-center space-x-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-            <span className="text-slate-300">Observed Bug</span>
+            <span className="text-slate-600">Observed Bug</span>
           </div>
           <div className="flex items-center space-x-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-            <span className="text-slate-300">Root Learning Gap</span>
+            <span className="text-slate-600">Root Learning Gap</span>
           </div>
           <div className="flex items-center space-x-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-            <span className="text-slate-300">Causal Pre-req</span>
+            <span className="text-slate-600">Causal Pre-req</span>
           </div>
           <div className="flex items-center space-x-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-            <span className="text-slate-300">Mastered</span>
+            <span className="text-slate-600">Mastered</span>
           </div>
         </div>
 
@@ -362,15 +362,15 @@ export default function KnowledgeGraphCanvas({
         <div className="flex items-center space-x-1.5">
           <button
             onClick={() => setScale((s) => Math.max(0.65, s - 0.1))}
-            className="p-1 rounded bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white btn-interactive-subtle"
+            className="p-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 hover:text-slate-900 btn-interactive-subtle"
             title="Zoom out"
           >
             <Minimize2 className="w-3.5 h-3.5" />
           </button>
-          <span className="text-[11px] text-slate-400 px-1 font-medium">{Math.round(scale * 100)}%</span>
+          <span className="text-[11px] text-slate-500 px-1 font-medium">{Math.round(scale * 100)}%</span>
           <button
             onClick={() => setScale((s) => Math.min(1.4, s + 0.1))}
-            className="p-1 rounded bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white btn-interactive-subtle"
+            className="p-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 hover:text-slate-900 btn-interactive-subtle"
             title="Zoom in"
           >
             <Maximize2 className="w-3.5 h-3.5" />
@@ -380,7 +380,7 @@ export default function KnowledgeGraphCanvas({
               setScale(1);
               setNodePositions(initialPositions);
             }}
-            className="p-1 rounded bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white ml-1 btn-interactive-subtle"
+            className="p-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 hover:text-slate-900 ml-1 btn-interactive-subtle"
             title="Reset zoom & layout"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -401,14 +401,14 @@ export default function KnowledgeGraphCanvas({
 
         {/* Hovered Edge Rationale Card */}
         {hoveredEdge && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 max-w-xl p-3.5 rounded-xl bg-[#141722]/98 border border-[#282E3D] shadow-xl backdrop-blur-md text-xs font-sans animate-in fade-in">
-            <div className="flex items-center space-x-2 text-blue-400 font-semibold text-[11px] uppercase mb-1">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 max-w-xl p-3.5 rounded-xl bg-slate-50/98 border border-slate-200 shadow-xl backdrop-blur-md text-xs font-sans animate-in fade-in">
+            <div className="flex items-center space-x-2 text-blue-600 font-semibold text-[11px] uppercase mb-1">
               <span>Causal Dependency Rationale:</span>
-              <span className="text-white">
+              <span className="text-slate-900">
                 {hoveredEdge.from} ➔ {hoveredEdge.to}
               </span>
             </div>
-            <p className="text-slate-300 text-xs leading-relaxed font-sans">
+            <p className="text-slate-600 text-xs leading-relaxed font-sans">
               "{hoveredEdge.rationale}"
             </p>
           </div>
@@ -773,30 +773,30 @@ export default function KnowledgeGraphCanvas({
 
       {/* 4. BOTTOM INTERACTIVE CONCEPT INSPECTION DRAWER */}
       {selectedConcept && (
-        <div className="p-5 sm:p-6 bg-[#141722] border-t border-[#282E3D] animate-in slide-in-from-bottom-2">
+        <div className="p-5 sm:p-6 bg-slate-50 border-t border-slate-200 animate-in slide-in-from-bottom-2">
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
             {/* Concept Overview */}
             <div className="space-y-3 max-w-2xl">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-600/15 text-blue-400 border border-blue-500/30">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-600/15 text-blue-600 border border-blue-500/30">
                   {selectedConcept.category}
                 </span>
-                <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-800 text-slate-300">
+                <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-600">
                   {selectedConcept.difficulty.toUpperCase()}
                 </span>
-                <span className="text-xs text-slate-400 font-medium">
+                <span className="text-xs text-slate-500 font-medium">
                   Est. Study: ~{selectedConcept.estimatedMinutes} min
                 </span>
 
                 {selectedConcept.id === likelyRootGapId && (
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center space-x-1">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase bg-amber-500/15 text-amber-600 border border-amber-500/30 flex items-center space-x-1">
                     <Flame className="w-3.5 h-3.5" />
                     <span>Likely Root Learning Gap</span>
                   </span>
                 )}
 
                 {selectedConcept.id === observedErrorNodeId && (
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase bg-rose-500/15 text-rose-300 border border-rose-500/30 flex items-center space-x-1">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase bg-rose-500/15 text-rose-600 border border-rose-500/30 flex items-center space-x-1">
                     <AlertTriangle className="w-3.5 h-3.5" />
                     <span>Observed Misconception Symptom</span>
                   </span>
@@ -804,15 +804,15 @@ export default function KnowledgeGraphCanvas({
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-white tracking-tight">
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight">
                   {selectedConcept.name}
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed font-sans">
+                <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed font-sans">
                   {selectedConcept.description}
                 </p>
                 {selectedConcept.learningMaterialReference && (
-                  <div className="flex items-center space-x-1.5 text-[11px] text-slate-400 mt-1.5 font-sans">
-                    <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+                  <div className="flex items-center space-x-1.5 text-[11px] text-slate-500 mt-1.5 font-sans">
+                    <BookOpen className="w-3.5 h-3.5 text-blue-600" />
                     <span>Source Material: {selectedConcept.learningMaterialReference}</span>
                   </div>
                 )}
@@ -821,19 +821,19 @@ export default function KnowledgeGraphCanvas({
 
             {/* Diagnostic Actions & Relational Mapping Inspector */}
             <div className="space-y-4 shrink-0 lg:w-80">
-              <div className="p-4 rounded-xl bg-[#181C26] border border-[#282E3D] space-y-2.5 text-xs font-sans">
-                <span className="text-slate-400 block font-semibold text-[11px] uppercase tracking-wider">
+              <div className="p-4 rounded-xl bg-slate-100 border border-slate-200 space-y-2.5 text-xs font-sans">
+                <span className="text-slate-500 block font-semibold text-[11px] uppercase tracking-wider">
                   Causal Relational Mapping
                 </span>
                 <div>
-                  <span className="text-slate-400 block text-[11px]">Prerequisite Concepts:</span>
+                  <span className="text-slate-500 block text-[11px]">Prerequisite Concepts:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {selectedConcept.prerequisites && selectedConcept.prerequisites.length > 0 ? (
                       selectedConcept.prerequisites.map((p) => (
                         <button
                           key={p}
                           onClick={() => setSelectedNodeId(p)}
-                          className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-blue-400 text-[11px] border border-slate-700 font-medium btn-interactive-subtle"
+                          className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-blue-600 text-[11px] border border-slate-300 font-medium btn-interactive-subtle"
                         >
                           {p}
                         </button>
@@ -845,7 +845,7 @@ export default function KnowledgeGraphCanvas({
                 </div>
 
                 <div>
-                  <span className="text-slate-400 block text-[11px]">Dependent Concepts:</span>
+                  <span className="text-slate-500 block text-[11px]">Dependent Concepts:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {edges.filter((e) => e.from === selectedConcept.id).length > 0 ? (
                       edges
@@ -854,7 +854,7 @@ export default function KnowledgeGraphCanvas({
                           <button
                             key={e.to}
                             onClick={() => setSelectedNodeId(e.to)}
-                            className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-indigo-300 text-[11px] border border-slate-700 font-medium btn-interactive-subtle"
+                            className="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-indigo-300 text-[11px] border border-slate-300 font-medium btn-interactive-subtle"
                           >
                             {e.to}
                           </button>
@@ -865,16 +865,16 @@ export default function KnowledgeGraphCanvas({
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-[#282E3D]">
-                  <span className="text-slate-400 block text-[11px]">Current Learner Mastery:</span>
+                <div className="pt-2 border-t border-slate-200">
+                  <span className="text-slate-500 block text-[11px]">Current Learner Mastery:</span>
                   <div className="flex items-center space-x-2 mt-1">
-                    <div className="flex-1 h-2 rounded-full bg-slate-800 overflow-hidden">
+                    <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
                       <div
                         style={{ width: `${learnerStates[selectedConcept.id]?.masteryScore || 0}%` }}
                         className="h-full bg-blue-500 rounded-full"
                       />
                     </div>
-                    <span className="text-white font-bold text-xs">
+                    <span className="text-slate-900 font-bold text-xs">
                       {learnerStates[selectedConcept.id]?.masteryScore || 0}%
                     </span>
                   </div>
@@ -893,17 +893,17 @@ export default function KnowledgeGraphCanvas({
 
                 <Link
                   href={`/detector?concept=${encodeURIComponent(selectedConcept.name)}`}
-                  className="w-full py-2.5 px-4 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 font-medium text-xs transition-all flex items-center justify-center space-x-1.5 btn-interactive-subtle"
+                  className="w-full py-2.5 px-4 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-600 font-medium text-xs transition-all flex items-center justify-center space-x-1.5 btn-interactive-subtle"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                  <Sparkles className="w-3.5 h-3.5 text-blue-600" />
                   <span>Diagnose Input for this Concept (Step 1) →</span>
                 </Link>
 
                 <Link
                   href={`/recovery?conceptId=${selectedConcept.id}`}
-                  className="w-full py-2.5 px-4 rounded-xl bg-[#181C26] hover:bg-[#202533] border border-[#282E3D] text-slate-300 hover:text-white font-medium text-xs transition-all flex items-center justify-center space-x-1.5 btn-interactive-subtle"
+                  className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 hover:text-slate-900 font-medium text-xs transition-all flex items-center justify-center space-x-1.5 btn-interactive-subtle"
                 >
-                  <HeartPulse className="w-3.5 h-3.5 text-emerald-400" />
+                  <HeartPulse className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Open Targeted Recovery Lab</span>
                 </Link>
               </div>
