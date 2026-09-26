@@ -125,6 +125,7 @@ export default function DetectorPage() {
 
       const params = new URLSearchParams(window.location.search);
       const urlDemo = params.get("demo");
+      const urlCustom = params.get("custom");
       const urlConcept = params.get("concept");
       const urlPrompt = params.get("prompt");
       const urlCode = params.get("code");
@@ -136,16 +137,23 @@ export default function DetectorPage() {
 
       if (urlDemo === "true") {
         handleLoadDfsDemo();
-      } else if (urlConcept || urlPrompt || urlCode) {
+      } else if (urlConcept || urlPrompt || urlCode || urlCustom === "true") {
         setIsDemo(false);
-        if (urlConcept) setCustomConceptName(urlConcept);
+        if (urlConcept) {
+          setCustomConceptName(urlConcept);
+          setQuestionText(`Explain or analyze the foundational algorithmic invariant for ${urlConcept}:`);
+        }
         if (urlPrompt) setQuestionText(urlPrompt);
         if (urlCode) {
           setResponseType("code");
           setCodeInput(urlCode);
         } else if (urlPrompt) {
           setWrittenInput(urlPrompt);
+        } else {
+          setWrittenInput("");
+          setCodeInput("");
         }
+        setTimeout(() => topicInputRef.current?.focus(), 50);
       } else {
         // P0 FIX: Fresh page in demo mode - immediately hydrate with canonical demo seed!
         handleLoadDfsDemo();
@@ -466,27 +474,111 @@ export default function DetectorPage() {
         </div>
       )}
 
-      {/* Demo Mode Indicator Banner */}
-      {isDemo && (
-        <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-between text-xs text-rose-300">
-          <div className="flex items-center space-x-2">
-            <span className="font-semibold uppercase tracking-wider text-[10px] px-2 py-0.5 rounded bg-rose-500/20 border border-rose-500/40">
-              Curated Demo Mode
-            </span>
-            <span>Graph DFS Loop Resumption benchmark loaded. This session is completely isolated from real user data.</span>
-          </div>
+      {/* Primary Mode Selector: Custom User Input vs Demo Benchmark */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2.5 rounded-2xl bg-[#0c0e17] border border-white/[0.08] shadow-md">
+        <div className="flex items-center gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
           <button
             type="button"
             onClick={handleStartNewDiagnostic}
-            className="text-[11px] underline hover:text-white font-medium"
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+              !isDemo
+                ? "bg-rose-600 text-white shadow-md"
+                : "text-slate-400 hover:text-white"
+            }`}
           >
-            Switch to Custom Input
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>✍️ Custom User Input Mode</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleLoadDfsDemo}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+              isDemo
+                ? "bg-rose-600 text-white shadow-md"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <PlayCircle className="w-3.5 h-3.5" />
+            <span>🧪 Benchmark Demo (Graph DFS)</span>
           </button>
         </div>
-      )}
+
+        <div className="px-2">
+          {!isDemo ? (
+            <span className="text-[11px] text-emerald-400 font-sans font-medium flex items-center space-x-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Custom Input Mode Active • Ready for your code</span>
+            </span>
+          ) : (
+            <span className="text-[11px] text-rose-300 font-sans font-medium flex items-center space-x-1.5">
+              <span className="w-2 h-2 rounded-full bg-rose-400" />
+              <span>Curated Demo • Click 'Custom User Input' to test your own code</span>
+            </span>
+          )}
+        </div>
+      </div>
 
       {/* Input Modality Form Card */}
       <div className="card-shades p-6 sm:p-7 rounded-2xl space-y-5">
+        {/* Quick Concept Presets for Custom User Input Mode */}
+        {!isDemo && (
+          <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-300 flex items-center space-x-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-rose-400" />
+                <span>Quick Concept Presets (Click to autofill question &amp; code template):</span>
+              </span>
+              <span className="text-[10px] text-slate-500 font-sans">Or type any custom topic below</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                {
+                  name: "Recursion & Base Invariants",
+                  prompt: "In recursion, why does reaching a base case not destroy caller frame states?",
+                  sampleCode: "function solve(n) {\n  if (n <= 0) return 1;\n  return n * solve(n - 1);\n}",
+                },
+                {
+                  name: "Binary Tree Traversal",
+                  prompt: "How does post-order traversal guarantee that child subtrees are evaluated before the parent root?",
+                  sampleCode: "function postOrder(node) {\n  if (!node) return;\n  postOrder(node.left);\n  postOrder(node.right);\n  visit(node);\n}",
+                },
+                {
+                  name: "Dynamic Programming",
+                  prompt: "Explain the difference between memoization top-down caching and tabular bottom-up invariant construction.",
+                  sampleCode: "function fib(n, memo = {}) {\n  if (n in memo) return memo[n];\n  if (n <= 1) return n;\n  memo[n] = fib(n - 1, memo) + fib(n - 2, memo);\n  return memo[n];\n}",
+                },
+                {
+                  name: "Memory & Pointer Aliasing",
+                  prompt: "What happens in memory when object reference assignment `b = a` is followed by mutating `b`?",
+                  sampleCode: "let a = { count: 1 };\nlet b = a;\nb.count = 2;\nconsole.log(a.count); // Mutated!",
+                },
+              ].map((preset) => (
+                <button
+                  key={preset.name}
+                  type="button"
+                  onClick={() => {
+                    setCustomConceptName(preset.name);
+                    setConceptId("");
+                    setQuestionText(preset.prompt);
+                    if (responseType === "code") {
+                      setCodeInput(preset.sampleCode);
+                    } else {
+                      setWrittenInput("");
+                    }
+                    setValidationError(null);
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-sans border transition-all ${
+                    customConceptName === preset.name
+                      ? "bg-rose-500 text-white border-rose-400 font-semibold shadow-sm"
+                      : "bg-[#11141e] hover:bg-[#181c28] border-white/[0.08] text-slate-300 hover:text-white"
+                  }`}
+                >
+                  + {preset.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {/* Modality Selector Tabs */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
           <span className="text-xs font-medium text-slate-300">Response Modality:</span>

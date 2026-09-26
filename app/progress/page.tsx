@@ -73,6 +73,7 @@ export default function ProgressPage() {
   const [recoveredConcept, setRecoveredConcept] = useState<string | null>(null);
   const [fromTarget, setFromTarget] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [customTopicInput, setCustomTopicInput] = useState("");
 
   const resolveSessionId = (explicitSessionId?: string): string | null => {
     if (explicitSessionId && explicitSessionId.trim().length > 0) return explicitSessionId.trim();
@@ -635,18 +636,35 @@ export default function ProgressPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center space-x-3 shrink-0 text-xs font-sans">
+                      <div className="flex flex-wrap items-center gap-2 shrink-0 text-xs font-sans">
                         {isMastered && (
-                          <span className="flex items-center space-x-1 text-emerald-400 font-semibold">
-                            <CheckCircle2 className="w-4 h-4" />
-                            <span>Verified</span>
-                          </span>
+                          <div className="flex items-center space-x-2">
+                            <span className="flex items-center space-x-1 text-emerald-400 font-semibold text-xs">
+                              <CheckCircle2 className="w-4 h-4" />
+                              <span>Verified</span>
+                            </span>
+                            <Link
+                              href={`/recovery?conceptId=${encodeURIComponent(item.conceptId)}`}
+                              className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-[11px] font-medium transition-colors"
+                            >
+                              Review Lab
+                            </Link>
+                            <Link
+                              href={`/detector?custom=true&concept=${encodeURIComponent(conceptInfo?.name || item.conceptId)}`}
+                              className="px-2.5 py-1 rounded-lg btn-shades-outline text-rose-300 text-[11px] font-medium transition-colors"
+                            >
+                              Test Code
+                            </Link>
+                          </div>
                         )}
                         {isReady && (
-                          <span className="flex items-center space-x-1 text-blue-400 font-semibold">
-                            <PlayCircle className="w-4 h-4" />
-                            <span>Ready to Learn</span>
-                          </span>
+                          <Link
+                            href={`/detector?custom=true&concept=${encodeURIComponent(conceptInfo?.name || item.conceptId)}`}
+                            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl btn-shades-primary text-white font-semibold text-xs shadow-md transition-transform hover:scale-105"
+                          >
+                            <PlayCircle className="w-3.5 h-3.5" />
+                            <span>Diagnose &amp; Input Code →</span>
+                          </Link>
                         )}
                         {needsRecovery && (
                           <Link
@@ -655,17 +673,25 @@ export default function ProgressPage() {
                                 ? `/recovery?sessionId=${encodeURIComponent(sessionId)}&conceptId=${encodeURIComponent(item.conceptId)}`
                                 : `/recovery?conceptId=${encodeURIComponent(item.conceptId)}`
                             }
-                            className="flex items-center space-x-1 text-amber-400 hover:text-amber-300 font-semibold btn-interactive-subtle"
+                            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-sm transition-all"
                           >
-                            <AlertTriangle className="w-4 h-4" />
-                            <span>Needs Recovery →</span>
+                            <AlertTriangle className="w-3.5 h-3.5" />
+                            <span>Enter Recovery Lab →</span>
                           </Link>
                         )}
                         {isLocked && (
-                          <span className="flex items-center space-x-1 text-slate-500">
-                            <Lock className="w-4 h-4" />
-                            <span>Locked</span>
-                          </span>
+                          <div className="flex items-center space-x-2">
+                            <span className="flex items-center space-x-1 text-slate-500 text-[11px]">
+                              <Lock className="w-3.5 h-3.5" />
+                              <span>Locked</span>
+                            </span>
+                            <Link
+                              href={`/detector?custom=true&concept=${encodeURIComponent(conceptInfo?.name || item.conceptId)}`}
+                              className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-rose-500/50 text-slate-300 text-[11px] font-medium transition-colors"
+                            >
+                              Test Anyway →
+                            </Link>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -674,6 +700,76 @@ export default function ProgressPage() {
               </div>
             </div>
           )}
+
+          {/* Interactive User Input & Problem Diagnostic Console */}
+          <div className="p-6 rounded-3xl bg-gradient-to-br from-[#12141f] via-[#0c0e17] to-[#18111e] border border-rose-500/30 space-y-4 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
+              <div>
+                <div className="flex items-center space-x-2 text-rose-400 text-xs font-bold font-sans">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Interactive User Input &amp; Diagnostic Console</span>
+                </div>
+                <h3 className="text-base font-bold text-white font-editorial mt-0.5">
+                  Input Your Own Code, Question, or Concept
+                </h3>
+              </div>
+              <span className="text-xs text-slate-400 font-sans">
+                Full User Input Access across the Diagnostic Pipeline
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-300 font-sans leading-relaxed">
+              Want to diagnose a new topic or test your own custom code implementation? Enter any computer science concept below to launch the <strong>Misconception Detector (Step 1)</strong> with your user input:
+            </p>
+
+            <div className="space-y-2">
+              <label htmlFor="progress_custom_topic" className="block text-xs font-medium text-slate-300">
+                Enter Concept or Programming Topic:
+              </label>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                <input
+                  id="progress_custom_topic"
+                  type="text"
+                  aria-label="Enter concept or topic to diagnose"
+                  value={customTopicInput}
+                  onChange={(e) => setCustomTopicInput(e.target.value)}
+                  placeholder="e.g. Recursion & Base Invariants, Binary Trees, Dynamic Programming, Dijkstra..."
+                  className="flex-1 px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-rose-500 shadow-inner font-sans"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const topic = customTopicInput.trim() || "Recursion & Base Invariants";
+                    window.location.href = `/detector?custom=true&concept=${encodeURIComponent(topic)}`;
+                  }}
+                  className="px-6 py-3 rounded-xl btn-shades-primary font-semibold text-xs text-white shadow-md flex items-center justify-center space-x-2 shrink-0 transition-transform hover:scale-105"
+                >
+                  <span>Enter User Input &amp; Diagnose →</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Concept Preset Chips */}
+            <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+              <span className="text-slate-400 font-sans text-[11px]">Quick Launch Concepts:</span>
+              {[
+                "Recursion & Base Invariants",
+                "Binary Tree Traversal",
+                "Graph Traversal (DFS & BFS)",
+                "Dynamic Programming & Memoization",
+                "Memory Allocation & Pointers",
+              ].map((topic) => (
+                <Link
+                  key={topic}
+                  href={`/detector?custom=true&concept=${encodeURIComponent(topic)}`}
+                  className="px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-rose-500/50 text-slate-200 text-[11px] font-sans transition-all hover:text-white"
+                >
+                  + {topic}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>
