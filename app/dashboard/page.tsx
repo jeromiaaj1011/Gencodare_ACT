@@ -321,35 +321,35 @@ export default function DashboardPage() {
             <div className="space-y-0.5">
               <span className="shades-subtitle text-rose-600/80">02. PERFORMANCE ANALYTICS</span>
               <h2 className="font-editorial text-xl sm:text-2xl font-medium text-slate-900">
-                Cognitive Health Index
+                Concept Mastery Overview
               </h2>
             </div>
             <span className="text-xs text-slate-500 font-mono">Live Telemetry</span>
           </div>
 
-          {/* 4 Presentation Bar Graphs (matching Slide 12 "Social media analytics") */}
+          {/* 4 Presentation Bar Graphs */}
           <div className="grid grid-cols-4 gap-3 sm:gap-4 h-52 sm:h-56 items-end pt-4 pb-2 px-2">
-            {/* Bar 1: White Bar (Total Concepts) */}
+            {/* Bar 1: Total Concepts */}
             <div className="flex flex-col items-center h-full justify-end group">
               <span className="text-xs font-bold text-slate-900 mb-2 font-mono">{totalCount}</span>
               <div
-                className="w-full max-w-[56px] bg-white rounded-t-xl transition-all duration-700 shadow-sm bar-grow"
-                style={{ height: "92%" }}
+                className="w-full max-w-[56px] bg-slate-200 border border-slate-300 rounded-t-xl transition-all duration-700 shadow-sm bar-grow"
+                style={{ height: "100%" }}
               />
               <span className="text-[10px] text-slate-500 font-sans mt-2.5 text-center truncate w-full">
                 Total Nodes
               </span>
             </div>
 
-            {/* Bar 2: Vibrant Crimson/Coral Bar (Mastered Concepts - Callout Style) */}
+            {/* Bar 2: Mastered Concepts */}
             <div className="flex flex-col items-center h-full justify-end group">
               <span className="text-xs font-extrabold text-rose-600 mb-2 font-mono">
                 {masteredCount} Nodes
               </span>
               <div
-                className="w-full max-w-[56px] rounded-t-xl transition-all duration-700 shadow-[0_0_25px_rgba(244,63,94,0.55)] bar-grow"
+                className="w-full max-w-[56px] rounded-t-xl transition-all duration-700 shadow-[0_0_25px_rgba(244,63,94,0.3)] bar-grow"
                 style={{
-                  height: `${Math.max(22, (masteredCount / Math.max(1, totalCount)) * 100)}%`,
+                  height: `${Math.max(5, (masteredCount / Math.max(1, totalCount)) * 100)}%`,
                   background: "linear-gradient(180deg, #ff6484 0%, #e11d48 100%)",
                 }}
               />
@@ -358,32 +358,32 @@ export default function DashboardPage() {
               </span>
             </div>
 
-            {/* Bar 3: Pink/Rose Bar (Recovery Success) */}
+            {/* Bar 3: Recovery Rate */}
             <div className="flex flex-col items-center h-full justify-end group">
-              <span className="text-xs font-bold text-pink-300 mb-2 font-mono">
-                {recoveryPercent > 0 ? `${recoveryPercent}%` : "100%"}
+              <span className="text-xs font-bold text-pink-600 mb-2 font-mono">
+                {recoveryPercent}%
               </span>
               <div
                 className="w-full max-w-[56px] rounded-t-xl transition-all duration-700 shadow-[0_0_15px_rgba(251,113,133,0.3)] bar-grow"
                 style={{
-                  height: `${Math.max(25, recoveryPercent || 85)}%`,
+                  height: `${Math.max(5, recoveryPercent)}%`,
                   background: "linear-gradient(180deg, #fecdd3 0%, #fb7185 100%)",
                 }}
               />
-              <span className="text-[10px] text-pink-300 font-sans mt-2.5 text-center truncate w-full">
+              <span className="text-[10px] text-pink-600 font-sans mt-2.5 text-center truncate w-full">
                 Recovery Rate
               </span>
             </div>
 
-            {/* Bar 4: Dark Plum Bar (Active Bugs) */}
+            {/* Bar 4: Active Gaps */}
             <div className="flex flex-col items-center h-full justify-end group">
               <span className="text-xs font-bold text-amber-600 mb-2 font-mono">
                 {activeBugsCount}
               </span>
               <div
-                className="w-full max-w-[56px] bg-[#38101a] border-t-2 border-rose-500 rounded-t-xl transition-all duration-700 bar-grow"
+                className="w-full max-w-[56px] bg-amber-100 border-t-2 border-amber-500 rounded-t-xl transition-all duration-700 bar-grow"
                 style={{
-                  height: `${Math.max(18, (activeBugsCount / Math.max(1, totalCount)) * 80)}%`,
+                  height: `${Math.max(5, (activeBugsCount / Math.max(1, totalCount)) * 100)}%`,
                 }}
               />
               <span className="text-[10px] text-slate-500 font-sans mt-2.5 text-center truncate w-full">
