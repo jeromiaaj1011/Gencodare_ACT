@@ -361,7 +361,28 @@ export default function KnowledgeGraphCanvas({
         {/* Zoom & Reset Controls */}
         <div className="flex items-center space-x-1.5">
           <button
-            onClick={() => setScale((s) => Math.max(0.65, s - 0.1))}
+            onClick={() => {
+              const xs = Object.values(nodePositions).map(p => p.x);
+              const ys = Object.values(nodePositions).map(p => p.y);
+              if (xs.length === 0) return;
+              const minX = Math.min(...xs);
+              const maxX = Math.max(...xs);
+              const minY = Math.min(...ys);
+              const maxY = Math.max(...ys);
+              const contentWidth = maxX - minX + 300;
+              const contentHeight = maxY - minY + 200;
+              const scaleX = canvasSize.width / contentWidth;
+              const scaleY = canvasSize.height / contentHeight;
+              const newScale = Math.min(1.2, Math.max(0.4, Math.min(scaleX, scaleY)));
+              setScale(newScale);
+            }}
+            className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[10px] text-slate-600 hover:text-slate-900 font-semibold btn-interactive-subtle"
+            title="Fit to view"
+          >
+            Fit
+          </button>
+          <button
+            onClick={() => setScale((s) => Math.max(0.4, s - 0.15))}
             className="p-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 hover:text-slate-900 btn-interactive-subtle"
             title="Zoom out"
           >
@@ -369,7 +390,7 @@ export default function KnowledgeGraphCanvas({
           </button>
           <span className="text-[11px] text-slate-500 px-1 font-medium">{Math.round(scale * 100)}%</span>
           <button
-            onClick={() => setScale((s) => Math.min(1.4, s + 0.1))}
+            onClick={() => setScale((s) => Math.min(1.6, s + 0.15))}
             className="p-1 rounded bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 hover:text-slate-900 btn-interactive-subtle"
             title="Zoom in"
           >

@@ -210,11 +210,11 @@ export default function DashboardPage() {
             <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-sans font-normal">
               {mode === "demo" ? (
                 <>
-                  ARCHAIA continuously maps conceptual invariants across the Causal Knowledge Graph. When higher-order errors occur, we bisect and isolate the root mental gap rather than re-showing standard answers.
+                  Instead of just marking answers wrong, we trace errors backward through a map of prerequisite skills to find exactly where the learner's understanding broke down.
                 </>
               ) : (
                 <>
-                  Diagnosing conceptual understanding across <strong>{activeCourse?.title || "Uploaded Material"}</strong> ({concepts.length} dynamic nodes). Micro-probes isolate foundational prerequisites.
+                  Diagnosing foundational understanding across <strong>{activeCourse?.title || "Uploaded Material"}</strong> ({concepts.length} dynamic topics). We use targeted micro-questions to isolate the exact prerequisite gap causing mistakes.
                 </>
               )}
             </p>

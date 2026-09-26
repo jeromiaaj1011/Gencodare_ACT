@@ -34,8 +34,8 @@ export default function RecoveryPage() {
   const [intervention, setIntervention] = useState<InterventionContent | null>(null);
   const [retest, setRetest] = useState<ReTestAssessment | null>(null);
 
-  // View presentation mode: 'flow' (all sections visible in clear studio order) vs 'focused' (stage tabs)
-  const [viewMode, setViewMode] = useState<"flow" | "focused">("flow");
+  // View presentation mode: 'focused' (guided steps)
+  const [viewMode, setViewMode] = useState<"flow" | "focused">("focused");
   const [focusedStage, setFocusedStage] = useState<
     "visualizer" | "practice" | "retest" | "deepdive"
   >("visualizer");
@@ -445,49 +445,20 @@ export default function RecoveryPage() {
             Active Module: <strong className="text-rose-600 font-semibold">{intervention.title}</strong>
           </p>
         </div>
-
-        {/* View Mode Toggle: All-In-One Flow vs Guided Focused Stages */}
-        <div className="flex items-center bg-white p-1 rounded-xl border border-slate-200 text-xs">
-          <button
-            type="button"
-            onClick={() => setViewMode("flow")}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
-              viewMode === "flow"
-                ? "bg-rose-600 text-white shadow-sm"
-                : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            <Maximize2 className="w-3 h-3" />
-            <span>Studio Flow (All Sections)</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode("focused")}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
-              viewMode === "focused"
-                ? "bg-rose-600 text-white shadow-sm"
-                : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            <ListOrdered className="w-3 h-3" />
-            <span>Guided Stages</span>
-          </button>
-        </div>
       </div>
 
-      {/* If Focused Mode is active, show the 4 stage buttons */}
-      {viewMode === "focused" && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 rounded-2xl bg-slate-50 border border-slate-200">
-          {[
-            { id: "visualizer", label: "1. Visual Model & Invariant", icon: Layers },
-            { id: "practice", label: "2. Practice & Code Repair", icon: Code2 },
-            { id: "retest", label: "3. Mandatory Re-Test", icon: CheckCircle },
-            { id: "deepdive", label: "4. Industry & Multilingual", icon: Flame },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isSelected = focusedStage === tab.id;
-            return (
-              <button
+      {/* Guided Focused Stages Tabs */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 rounded-2xl bg-slate-50 border border-slate-200">
+        {[
+          { id: "visualizer", label: "1. Visual Model & Invariant", icon: Layers },
+          { id: "practice", label: "2. Practice & Code Repair", icon: Code2 },
+          { id: "retest", label: "3. Mandatory Re-Test", icon: CheckCircle },
+          { id: "deepdive", label: "4. Industry & Multilingual", icon: Flame },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isSelected = focusedStage === tab.id;
+          return (
+            <button
                 key={tab.id}
                 type="button"
                 role="tab"
@@ -505,7 +476,6 @@ export default function RecoveryPage() {
             );
           })}
         </div>
-      )}
 
       {/* ========================================================================= */}
       {/* SECTION 1: INTERACTIVE VISUAL MEMORY MODEL & INVARIANT DECONSTRUCTION     */}

@@ -17,6 +17,7 @@ export default function GraphPage() {
   const [analyzingDemo, setAnalyzingDemo] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"graph" | "list">("graph");
 
   // Concept Extraction Form state
   const [showExtractor, setShowExtractor] = useState(false);
@@ -121,7 +122,7 @@ export default function GraphPage() {
             </h1>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Ontological Directed Acyclic Graph (DAG) modeling prerequisite causality. Nodes represent concepts; edges represent invariant dependency chains.
+            A map of prerequisite skills (DAG). Concepts must be mastered from left to right. When a learner makes a high-level error, we trace backward along the arrows to find the underlying foundational gap.
           </p>
         </div>
 
@@ -139,6 +140,31 @@ export default function GraphPage() {
             <Upload className="w-3.5 h-3.5 text-blue-600" />
             <span>{showExtractor ? "Hide Material Extractor" : "Extract From Material"}</span>
           </button>
+
+          <div className="flex items-center bg-white p-1 rounded-xl border border-slate-200 text-xs">
+            <button
+              type="button"
+              onClick={() => setViewMode("graph")}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                viewMode === "graph"
+                  ? "bg-rose-600 text-white shadow-sm"
+                  : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              <span>Canvas View</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("list")}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+                viewMode === "list"
+                  ? "bg-rose-600 text-white shadow-sm"
+                  : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              <span>Accessible List View</span>
+            </button>
+          </div>
 
           <button
             onClick={() => fetchGraph()}
@@ -243,6 +269,29 @@ export default function GraphPage() {
               <PlayCircle className="w-3.5 h-3.5 text-amber-600" />
               <span>Try Demo Investigation</span>
             </button>
+          </div>
+        </div>
+      ) : viewMode === "list" ? (
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm min-h-[440px]">
+          <h2 className="font-semibold text-lg text-slate-900 mb-4">Accessible Graph Concepts</h2>
+          <div className="space-y-4">
+            {concepts.map(concept => {
+              const state = learnerStates[concept.id];
+              const isMastered = state?.status === "mastered" || state?.status === "recovered";
+              const isGap = state?.status === "misconception_detected" || state?.status === "root_gap_identified";
+              return (
+                <div key={concept.id} className="p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-slate-900 flex items-center space-x-2">
+                      <span>{concept.title}</span>
+                      {isMastered && <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Mastered</span>}
+                      {isGap && <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">Gap Detected</span>}
+                    </h3>
+                    <p className="text-xs text-slate-600 font-sans max-w-2xl">{concept.description}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       ) : (
