@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import {
   Sparkles,
@@ -18,6 +18,7 @@ import {
   Layers,
   Activity,
   Award,
+  FolderOpen,
 } from "lucide-react";
 import {
   LearningProgressMetrics,
@@ -42,6 +43,59 @@ export default function DashboardPage() {
     institution?: string;
   } | null>(null);
   const [customTopic, setCustomTopic] = useState("");
+  const dashboardFileInputRef = useRef<HTMLInputElement | null>(null);
+  const [dashboardImporting, setDashboardImporting] = useState(false);
+  const [dashboardFileError, setDashboardFileError] = useState<string | null>(null);
+  const [isDashboardDragging, setIsDashboardDragging] = useState(false);
+
+  const processDashboardFile = async (file: File) => {
+    setDashboardImporting(true);
+    setDashboardFileError(null);
+    try {
+      const text = await file.text();
+      const res = await fetch("/api/analyze-file", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileContent: text,
+          fileSize: file.size,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.analysis) {
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("archaia_prefill_topic", data.analysis.topic || file.name.replace(/\.[^/.]+$/, ""));
+          sessionStorage.setItem(
+            "archaia_prefill_question",
+            data.analysis.problemStatement || data.analysis.suggestedQuestion || ""
+          );
+          sessionStorage.setItem(
+            "archaia_prefill_answer",
+            data.analysis.suggestedAnswer || (data.analysis.codeSnippet ? "" : text.slice(0, 1000))
+          );
+          if (data.analysis.codeSnippet) {
+            sessionStorage.setItem("archaia_prefill_code", data.analysis.codeSnippet);
+          }
+        }
+        window.location.href = "/detector?custom=true";
+      } else {
+        setDashboardFileError(data.error || "Failed to analyze uploaded file.");
+      }
+    } catch {
+      setDashboardFileError("Error reading uploaded file from file manager.");
+    } finally {
+      setDashboardImporting(false);
+      if (dashboardFileInputRef.current) {
+        dashboardFileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleDashboardFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await processDashboardFile(file);
+  };
 
   const fetchDashboardData = () => {
     setLoading(true);
@@ -181,6 +235,80 @@ export default function DashboardPage() {
               <span>Inspect Causal DAG</span>
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* File Manager Code & Syllabus Upload Card */}
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDashboardDragging(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          setIsDashboardDragging(false);
+        }}
+        onDrop={async (e) => {
+          e.preventDefault();
+          setIsDashboardDragging(false);
+          const file = e.dataTransfer.files?.[0];
+          if (file) await processDashboardFile(file);
+        }}
+        className={`p-5 rounded-2xl border transition-all ${
+          isDashboardDragging
+            ? "border-rose-500 bg-rose-500/15 scale-[1.01]"
+            : "border-rose-500/30 bg-gradient-to-r from-[#12141f] via-[#0c0e17] to-[#18111e] hover:border-rose-500/50"
+        } flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl card-shades`}
+      >
+        <input
+          ref={dashboardFileInputRef}
+          id="dashboard-file-input"
+          name="dashboardFile"
+          type="file"
+          className="hidden"
+          onChange={handleDashboardFileImport}
+          accept=".sql,.py,.java,.cpp,.c,.js,.ts,.txt,.md,.json,.rs,.go"
+          aria-label="Upload code file from file manager"
+        />
+
+        <div className="flex items-center space-x-3.5">
+          <div className="p-3 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-400 shrink-0">
+            {dashboardImporting ? (
+              <Sparkles className="w-6 h-6 animate-spin text-rose-400" />
+            ) : (
+              <FolderOpen className="w-6 h-6 text-rose-400" />
+            )}
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-sans">
+                FILE MANAGER INTAKE
+              </span>
+              <span className="text-xs font-semibold text-white">Upload Code or Problem from File Manager</span>
+            </div>
+            <p className="text-xs text-slate-300 font-sans mt-0.5">
+              Select or drop any source file (.py, .java, .cpp, .sql, .js, .ts, .txt) from your file manager to automatically extract concepts and launch cognitive diagnosis.
+            </p>
+            {dashboardFileError && (
+              <p className="text-xs text-rose-400 font-sans mt-1">{dashboardFileError}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => dashboardFileInputRef.current?.click()}
+            disabled={dashboardImporting}
+            className="px-5 py-2.5 rounded-xl btn-shades-primary text-white font-semibold text-xs shadow-md transition-transform hover:scale-105 flex items-center space-x-2"
+          >
+            {dashboardImporting ? (
+              <Sparkles className="w-4 h-4 animate-spin" />
+            ) : (
+              <FolderOpen className="w-4 h-4" />
+            )}
+            <span>{dashboardImporting ? "Analyzing File..." : "Browse File Manager"}</span>
+          </button>
         </div>
       </div>
 

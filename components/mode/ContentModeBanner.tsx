@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Sparkles,
   BookOpen,
@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Database,
   PlayCircle,
+  FolderOpen,
 } from "lucide-react";
 import { CourseMaterial, AppContentMode } from "@/lib/types";
 
@@ -35,6 +36,34 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+  const courseFileInputRef = useRef<HTMLInputElement | null>(null);
+  const [courseFileMeta, setCourseFileMeta] = useState<{ name: string; size: number } | null>(null);
+  const [isCourseDragging, setIsCourseDragging] = useState(false);
+
+  const processCourseFile = async (file: File) => {
+    try {
+      const text = await file.text();
+      setCourseFileMeta({ name: file.name, size: file.size });
+      const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+      if (!uploadTitle.trim()) {
+        setUploadTitle(cleanName);
+      }
+      setUploadContent(text);
+      if (file.name.endsWith(".sql")) setUploadSubject("Databases & SQL");
+      else if (file.name.endsWith(".py")) setUploadSubject("Python / Algorithms");
+      else if (file.name.endsWith(".java")) setUploadSubject("Java / OOP Systems");
+      else if (file.name.endsWith(".cpp") || file.name.endsWith(".c")) setUploadSubject("Systems / C++");
+      else if (file.name.endsWith(".md") || file.name.endsWith(".txt")) setUploadSubject("Computer Science");
+      setUploadError(null);
+    } catch {
+      setUploadError("Error reading course file from file manager.");
+    }
+  };
+
+  const handleCourseFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await processCourseFile(file);
+  };
 
   const fetchModeData = async () => {
     try {
@@ -264,6 +293,85 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
             </p>
 
             <form onSubmit={handleUploadSubmit} className="space-y-3">
+              {/* File Manager Upload Zone for Course Materials */}
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsCourseDragging(true);
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  setIsCourseDragging(false);
+                }}
+                onDrop={async (e) => {
+                  e.preventDefault();
+                  setIsCourseDragging(false);
+                  const file = e.dataTransfer.files?.[0];
+                  if (file) await processCourseFile(file);
+                }}
+                className={`p-3.5 rounded-xl border transition-all ${
+                  isCourseDragging
+                    ? "border-blue-500 bg-blue-500/15"
+                    : courseFileMeta
+                    ? "border-emerald-500/40 bg-emerald-950/20"
+                    : "border-dashed border-[#282E3D] hover:border-blue-500/50 bg-[#141722]/60"
+                } flex flex-col sm:flex-row items-center justify-between gap-3 text-xs`}
+              >
+                <input
+                  ref={courseFileInputRef}
+                  id="course-file-input"
+                  name="courseFile"
+                  type="file"
+                  className="hidden"
+                  onChange={handleCourseFileImport}
+                  accept=".txt,.md,.pdf,.json,.py,.sql,.java,.cpp,.c,.js,.ts"
+                  aria-label="Upload course material from file manager"
+                />
+                <div className="flex items-center space-x-2.5">
+                  <div
+                    className={`p-2 rounded-lg border ${
+                      courseFileMeta
+                        ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
+                        : "bg-blue-500/10 border-blue-500/20 text-blue-400"
+                    }`}
+                  >
+                    <FolderOpen className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="font-semibold text-white">Upload from File Manager</span>
+                    <p className="text-[11px] text-slate-400 font-sans">
+                      {courseFileMeta
+                        ? `Loaded: ${courseFileMeta.name} (${(courseFileMeta.size / 1024).toFixed(1)} KB)`
+                        : "Drag & drop syllabus or lecture notes file, or browse files from your computer"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => courseFileInputRef.current?.click()}
+                    className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors flex items-center space-x-1.5"
+                  >
+                    <FolderOpen className="w-3.5 h-3.5 text-blue-400" />
+                    <span>{courseFileMeta ? "Change File" : "Browse File Manager"}</span>
+                  </button>
+                  {courseFileMeta && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCourseFileMeta(null);
+                        setUploadContent("");
+                        setUploadTitle("");
+                      }}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-white"
+                      title="Clear course file"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="sm:col-span-2">
                   <label htmlFor="course-upload-title" className="block text-xs font-medium text-slate-300 mb-1">

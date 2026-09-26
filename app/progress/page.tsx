@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import {
   LineChart,
@@ -20,6 +20,7 @@ import {
   TrendingUp,
   Activity,
   Layers,
+  FolderOpen,
 } from "lucide-react";
 import { Concept, LearnerConceptState, LearningProgressMetrics } from "@/lib/types";
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
@@ -74,6 +75,51 @@ export default function ProgressPage() {
   const [fromTarget, setFromTarget] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [customTopicInput, setCustomTopicInput] = useState("");
+  const progressFileInputRef = useRef<HTMLInputElement | null>(null);
+  const [progressImporting, setProgressImporting] = useState(false);
+
+  const handleProgressFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setProgressImporting(true);
+    try {
+      const text = await file.text();
+      const res = await fetch("/api/analyze-file", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileContent: text,
+          fileSize: file.size,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.analysis) {
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("archaia_prefill_topic", data.analysis.topic || file.name.replace(/\.[^/.]+$/, ""));
+          sessionStorage.setItem(
+            "archaia_prefill_question",
+            data.analysis.problemStatement || data.analysis.suggestedQuestion || ""
+          );
+          sessionStorage.setItem(
+            "archaia_prefill_answer",
+            data.analysis.suggestedAnswer || (data.analysis.codeSnippet ? "" : text.slice(0, 1000))
+          );
+          if (data.analysis.codeSnippet) {
+            sessionStorage.setItem("archaia_prefill_code", data.analysis.codeSnippet);
+          }
+        }
+        window.location.href = "/detector?custom=true";
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setProgressImporting(false);
+      if (progressFileInputRef.current) {
+        progressFileInputRef.current.value = "";
+      }
+    }
+  };
 
   const resolveSessionId = (explicitSessionId?: string): string | null => {
     if (explicitSessionId && explicitSessionId.trim().length > 0) return explicitSessionId.trim();
@@ -736,6 +782,29 @@ export default function ProgressPage() {
                   placeholder="e.g. Recursion & Base Invariants, Binary Trees, Dynamic Programming, Dijkstra..."
                   className="flex-1 px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-rose-500 shadow-inner font-sans"
                 />
+                <input
+                  ref={progressFileInputRef}
+                  id="progress-file-input"
+                  name="progressFile"
+                  type="file"
+                  className="hidden"
+                  onChange={handleProgressFileImport}
+                  accept=".sql,.py,.java,.cpp,.c,.js,.ts,.txt,.md,.json,.rs,.go"
+                  aria-label="Upload code file from file manager"
+                />
+                <button
+                  type="button"
+                  onClick={() => progressFileInputRef.current?.click()}
+                  disabled={progressImporting}
+                  className="px-4 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-rose-500/50 text-slate-200 text-xs font-semibold flex items-center justify-center space-x-2 shrink-0 transition-colors"
+                >
+                  {progressImporting ? (
+                    <RotateCcw className="w-4 h-4 animate-spin text-rose-400" />
+                  ) : (
+                    <FolderOpen className="w-4 h-4 text-rose-400" />
+                  )}
+                  <span>{progressImporting ? "Analyzing File..." : "Upload File"}</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => {

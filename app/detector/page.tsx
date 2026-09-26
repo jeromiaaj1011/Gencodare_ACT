@@ -26,6 +26,7 @@ import {
   FolderOpen,
   UploadCloud,
   BookOpen,
+  X,
 } from "lucide-react";
 import { ResponseType, Misconception, CourseMaterial, AppContentMode } from "@/lib/types";
 import CognitivePipelineStepper from "@/components/navigation/CognitivePipelineStepper";
@@ -76,6 +77,12 @@ export default function DetectorPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [importingFile, setImportingFile] = useState(false);
   const [importMessage, setImportMessage] = useState<string | null>(null);
+  const [uploadedFileMeta, setUploadedFileMeta] = useState<{
+    name: string;
+    size: number;
+    language?: string;
+  } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const [analyzing, setAnalyzing] = useState(false);
   const [detectedMisconception, setDetectedMisconception] = useState<Misconception | null>(null);
@@ -161,9 +168,7 @@ export default function DetectorPage() {
     }
   }, []);
 
-  const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const processFile = async (file: File) => {
     setImportingFile(true);
     setApiError(null);
     try {
@@ -180,17 +185,27 @@ export default function DetectorPage() {
       const data = await res.json();
       if (data.success && data.analysis) {
         setIsDemo(false);
-        setCustomConceptName(data.analysis.topic);
-        setQuestionText(data.analysis.problemStatement);
-        setWrittenInput(data.analysis.suggestedAnswer);
+        setUploadedFileMeta({
+          name: file.name,
+          size: file.size,
+          language: data.analysis.detectedLanguage,
+        });
+        setCustomConceptName(data.analysis.topic || file.name.replace(/\.[^/.]+$/, ""));
+        setQuestionText(
+          data.analysis.problemStatement ||
+          data.analysis.suggestedQuestion ||
+          `Explain the algorithmic invariant and potential edge-case failures in the uploaded ${data.analysis.detectedLanguage || "code"} implementation.`
+        );
         if (data.analysis.codeSnippet) {
           setCodeInput(data.analysis.codeSnippet);
           setResponseType("code");
         } else {
+          setWrittenInput(data.analysis.suggestedAnswer || text.slice(0, 1000));
           setResponseType("written");
         }
-        setImportMessage(`Imported "${file.name}": Formulated Problem Statement for ${data.analysis.topic}`);
-        setTimeout(() => setImportMessage(null), 6000);
+        setImportMessage(`Imported "${file.name}" from File Manager: Formulated Problem Statement for ${data.analysis.topic}`);
+        setValidationError(null);
+        setTimeout(() => setImportMessage(null), 8000);
       } else {
         setApiError(data.error || "Failed to analyze imported file.");
       }
@@ -204,9 +219,16 @@ export default function DetectorPage() {
     }
   };
 
+  const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await processFile(file);
+  };
+
   // Action 1: Start Clean New Diagnostic Session
   const handleStartNewDiagnostic = () => {
     setIsDemo(false);
+    setUploadedFileMeta(null);
+    setImportMessage(null);
     setCustomConceptName("");
     setConceptId("");
     setQuestionText("");
@@ -233,6 +255,8 @@ export default function DetectorPage() {
   // Action 2: Load Isolated DFS Demo Investigation from Canonical Seed
   const handleLoadDfsDemo = () => {
     setIsDemo(true);
+    setUploadedFileMeta(null);
+    setImportMessage(null);
     setConceptId(SEED_DEMO_INVESTIGATION.conceptId);
     setCustomConceptName(SEED_DEMO_INVESTIGATION.conceptName);
     setQuestionText(SEED_DEMO_INVESTIGATION.questionText);
@@ -474,14 +498,14 @@ export default function DetectorPage() {
         </div>
       )}
 
-      {/* Primary Mode Selector: Custom User Input vs Demo Benchmark */}
+      {/* Primary Mode Selector: Custom User Input vs Demo Benchmark vs File Manager */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-2.5 rounded-2xl bg-[#0c0e17] border border-white/[0.08] shadow-md">
         <div className="flex items-center gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
           <button
             type="button"
             onClick={handleStartNewDiagnostic}
             className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
-              !isDemo
+              !isDemo && !uploadedFileMeta
                 ? "bg-rose-600 text-white shadow-md"
                 : "text-slate-400 hover:text-white"
             }`}
@@ -491,9 +515,21 @@ export default function DetectorPage() {
           </button>
           <button
             type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+              uploadedFileMeta
+                ? "bg-rose-600 text-white shadow-md"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <FolderOpen className="w-3.5 h-3.5 text-rose-400" />
+            <span>📁 Upload from File Manager</span>
+          </button>
+          <button
+            type="button"
             onClick={handleLoadDfsDemo}
             className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
-              isDemo
+              isDemo && !uploadedFileMeta
                 ? "bg-rose-600 text-white shadow-md"
                 : "text-slate-400 hover:text-white"
             }`}
@@ -504,7 +540,12 @@ export default function DetectorPage() {
         </div>
 
         <div className="px-2">
-          {!isDemo ? (
+          {uploadedFileMeta ? (
+            <span className="text-[11px] text-blue-300 font-sans font-medium flex items-center space-x-1.5">
+              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+              <span>File Manager: {uploadedFileMeta.name}</span>
+            </span>
+          ) : !isDemo ? (
             <span className="text-[11px] text-emerald-400 font-sans font-medium flex items-center space-x-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Custom Input Mode Active • Ready for your code</span>
@@ -512,7 +553,7 @@ export default function DetectorPage() {
           ) : (
             <span className="text-[11px] text-rose-300 font-sans font-medium flex items-center space-x-1.5">
               <span className="w-2 h-2 rounded-full bg-rose-400" />
-              <span>Curated Demo • Click 'Custom User Input' to test your own code</span>
+              <span>Curated Demo • Click 'Custom User Input' or 'Upload File' to test your code</span>
             </span>
           )}
         </div>
@@ -520,6 +561,112 @@ export default function DetectorPage() {
 
       {/* Input Modality Form Card */}
       <div className="card-shades p-6 sm:p-7 rounded-2xl space-y-5">
+        {/* Prominent File Manager Drag-and-Drop & Browse Card */}
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            setIsDragging(false);
+          }}
+          onDrop={async (e) => {
+            e.preventDefault();
+            setIsDragging(false);
+            const file = e.dataTransfer.files?.[0];
+            if (file) await processFile(file);
+          }}
+          className={`p-4 sm:p-5 rounded-2xl border-2 transition-all ${
+            isDragging
+              ? "border-rose-500 bg-rose-500/15 scale-[1.01] shadow-[0_0_24px_rgba(244,63,94,0.35)]"
+              : uploadedFileMeta
+              ? "border-emerald-500/40 bg-emerald-950/20"
+              : "border-dashed border-rose-500/30 bg-[#0d101a]/80 hover:border-rose-500/50 hover:bg-[#121522]"
+          }`}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center space-x-3.5">
+              <div
+                className={`p-3 rounded-xl border ${
+                  uploadedFileMeta
+                    ? "bg-emerald-500/20 border-emerald-500/35 text-emerald-400"
+                    : "bg-rose-500/15 border-rose-500/30 text-rose-400"
+                }`}
+              >
+                {importingFile ? (
+                  <Sparkles className="w-6 h-6 animate-spin" />
+                ) : uploadedFileMeta ? (
+                  <FileCheck2 className="w-6 h-6" />
+                ) : (
+                  <FolderOpen className="w-6 h-6" />
+                )}
+              </div>
+
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs font-bold text-white uppercase tracking-wider font-sans">
+                    {uploadedFileMeta ? "File Loaded from File Manager" : "Upload from File Manager"}
+                  </span>
+                  {uploadedFileMeta?.language && (
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                      {uploadedFileMeta.language}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-300 font-sans mt-0.5">
+                  {uploadedFileMeta
+                    ? `${uploadedFileMeta.name} (${(uploadedFileMeta.size / 1024).toFixed(1)} KB) — Invariants extracted & problem formulated`
+                    : "Drag & drop any code file, SQL script, or notes from your computer, or click to browse your file manager."}
+                </p>
+                <span className="text-[10px] text-slate-500 font-mono mt-0.5 block">
+                  Accepted formats: .py, .java, .cpp, .c, .js, .ts, .sql, .rs, .go, .txt, .md, .json
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 shrink-0">
+              {uploadedFileMeta ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={importingFile}
+                    className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-semibold transition-all flex items-center space-x-1.5"
+                  >
+                    <FolderOpen className="w-3.5 h-3.5 text-rose-400" />
+                    <span>Change File</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUploadedFileMeta(null);
+                      setImportMessage(null);
+                    }}
+                    className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                    title="Clear file"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={importingFile}
+                  className="px-4 py-2.5 rounded-xl btn-shades-primary text-white font-semibold text-xs shadow-md transition-transform hover:scale-105 flex items-center space-x-2"
+                >
+                  {importingFile ? (
+                    <Sparkles className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <FolderOpen className="w-3.5 h-3.5" />
+                  )}
+                  <span>{importingFile ? "Analyzing File..." : "Browse File Manager"}</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
         {/* Quick Concept Presets for Custom User Input Mode */}
         {!isDemo && (
           <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
