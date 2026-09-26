@@ -55,6 +55,12 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    const targetSession = sessionId
+      ? store.getDiagnosticSession(sessionId)
+      : mode === "demo"
+      ? store.getDemoSession()
+      : store.getLatestSession();
+
     const learnerStates = store.getAllLearnerStates(sessionId);
     const metrics = store.calculateMetrics(sessionId);
     const activeBisect = store.getActiveBisectSession(sessionId);
@@ -70,6 +76,23 @@ export async function GET(req: NextRequest) {
     learnerStates.forEach((s) => {
       statesRecord[s.conceptId] = s;
     });
+
+    // If recovery was completed on the target session, ensure root gap reflects recovered state
+    if (targetSession && (targetSession.recoveryCompleted || targetSession.retestResult?.isCorrect)) {
+      const rootGap =
+        targetSession.bisectSession?.likelyRootGapId ||
+        targetSession.recoveryIntervention?.rootConceptId ||
+        targetSession.retestAssessment?.conceptId ||
+        "call_stack";
+      if (statesRecord[rootGap]) {
+        statesRecord[rootGap] = {
+          ...statesRecord[rootGap],
+          status: "recovered",
+          masteryScore: Math.max(90, statesRecord[rootGap].masteryScore || 92),
+          confidence: Math.max(90, statesRecord[rootGap].confidence || 95),
+        };
+      }
+    }
 
     return NextResponse.json(
       {

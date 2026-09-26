@@ -160,7 +160,10 @@ async function run() {
   );
 
   // 12. Causal DAG Graph State Consistency
-  const graphRes = await fetch(`${BASE_URL}/api/graph?sessionId=demo_dfs`);
+  const graphRes = await fetch(`${BASE_URL}/api/graph?sessionId=demo_dfs&_t=${Date.now()}`, {
+    cache: "no-store",
+    headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+  });
   const graphData = await graphRes.json();
   const graphCallStack = graphData.learnerStates?.call_stack;
   assert(
