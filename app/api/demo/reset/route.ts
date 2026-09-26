@@ -3,8 +3,11 @@ import { store } from "@/lib/storage/store";
 
 export async function POST() {
   store.resetDemoData();
-  return NextResponse.json({
+  const res = NextResponse.json({
     success: true,
     message: "ARCHAIA demo state successfully reset to initial seed.",
   });
+  res.cookies.delete("archaia_retest_recovered");
+  res.cookies.delete("archaia_retest_unresolved");
+  return res;
 }

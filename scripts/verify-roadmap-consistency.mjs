@@ -1,5 +1,7 @@
 const BASE_URL = process.env.TARGET_URL || "https://brocoders-rho.vercel.app";
 
+let cookieJar = "";
+
 async function freshFetch(url, options = {}) {
   const sep = url.includes("?") ? "&" : "?";
   const freshUrl = `${url}${sep}_t=${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -8,7 +10,37 @@ async function freshFetch(url, options = {}) {
     Pragma: "no-cache",
     ...(options.headers || {}),
   };
-  return fetch(freshUrl, { ...options, cache: "no-store", headers });
+  if (cookieJar) {
+    headers["Cookie"] = cookieJar;
+  }
+  const res = await fetch(freshUrl, { ...options, cache: "no-store", headers });
+  const setCookies = typeof res.headers.getSetCookie === "function"
+    ? res.headers.getSetCookie()
+    : [res.headers.get("set-cookie")].filter(Boolean);
+  if (setCookies && setCookies.length > 0) {
+    const cookieMap = new Map();
+    if (cookieJar) {
+      cookieJar.split(";").forEach((c) => {
+        const [k, ...v] = c.trim().split("=");
+        if (k) cookieMap.set(k.trim(), v.join("="));
+      });
+    }
+    setCookies.forEach((sc) => {
+      if (!sc) return;
+      const parts = sc.split(";")[0];
+      const [k, ...v] = parts.split("=");
+      if (k) {
+        const val = v.join("=");
+        if (!val || val === "" || sc.toLowerCase().includes("max-age=0")) {
+          cookieMap.delete(k.trim());
+        } else {
+          cookieMap.set(k.trim(), val);
+        }
+      }
+    });
+    cookieJar = Array.from(cookieMap.entries()).map(([k, v]) => `${k}=${v}`).join("; ");
+  }
+  return res;
 }
 
 async function run() {

@@ -77,12 +77,19 @@ export async function GET(req: NextRequest) {
       statesRecord[s.conceptId] = s;
     });
 
+    const recoveredCookie = req.cookies.get("archaia_retest_recovered")?.value;
+    const hasRecovered = Boolean(
+      recoveredCookie ||
+      (targetSession && (targetSession.recoveryCompleted || targetSession.retestResult?.isCorrect))
+    );
+
     // If recovery was completed on the target session, ensure root gap reflects recovered state
-    if (targetSession && (targetSession.recoveryCompleted || targetSession.retestResult?.isCorrect)) {
+    if (hasRecovered) {
       const rootGap =
-        targetSession.bisectSession?.likelyRootGapId ||
-        targetSession.recoveryIntervention?.rootConceptId ||
-        targetSession.retestAssessment?.conceptId ||
+        recoveredCookie ||
+        targetSession?.bisectSession?.likelyRootGapId ||
+        targetSession?.recoveryIntervention?.rootConceptId ||
+        targetSession?.retestAssessment?.conceptId ||
         "call_stack";
       if (statesRecord[rootGap]) {
         statesRecord[rootGap] = {

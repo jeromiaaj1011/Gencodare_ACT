@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
     const result = ReTestService.evaluateReTest(conceptId, selectedOptionId, sessionId);
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: true,
         sessionId,
@@ -36,6 +36,24 @@ export async function POST(req: NextRequest) {
         },
       }
     );
+
+    if (result.isCorrect) {
+      response.cookies.set("archaia_retest_recovered", conceptId || "call_stack", {
+        path: "/",
+        maxAge: 86400,
+        sameSite: "lax",
+      });
+      response.cookies.delete("archaia_retest_unresolved");
+    } else {
+      response.cookies.set("archaia_retest_unresolved", conceptId || "call_stack", {
+        path: "/",
+        maxAge: 86400,
+        sameSite: "lax",
+      });
+      response.cookies.delete("archaia_retest_recovered");
+    }
+
+    return response;
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },

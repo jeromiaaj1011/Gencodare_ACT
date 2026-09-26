@@ -35,19 +35,26 @@ export async function GET(req: NextRequest) {
     const effectiveSessionId = sessionId || (store.getMode() === "demo" ? "demo_dfs" : undefined);
     const targetSession = effectiveSessionId ? store.getDiagnosticSession(effectiveSessionId) : store.getLatestSession();
 
+    const recoveredCookie = req.cookies.get("archaia_retest_recovered")?.value;
+    const hasRecovered = Boolean(
+      recoveredCookie ||
+      (targetSession && (targetSession.recoveryCompleted || targetSession.retestResult?.isCorrect))
+    );
+
     // If recovery was completed or retest was passed, ensure the session's root gap concepts persist as recovered
-    if (targetSession && (targetSession.recoveryCompleted || targetSession.retestResult?.isCorrect)) {
+    if (hasRecovered) {
       const rootGap =
-        targetSession.bisectSession?.likelyRootGapId ||
-        targetSession.recoveryIntervention?.rootConceptId ||
-        targetSession.retestAssessment?.conceptId ||
+        recoveredCookie ||
+        targetSession?.bisectSession?.likelyRootGapId ||
+        targetSession?.recoveryIntervention?.rootConceptId ||
+        targetSession?.retestAssessment?.conceptId ||
         "call_stack";
 
       const conceptsToEnsure = new Set<string>();
       if (rootGap) conceptsToEnsure.add(rootGap);
-      if (targetSession.bisectSession?.likelyRootGapId) conceptsToEnsure.add(targetSession.bisectSession.likelyRootGapId);
-      if (targetSession.recoveryIntervention?.rootConceptId) conceptsToEnsure.add(targetSession.recoveryIntervention.rootConceptId);
-      if (targetSession.retestAssessment?.conceptId) conceptsToEnsure.add(targetSession.retestAssessment.conceptId);
+      if (targetSession?.bisectSession?.likelyRootGapId) conceptsToEnsure.add(targetSession.bisectSession.likelyRootGapId);
+      if (targetSession?.recoveryIntervention?.rootConceptId) conceptsToEnsure.add(targetSession.recoveryIntervention.rootConceptId);
+      if (targetSession?.retestAssessment?.conceptId) conceptsToEnsure.add(targetSession.retestAssessment.conceptId);
 
       for (const cId of conceptsToEnsure) {
         store.updateLearnerState(
@@ -89,11 +96,12 @@ export async function GET(req: NextRequest) {
     const allStates = new Map(states.map((s) => [s.conceptId, s]));
 
     // If recovery was completed, ensure root gap in allStates map reflects recovered status
-    if (targetSession && (targetSession.recoveryCompleted || targetSession.retestResult?.isCorrect)) {
+    if (hasRecovered) {
       const rootGap =
-        targetSession.bisectSession?.likelyRootGapId ||
-        targetSession.recoveryIntervention?.rootConceptId ||
-        targetSession.retestAssessment?.conceptId ||
+        recoveredCookie ||
+        targetSession?.bisectSession?.likelyRootGapId ||
+        targetSession?.recoveryIntervention?.rootConceptId ||
+        targetSession?.retestAssessment?.conceptId ||
         "call_stack";
 
       if (allStates.has(rootGap)) {
@@ -110,7 +118,8 @@ export async function GET(req: NextRequest) {
     const adaptivePath =
       targetSession?.adaptivePath &&
       targetSession.adaptivePath.length > 0 &&
-      (targetSession.recoveryCompleted || targetSession.retestResult?.isCorrect)
+      hasRecovered &&
+      targetSession.adaptivePath.some((p) => p.conceptId === "call_stack" && p.status === "mastered")
         ? targetSession.adaptivePath
         : calculatedPath;
 
