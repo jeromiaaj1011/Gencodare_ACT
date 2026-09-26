@@ -761,7 +761,21 @@ export default function DetectorPage() {
           </div>
         </div>
 
-        <form id="detector-form" onSubmit={handleAnalyze} className="space-y-4">
+        <form 
+          id="detector-form" 
+          onSubmit={handleAnalyze} 
+          className={`space-y-4 p-4 rounded-2xl border transition-all ${
+            isDemo 
+              ? "bg-amber-50/50 border-amber-500/30 ring-4 ring-amber-500/10" 
+              : "bg-white border-slate-200"
+          }`}
+        >
+          {isDemo && (
+            <div className="flex items-center space-x-2 text-amber-700 bg-amber-100/50 p-2.5 rounded-xl border border-amber-200 text-xs font-semibold mb-2">
+              <Sparkles className="w-4 h-4 text-amber-600" />
+              <span>READ-ONLY DEMO: This is a pre-filled benchmark scenario. You can run the analysis to see how ARCHAIA diagnoses cognitive gaps.</span>
+            </div>
+          )}
           {/* Active Course Concepts Quick Selector */}
           {currentMode === "course" && activeCourse?.concepts && activeCourse.concepts.length > 0 && (
             <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-500/30 space-y-2">
@@ -808,6 +822,7 @@ export default function DetectorPage() {
                 ref={topicInputRef}
                 type="text"
                 value={customConceptName}
+                readOnly={isDemo}
                 aria-required="true"
                 aria-invalid={validationError?.includes("topic") || validationError?.includes("concept") ? "true" : "false"}
                 aria-describedby="detector-concept-desc"
@@ -816,7 +831,7 @@ export default function DetectorPage() {
                   setValidationError(null);
                 }}
                 placeholder="e.g. Graph Traversal (DFS), Memory Pointer Aliasing..."
-                className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-500 focus:outline-none input-focus-glow font-sans"
+                className={`w-full px-3 py-2.5 rounded-xl border text-xs focus:outline-none input-focus-glow font-sans ${isDemo ? "bg-amber-100/30 border-amber-200 text-amber-900" : "bg-white border-slate-200 text-slate-900 placeholder-slate-500"}`}
               />
               <span id="detector-concept-desc" className="sr-only">
                 Enter the name of the concept or topic under diagnostic investigation.
@@ -848,6 +863,7 @@ export default function DetectorPage() {
               ref={questionInputRef}
               type="text"
               value={questionText}
+              readOnly={isDemo}
               aria-required="true"
               aria-invalid={validationError?.includes("question") ? "true" : "false"}
               aria-describedby="detector-question-desc"
@@ -856,7 +872,7 @@ export default function DetectorPage() {
                 setValidationError(null);
               }}
               placeholder="e.g. In recursive DFS, what happens to the execution state when a child returns?"
-              className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-500 focus:outline-none input-focus-glow font-sans"
+              className={`w-full px-3 py-2.5 rounded-xl border text-xs focus:outline-none input-focus-glow font-sans ${isDemo ? "bg-amber-100/30 border-amber-200 text-amber-900" : "bg-white border-slate-200 text-slate-900 placeholder-slate-500"}`}
             />
             <span id="detector-question-desc" className="sr-only">
               The specific question prompt or algorithmic problem scenario.
@@ -876,6 +892,7 @@ export default function DetectorPage() {
                 name="writtenResponse"
                 ref={reasoningInputRef}
                 value={writtenInput}
+                readOnly={isDemo}
                 aria-required="true"
                 aria-invalid={validationError?.includes("reasoning") || validationError?.includes("answer") ? "true" : "false"}
                 aria-describedby="detector-written-desc"
@@ -885,7 +902,7 @@ export default function DetectorPage() {
                 }}
                 rows={4}
                 placeholder="Explain your understanding or reasoning..."
-                className="w-full p-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 placeholder-slate-500 focus:outline-none input-focus-glow font-sans leading-relaxed resize-none"
+                className={`w-full p-3 rounded-xl border text-xs focus:outline-none input-focus-glow font-sans leading-relaxed resize-none ${isDemo ? "bg-amber-100/30 border-amber-200 text-amber-900" : "bg-white border-slate-200 text-slate-900 placeholder-slate-500"}`}
               />
               <span id="detector-written-desc" className="sr-only">
                 Explain your mental model and reasoning for automated misconception analysis.
@@ -904,6 +921,7 @@ export default function DetectorPage() {
                 name="codeResponse"
                 ref={codeInputRef}
                 value={codeInput}
+                readOnly={isDemo}
                 aria-required="true"
                 aria-invalid={validationError?.includes("code") ? "true" : "false"}
                 onChange={(e) => {
@@ -912,7 +930,7 @@ export default function DetectorPage() {
                 }}
                 rows={6}
                 placeholder="Paste code snippet here..."
-                className="w-full p-3 rounded-xl bg-white border border-slate-200 text-xs text-emerald-600 font-mono leading-relaxed resize-none focus:outline-none input-focus-glow"
+                className={`w-full p-3 rounded-xl border text-xs font-mono leading-relaxed resize-none focus:outline-none input-focus-glow ${isDemo ? "bg-amber-100/30 border-amber-200 text-emerald-800" : "bg-white border-slate-200 text-emerald-600"}`}
               />
             </div>
           )}
@@ -1045,7 +1063,7 @@ export default function DetectorPage() {
               <span>
                 {analyzing
                   ? `Analyzing "${customConceptName || "Topic"}"...`
-                  : "Analyze & Begin Investigation"}
+                  : isDemo ? "Run Demo Scenario" : "Analyze & Begin Investigation"}
               </span>
             </button>
           </div>
