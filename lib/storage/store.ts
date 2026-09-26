@@ -1,4 +1,4 @@
-﻿import {
+import {
   Concept,
   ConceptEdge,
   LearnerConceptState,
@@ -245,24 +245,17 @@ class DataStore {
           isCorrect: true,
           evidenceWeight: -35,
           timestamp: new Date().toISOString(),
-        },
-        {
-          probeId: "probe_stack_1",
-          conceptId: "call_stack",
-          selectedOptionId: "opt_stack_fail",
-          isCorrect: false,
-          evidenceWeight: 45,
-          timestamp: new Date().toISOString(),
         }
       ],
+      currentProbe: SEED_DIAGNOSTIC_PROBES.find((p) => p.id === "probe_stack_1"),
       candidateScores: {
         tree_traversal: 15,
         recursion: 50,
-        call_stack: 95,
+        call_stack: 70,
       },
-      status: "concluded",
-      likelyRootGapId: "call_stack",
-      conclusionReason: "Diagnostic micro-probes accumulated highest evidence weight on prerequisite concept 'Call Stack & LIFO Frames'."
+      status: "active",
+      likelyRootGapId: undefined,
+      conclusionReason: undefined
     };
 
     this.currentMode = "demo";
