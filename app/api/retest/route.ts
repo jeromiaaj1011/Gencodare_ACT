@@ -24,11 +24,18 @@ export async function POST(req: NextRequest) {
 
     const result = ReTestService.evaluateReTest(conceptId, selectedOptionId, sessionId);
 
-    return NextResponse.json({
-      success: true,
-      sessionId,
-      ...result,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        sessionId,
+        ...result,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },

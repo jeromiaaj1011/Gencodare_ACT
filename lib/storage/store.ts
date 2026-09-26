@@ -129,6 +129,13 @@ class DataStore {
           this.demoLearnerStates = new Map(parsed);
         }
       }
+
+      // 5. Load Demo Active Bisect Session
+      const demoBisectPath = path.join(SESSIONS_DIR, "demo_bisect.json");
+      if (fs.existsSync(demoBisectPath)) {
+        const raw = fs.readFileSync(demoBisectPath, "utf-8");
+        this.demoActiveBisect = JSON.parse(raw);
+      }
     } catch (e) {
       this.courseMaterials = [...SEED_COURSE_MATERIALS];
     }
@@ -240,12 +247,24 @@ class DataStore {
       status: "active",
     };
 
+    this.currentMode = "demo";
+
     try {
       ensureSessionsDir();
       const demoStatesPath = path.join(SESSIONS_DIR, "demo_learner_states.json");
       if (fs.existsSync(demoStatesPath)) {
         fs.unlinkSync(demoStatesPath);
       }
+      fs.writeFileSync(
+        path.join(SESSIONS_DIR, "demo_bisect.json"),
+        JSON.stringify(this.demoActiveBisect),
+        "utf-8"
+      );
+      fs.writeFileSync(
+        path.join(SESSIONS_DIR, "mode.json"),
+        JSON.stringify({ mode: "demo" }),
+        "utf-8"
+      );
     } catch (e) {}
   }
 
@@ -316,6 +335,23 @@ class DataStore {
   }
 
   public getDemoSession(): DiagnosticSession {
+    try {
+      ensureSessionsDir();
+      const demoStatesPath = path.join(SESSIONS_DIR, "demo_learner_states.json");
+      if (fs.existsSync(demoStatesPath)) {
+        const raw = fs.readFileSync(demoStatesPath, "utf-8");
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          this.demoLearnerStates = new Map(parsed);
+        }
+      }
+      const demoBisectPath = path.join(SESSIONS_DIR, "demo_bisect.json");
+      if (fs.existsSync(demoBisectPath)) {
+        const raw = fs.readFileSync(demoBisectPath, "utf-8");
+        this.demoActiveBisect = JSON.parse(raw);
+      }
+    } catch (e) {}
+
     const statesRecord: Record<string, LearnerConceptState> = {};
     this.demoLearnerStates.forEach((v, k) => {
       statesRecord[k] = { ...v };
@@ -586,6 +622,14 @@ class DataStore {
 
   public getActiveBisectSession(sessionId?: string, userId?: string): BisectSession | undefined {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
+      try {
+        ensureSessionsDir();
+        const demoBisectPath = path.join(SESSIONS_DIR, "demo_bisect.json");
+        if (fs.existsSync(demoBisectPath)) {
+          const raw = fs.readFileSync(demoBisectPath, "utf-8");
+          this.demoActiveBisect = JSON.parse(raw);
+        }
+      } catch (e) {}
       return this.demoActiveBisect;
     }
     if (sessionId) {
@@ -620,12 +664,28 @@ class DataStore {
       }
     }
 
+    try {
+      ensureSessionsDir();
+      const demoBisectPath = path.join(SESSIONS_DIR, "demo_bisect.json");
+      if (fs.existsSync(demoBisectPath)) {
+        const raw = fs.readFileSync(demoBisectPath, "utf-8");
+        this.demoActiveBisect = JSON.parse(raw);
+      }
+    } catch (e) {}
     return this.demoActiveBisect;
   }
 
   public setActiveBisectSession(session: BisectSession, sessionId?: string): void {
     if (sessionId === "demo" || sessionId === "demo_dfs") {
       this.demoActiveBisect = session;
+      try {
+        ensureSessionsDir();
+        fs.writeFileSync(
+          path.join(SESSIONS_DIR, "demo_bisect.json"),
+          JSON.stringify(session),
+          "utf-8"
+        );
+      } catch (e) {}
       return;
     }
     const diagSession = sessionId ? this.getDiagnosticSession(sessionId) : this.getLatestSession();

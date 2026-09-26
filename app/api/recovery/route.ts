@@ -49,12 +49,19 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      concept,
-      intervention,
-      retest,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        concept,
+        intervention,
+        retest,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },

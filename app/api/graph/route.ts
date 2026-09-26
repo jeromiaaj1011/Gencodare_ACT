@@ -71,19 +71,28 @@ export async function GET(req: NextRequest) {
       statesRecord[s.conceptId] = s;
     });
 
-    return NextResponse.json({
-      success: true,
-      isEmpty: false,
-      mode,
-      activeCourse,
-      concepts,
-      edges,
-      positions: positionsRecord,
-      canvasSize: { width, height },
-      learnerStates: statesRecord,
-      metrics,
-      activeBisect,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        isEmpty: false,
+        mode,
+        activeCourse,
+        concepts,
+        edges,
+        positions: positionsRecord,
+        canvasSize: { width, height },
+        learnerStates: statesRecord,
+        metrics,
+        activeBisect,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },

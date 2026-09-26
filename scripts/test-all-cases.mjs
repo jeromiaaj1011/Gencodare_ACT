@@ -26,13 +26,25 @@ function report(caseName, ok, details = "") {
 }
 
 async function runAllCases() {
+  // Pre-suite initialization: Ensure clean starting state
+  try {
+    await fetch(`${BASE_URL}/api/course`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode: "demo" }),
+    });
+    await fetch(`${BASE_URL}/api/demo/reset`, { method: "POST" });
+  } catch (e) {}
+
   console.log("-------------------------------------------------------------------------------");
   console.log(" [CASE 1] Mode A — Canonical Hackathon Demo Workflow (End-to-End)");
   console.log("-------------------------------------------------------------------------------");
 
   // 1.1 Verify Mode is Demo
   try {
-    const res = await fetch(`${BASE_URL}/api/course`);
+    const res = await fetch(`${BASE_URL}/api/course`, {
+      headers: { "Cache-Control": "no-cache" },
+    });
     const data = await res.json();
     report("1.1 Mode Detection", data.success && data.mode === "demo", `Current Mode: ${data.mode}`);
   } catch (e) {
@@ -187,7 +199,10 @@ async function runAllCases() {
 
   // 1.8 GET /api/graph to verify DAG states and metrics update
   try {
-    const res = await fetch(`${BASE_URL}/api/graph?sessionId=demo_dfs`);
+    const res = await fetch(`${BASE_URL}/api/graph?sessionId=demo_dfs`, {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache" },
+    });
     const data = await res.json();
     const callStackState = data.learnerStates?.["call_stack"];
     const ok =

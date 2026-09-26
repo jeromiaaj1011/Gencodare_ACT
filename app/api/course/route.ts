@@ -10,12 +10,19 @@ export async function GET() {
     const activeCourse = store.getActiveCourse();
     const courses = store.getCourseMaterials();
 
-    return NextResponse.json({
-      success: true,
-      mode,
-      activeCourse,
-      courses,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        mode,
+        activeCourse,
+        courses,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
@@ -30,15 +37,22 @@ export async function POST(req: NextRequest) {
     const { action } = body;
 
     // Action 1: Switch Mode
-    if (action === "setMode") {
+    if (action === "setMode" || (body.mode && !action)) {
       const targetMode = body.mode === "course" ? "course" : "demo";
       store.setMode(targetMode);
-      return NextResponse.json({
-        success: true,
-        mode: targetMode,
-        activeCourse: store.getActiveCourse(),
-        message: `Switched to ${targetMode.toUpperCase()} MODE.`,
-      });
+      return NextResponse.json(
+        {
+          success: true,
+          mode: targetMode,
+          activeCourse: store.getActiveCourse(),
+          message: `Switched to ${targetMode.toUpperCase()} MODE.`,
+        },
+        {
+          headers: {
+            "Cache-Control": "no-store, no-cache, must-revalidate",
+          },
+        }
+      );
     }
 
     // Action 2: Set Active Course

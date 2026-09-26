@@ -34,13 +34,20 @@ export async function GET(req: NextRequest) {
     ? dagEngine.getConcept(session.likelyRootGapId)
     : undefined;
 
-  return NextResponse.json({
-    success: true,
-    hasActiveSession: true,
-    session,
-    currentProbe: session.currentProbe,
-    rootConcept,
-  });
+  return NextResponse.json(
+    {
+      success: true,
+      hasActiveSession: true,
+      session,
+      currentProbe: session.currentProbe,
+      rootConcept,
+    },
+    {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
+    }
+  );
 }
 
 export async function POST(req: NextRequest) {
@@ -77,14 +84,21 @@ export async function POST(req: NextRequest) {
       ? dagEngine.getConcept(result.session.likelyRootGapId)
       : undefined;
 
-    return NextResponse.json({
-      success: true,
-      isCorrect: result.isCorrect,
-      evidenceFeedback: result.evidenceFeedback,
-      concluded: result.concluded,
-      session: result.session,
-      rootConcept,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        isCorrect: result.isCorrect,
+        evidenceFeedback: result.evidenceFeedback,
+        concluded: result.concluded,
+        session: result.session,
+        rootConcept,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
