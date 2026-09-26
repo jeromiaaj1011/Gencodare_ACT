@@ -226,7 +226,7 @@ export default function RecoveryPage() {
     }
   };
 
-  if (loading) {
+  if (loading && !intervention) {
     return (
       <div className="space-y-6 max-w-6xl mx-auto py-12">
         <h1 className="sr-only">Targeted Recovery Lab Studio</h1>

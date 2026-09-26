@@ -44,7 +44,6 @@ export default function ContentModeBanner({ onModeChange, className = "" }: Bann
         setMode(data.mode || "demo");
         setActiveCourse(data.activeCourse || null);
         setCourses(data.courses || []);
-        if (onModeChange) onModeChange(data.mode, data.activeCourse);
       }
     } catch (e) {
       console.error(e);
