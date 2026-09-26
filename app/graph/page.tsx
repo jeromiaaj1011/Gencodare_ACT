@@ -283,7 +283,7 @@ export default function GraphPage() {
                 <div key={concept.id} className="p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <h3 className="font-bold text-slate-900 flex items-center space-x-2">
-                      <span>{concept.title}</span>
+                      <span>{concept.name}</span>
                       {isMastered && <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Mastered</span>}
                       {isGap && <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">Gap Detected</span>}
                     </h3>
