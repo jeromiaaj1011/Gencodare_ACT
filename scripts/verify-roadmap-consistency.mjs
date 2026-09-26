@@ -120,7 +120,10 @@ async function run() {
   );
 
   // 9. Step 4 Adaptive Roadmap BEFORE refresh (with sessionId)
-  const pathBeforeRes = await fetch(`${BASE_URL}/api/adaptive-path?sessionId=demo_dfs`);
+  const pathBeforeRes = await fetch(`${BASE_URL}/api/adaptive-path?sessionId=demo_dfs`, {
+    cache: "no-store",
+    headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+  });
   const pathBeforeData = await pathBeforeRes.json();
   const callStackBefore = pathBeforeData.adaptivePath?.find((p) => p.conceptId === "call_stack");
   const recBefore = pathBeforeData.adaptivePath?.find((p) => p.conceptId === "recursion");
