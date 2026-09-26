@@ -1,5 +1,16 @@
 const BASE_URL = process.env.TARGET_URL || "https://brocoders-rho.vercel.app";
 
+async function freshFetch(url, options = {}) {
+  const sep = url.includes("?") ? "&" : "?";
+  const freshUrl = `${url}${sep}_t=${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const headers = {
+    "Cache-Control": "no-store, no-cache, must-revalidate",
+    Pragma: "no-cache",
+    ...(options.headers || {}),
+  };
+  return fetch(freshUrl, { ...options, cache: "no-store", headers });
+}
+
 async function run() {
   console.log("===============================================================================");
   console.log(" ARCHAIA ADAPTIVE ROADMAP REFRESH-CONSISTENCY VERIFICATION SUITE");
@@ -20,11 +31,11 @@ async function run() {
   }
 
   // 1. Reset demo state
-  const resetRes = await fetch(`${BASE_URL}/api/demo/reset`, { method: "POST" });
+  const resetRes = await freshFetch(`${BASE_URL}/api/demo/reset`, { method: "POST" });
   assert("1. Demo State Reset", resetRes.ok);
 
   // 2. Step 1 Detector Analysis
-  const analyzeRes = await fetch(`${BASE_URL}/api/analyze`, {
+  const analyzeRes = await freshFetch(`${BASE_URL}/api/analyze`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -46,11 +57,11 @@ async function run() {
   );
 
   // 3. Step 2 Cognitive Bisect Probe & Answer
-  const bisectStartRes = await fetch(`${BASE_URL}/api/bisect?sessionId=demo_dfs`);
+  const bisectStartRes = await freshFetch(`${BASE_URL}/api/bisect?sessionId=demo_dfs`);
   const bisectStartData = await bisectStartRes.json();
   const probeId = bisectStartData.currentProbe?.id || "probe_call_stack_frames";
 
-  const bisectAnsRes = await fetch(`${BASE_URL}/api/bisect`, {
+  const bisectAnsRes = await freshFetch(`${BASE_URL}/api/bisect`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -67,16 +78,18 @@ async function run() {
   );
 
   // 4. Step 3 Recovery Lab Intervention & Assessment Load
-  const recoveryRes = await fetch(`${BASE_URL}/api/recovery?sessionId=demo_dfs&conceptId=call_stack`);
+  const recoveryRes = await freshFetch(`${BASE_URL}/api/recovery?sessionId=demo_dfs&conceptId=call_stack`);
   const recoveryData = await recoveryRes.json();
   assert(
     "4. Step 3 Recovery Lab Intervention Retrieval",
-    recoveryData.success && recoveryData.intervention?.id && (recoveryData.retest?.id || recoveryData.retestAssessment?.id),
-    `Intervention: ${recoveryData.intervention?.id}, Assessment: ${recoveryData.retest?.id || recoveryData.retestAssessment?.id}`
+    recoveryData.success &&
+      recoveryData.intervention?.id === "intervention_call_stack" &&
+      recoveryData.retest?.id === "retest_call_stack_1",
+    `Intervention: ${recoveryData.intervention?.id}, Assessment: ${recoveryData.retest?.id}`
   );
 
-  // 5. Empty re-test validation (expect 400 error)
-  const emptyRetestRes = await fetch(`${BASE_URL}/api/retest`, {
+  // 5. Empty re-test validation (HTTP 400 rejection)
+  const emptyRetestRes = await freshFetch(`${BASE_URL}/api/retest`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ sessionId: "demo_dfs", conceptId: "call_stack", selectedOptionId: "" }),
@@ -84,7 +97,7 @@ async function run() {
   assert("5. Empty Re-Test Rejection (HTTP 400)", emptyRetestRes.status === 400, `HTTP ${emptyRetestRes.status}`);
 
   // 6. Incorrect re-test handling (opt rt_1 is incorrect)
-  const incRetestRes = await fetch(`${BASE_URL}/api/retest`, {
+  const incRetestRes = await freshFetch(`${BASE_URL}/api/retest`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ sessionId: "demo_dfs", conceptId: "call_stack", selectedOptionId: "rt_1" }),
@@ -97,7 +110,7 @@ async function run() {
   );
 
   // 7. Invariant check on incorrect re-test (recursion must remain locked)
-  const incPathRes = await fetch(`${BASE_URL}/api/adaptive-path?sessionId=demo_dfs`);
+  const incPathRes = await freshFetch(`${BASE_URL}/api/adaptive-path?sessionId=demo_dfs`);
   const incPathData = await incPathRes.json();
   const recItemInc = incPathData.adaptivePath?.find((p) => p.conceptId === "recursion");
   assert(
@@ -107,7 +120,7 @@ async function run() {
   );
 
   // 8. Correct re-test handling (opt rt_2 is correct)
-  const corRetestRes = await fetch(`${BASE_URL}/api/retest`, {
+  const corRetestRes = await freshFetch(`${BASE_URL}/api/retest`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ sessionId: "demo_dfs", conceptId: "call_stack", selectedOptionId: "rt_2" }),
@@ -120,10 +133,7 @@ async function run() {
   );
 
   // 9. Step 4 Adaptive Roadmap BEFORE refresh (with sessionId)
-  const pathBeforeRes = await fetch(`${BASE_URL}/api/adaptive-path?sessionId=demo_dfs`, {
-    cache: "no-store",
-    headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
-  });
+  const pathBeforeRes = await freshFetch(`${BASE_URL}/api/adaptive-path?sessionId=demo_dfs`);
   const pathBeforeData = await pathBeforeRes.json();
   const callStackBefore = pathBeforeData.adaptivePath?.find((p) => p.conceptId === "call_stack");
   const recBefore = pathBeforeData.adaptivePath?.find((p) => p.conceptId === "recursion");
@@ -134,9 +144,7 @@ async function run() {
   );
 
   // 10. Step 4 Adaptive Roadmap AFTER refresh (simulating browser reload with sessionId)
-  const pathAfterRes = await fetch(`${BASE_URL}/api/adaptive-path?sessionId=demo_dfs`, {
-    headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
-  });
+  const pathAfterRes = await freshFetch(`${BASE_URL}/api/adaptive-path?sessionId=demo_dfs`);
   const pathAfterData = await pathAfterRes.json();
   const callStackAfter = pathAfterData.adaptivePath?.find((p) => p.conceptId === "call_stack");
   const recAfter = pathAfterData.adaptivePath?.find((p) => p.conceptId === "recursion");
@@ -147,9 +155,7 @@ async function run() {
   );
 
   // 11. Step 4 Adaptive Roadmap AFTER refresh WITHOUT query params
-  const pathNoParamRes = await fetch(`${BASE_URL}/api/adaptive-path`, {
-    headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
-  });
+  const pathNoParamRes = await freshFetch(`${BASE_URL}/api/adaptive-path`);
   const pathNoParamData = await pathNoParamRes.json();
   const callStackNoParam = pathNoParamData.adaptivePath?.find((p) => p.conceptId === "call_stack");
   const recNoParam = pathNoParamData.adaptivePath?.find((p) => p.conceptId === "recursion");
@@ -160,10 +166,7 @@ async function run() {
   );
 
   // 12. Causal DAG Graph State Consistency
-  const graphRes = await fetch(`${BASE_URL}/api/graph?sessionId=demo_dfs&_t=${Date.now()}`, {
-    cache: "no-store",
-    headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
-  });
+  const graphRes = await freshFetch(`${BASE_URL}/api/graph?sessionId=demo_dfs`);
   const graphData = await graphRes.json();
   const graphCallStack = graphData.learnerStates?.call_stack;
   assert(
