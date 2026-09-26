@@ -446,6 +446,21 @@ COMMIT;`,
       evidence: `Student asserted: "${answer.substring(0, 140)}"`,
     };
 
+    concepts.push({
+      id: misconception.id,
+      name: misconception.name,
+      category: "Misconception",
+      description: misconception.description,
+      prerequisites: ["mvcc_snapshots"],
+      difficulty: "advanced",
+      estimatedMinutes: 0,
+    });
+    edges.push({
+      from: "mvcc_snapshots",
+      to: misconception.id,
+      rationale: "Manifestation of the flawed mental model.",
+    });
+
     return {
       hasMisconception: true,
       misconception,
@@ -1050,6 +1065,23 @@ public class Main {
       evidence: `Student stated: "${answer.substring(0, 140)}"`,
     };
 
+    if (!isSound) {
+      concepts.push({
+        id: misconception.id,
+        name: misconception.name,
+        category: "Misconception",
+        description: misconception.description,
+        prerequisites: ["dynamic_method_dispatch"],
+        difficulty: "advanced",
+        estimatedMinutes: 0,
+      });
+      edges.push({
+        from: "dynamic_method_dispatch",
+        to: misconception.id,
+        rationale: "Manifestation of the flawed mental model.",
+      });
+    }
+
     return {
       hasMisconception: !isSound,
       misconception: isSound ? undefined : misconception,
@@ -1286,6 +1318,22 @@ public class Main {
     confidence: 88,
     evidence: `Student asserted: "${answer.substring(0, 140)}"`,
   };
+
+  concepts.push({
+    id: misconception.id,
+    name: misconception.name,
+    category: "Misconception",
+    description: misconception.description,
+    prerequisites: [c4Id],
+    difficulty: "advanced",
+    estimatedMinutes: 0,
+  });
+
+  edges.push({
+    from: c4Id,
+    to: misconception.id,
+    rationale: "Manifestation of the flawed mental model.",
+  });
 
   return {
     hasMisconception: true,

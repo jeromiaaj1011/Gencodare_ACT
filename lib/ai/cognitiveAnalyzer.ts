@@ -144,6 +144,23 @@ Return ONLY valid JSON matching this schema:
               }
             : undefined;
 
+          if (parsed.hasMisconception && misconception) {
+            parsed.concepts.push({
+              id: misconception.id,
+              name: misconception.name,
+              category: "Misconception",
+              description: misconception.description,
+              prerequisites: [targetConceptId],
+              difficulty: "advanced",
+              estimatedMinutes: 0,
+            });
+            parsed.edges.push({
+              from: targetConceptId,
+              to: misconception.id,
+              rationale: "Manifestation of the flawed mental model.",
+            });
+          }
+
           const recoveryIntervention: InterventionContent = {
             id: `recovery_${rootConceptId}`,
             rootConceptId,

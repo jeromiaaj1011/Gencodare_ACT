@@ -137,17 +137,20 @@ export async function POST(req: NextRequest) {
 
     // Prepare session-scoped learner states for the generated topic DAG
     const statesRecord: Record<string, LearnerConceptState> = {};
-    const targetId = analysis.concepts[analysis.concepts.length - 1]?.id || (conceptId || activeTopic);
+    
+    // Find the main target topic (excluding the explicitly injected misconception concept)
+    const nonMiscConcepts = analysis.concepts.filter(c => c.category !== "Misconception");
+    const targetId = nonMiscConcepts[nonMiscConcepts.length - 1]?.id || (conceptId || activeTopic);
 
     analysis.concepts.forEach((c, idx) => {
-      const isTarget = c.id === targetId || idx === analysis.concepts.length - 1;
-      const isFoundational = idx === 0 && analysis.concepts.length > 2;
+      const isTarget = c.id === targetId || (c.category !== "Misconception" && idx === nonMiscConcepts.length - 1);
+      const isFoundational = idx === 0 && nonMiscConcepts.length > 2;
 
       statesRecord[c.id] = {
         conceptId: c.id,
-        masteryScore: analysis.hasMisconception ? (isTarget ? 45 : isFoundational ? 85 : 60) : 92,
+        masteryScore: analysis.hasMisconception ? (c.category === "Misconception" ? 10 : isTarget ? 45 : isFoundational ? 85 : 60) : 92,
         status: analysis.hasMisconception
-          ? isTarget
+          ? c.category === "Misconception" || isTarget
             ? "misconception_detected"
             : isFoundational
             ? "mastered"
